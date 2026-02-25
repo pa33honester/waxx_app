@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>797907698440-mg9790l3bc3bekmiiidddt4u0v2s048a.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.797907698440-mg9790l3bc3bekmiiidddt4u0v2s048a</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>797907698440-0uj5fbtgdl0olnkimpchq27lem9bn3dj.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyA6HX1JNBxx6Cndt369r_Xfx4cgxcuA7ic</string>
+	<key>GCM_SENDER_ID</key>
+	<string>797907698440</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.erashop.live</string>
+	<key>PROJECT_ID</key>
+	<string>era-shop-cf3c0</string>
+	<key>STORAGE_BUCKET</key>
+	<string>era-shop-cf3c0.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:797907698440:ios:4842469e6f37a4135fa2bd</string>
+</dict>
+</plist>

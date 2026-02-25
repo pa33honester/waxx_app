@@ -1,0 +1,59 @@
+import 'dart:convert';
+import 'dart:developer';
+import 'package:era_shop/user_pages/user_auction_bid/model/product_wise_user_auction_bid_model.dart';
+import 'package:era_shop/user_pages/user_auction_bid/model/user_auction_bid_model.dart';
+import 'package:era_shop/utils/api_url.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+
+class UserAuctionBidApi extends GetxService {
+  Future<UserAuctionBidModel?> userAuctionBid({
+    required String userId,
+  }) async {
+    final url = Uri.parse("${Api.baseUrl + Api.getUserAuctionBids}?userId=$userId");
+
+    final headers = {
+      'key': Api.secretKey,
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+
+    final response = await http.get(
+      url,
+      headers: headers,
+    );
+
+    log('USER AUCTION BID API STATUS CODE :: ${response.statusCode} \n RESPONSE :: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      return UserAuctionBidModel.fromJson(jsonResponse);
+    } else {
+      throw Exception('Status code is not 200');
+    }
+  }
+
+  Future<ProductWiseUserAuctionBidModel?> productWiseUserAuctionBid({
+    required String productId,
+  }) async {
+    final url = Uri.parse("${Api.baseUrl + Api.getProductWiseUserBids}?productId=$productId");
+
+    final headers = {
+      'key': Api.secretKey,
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+
+    final response = await http.get(
+      url,
+      headers: headers,
+    );
+
+    log('PRODUCT WISE USER AUCTION BID API STATUS CODE :: ${response.statusCode} \n RESPONSE :: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      return ProductWiseUserAuctionBidModel.fromJson(jsonResponse);
+    } else {
+      throw Exception('Status code is not 200');
+    }
+  }
+}

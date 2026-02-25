@@ -1,0 +1,88 @@
+class FakeCommentModel {
+  String message;
+  String user;
+  String image;
+
+  FakeCommentModel({required this.message, required this.user, required this.image});
+}
+
+List<String> fakeImages = [
+  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=688&q=80",
+  "https://images.unsplash.com/photo-1552058544-f2b08422138a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=699&q=80",
+  "https://images.unsplash.com/photo-1554151228-14d9def656e4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=686&q=80",
+  "https://images.unsplash.com/photo-1500048993953-d23a436266cf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1169&q=80",
+  "https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+  "https://images.unsplash.com/photo-1496302662116-35cc4f36df92?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+  "https://images.unsplash.com/photo-1500259783852-0ca9ce8a64dc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=764&q=80",
+  "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=761&q=80",
+  "https://images.unsplash.com/photo-1555952517-2e8e729e0b44?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=764&q=80",
+  "https://images.unsplash.com/photo-1542206395-9feb3edaa68d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=764&q=80"
+];
+
+List<String> fakeNames = ["Edward Baily", "Thomas ", "Lily Adams", "lsabella kennedy", "Charlotte Beiley", "Dainel Marshall", "Bailey Mia", "Isabella"];
+
+List<FakeCommentModel> fakeCommentData = [
+  FakeCommentModel(message: "How are You?", user: fakeNames[0], image: fakeImages[0]),
+  FakeCommentModel(message: "Hello Dear", user: fakeNames[0], image: fakeImages[1]),
+  FakeCommentModel(message: "9876543210 it is my mobile number", user: fakeNames[1], image: fakeImages[2]),
+  FakeCommentModel(message: "Your Hotness is beating me everytime?", user: fakeNames[2], image: fakeImages[3]),
+  FakeCommentModel(message: "i drop my cap for you?", user: fakeNames[3], image: fakeImages[4]),
+  FakeCommentModel(message: "classy shot and awesome background too", user: fakeNames[4], image: fakeImages[5]),
+  FakeCommentModel(message: "give me your mobile number", user: fakeNames[5], image: fakeImages[6]),
+  FakeCommentModel(message: "can we talk?", user: fakeNames[2], image: fakeImages[7]),
+  FakeCommentModel(message: "looking very very hot", user: fakeNames[6], image: fakeImages[8]),
+  FakeCommentModel(message: "let's hangout", user: fakeNames[4], image: fakeImages[9]),
+  FakeCommentModel(message: "Joined", user: fakeNames[0], image: fakeImages[0]),
+  FakeCommentModel(message: "Hello Dear", user: fakeNames[0], image: fakeImages[1]),
+  FakeCommentModel(message: "9876543210 it is my mobile number", user: fakeNames[1], image: fakeImages[2]),
+  FakeCommentModel(message: "Your Hotness is beating me everytime?", user: fakeNames[2], image: fakeImages[3]),
+  FakeCommentModel(message: "i drop my cap for you?", user: fakeNames[3], image: fakeImages[4]),
+  FakeCommentModel(message: "classy shot and awesome background too", user: fakeNames[4], image: fakeImages[5]),
+  FakeCommentModel(message: "give me your mobile number", user: fakeNames[5], image: fakeImages[6]),
+  FakeCommentModel(message: "Joined", user: fakeNames[7], image: fakeImages[6]),
+  FakeCommentModel(message: "can we talk?", user: fakeNames[1], image: fakeImages[7]),
+  FakeCommentModel(message: "looking very very hot", user: fakeNames[6], image: fakeImages[8]),
+  FakeCommentModel(message: "let's hangout", user: fakeNames[3], image: fakeImages[9]),
+  FakeCommentModel(message: "How are You?", user: fakeNames[4], image: fakeImages[0]),
+  FakeCommentModel(message: "Hello Dear", user: fakeNames[0], image: fakeImages[1]),
+  FakeCommentModel(message: "9876543210 it is my mobile number", user: fakeNames[7], image: fakeImages[2]),
+  FakeCommentModel(message: "Joined", user: fakeNames[0], image: fakeImages[3]),
+  FakeCommentModel(message: "i drop my cap for you?", user: fakeNames[1], image: fakeImages[4]),
+  FakeCommentModel(message: "classy shot and awesome background too", user: fakeNames[2], image: fakeImages[5]),
+  FakeCommentModel(message: "give me your mobile number", user: fakeNames[3], image: fakeImages[6]),
+  FakeCommentModel(message: "can we talk?", user: fakeNames[1], image: fakeImages[7]),
+  FakeCommentModel(message: "looking very very hot", user: fakeNames[4], image: fakeImages[8]),
+  FakeCommentModel(message: "let's hangout", user: fakeNames[3], image: fakeImages[9]),
+  FakeCommentModel(message: "How are You?", user: fakeNames[4], image: fakeImages[0]),
+  FakeCommentModel(message: "Hello Dear", user: fakeNames[0], image: fakeImages[1]),
+  FakeCommentModel(message: "9876543210 it is my mobile number", user: fakeNames[5], image: fakeImages[2]),
+  FakeCommentModel(message: "Your Hotness is beating me everytime?", user: fakeNames[6], image: fakeImages[3]),
+  FakeCommentModel(message: "Joined", user: fakeNames[0], image: fakeImages[1]),
+  FakeCommentModel(message: "i drop my cap for you?", user: fakeNames[7], image: fakeImages[4]),
+  FakeCommentModel(message: "classy shot and awesome background too", user: fakeNames[0], image: fakeImages[5]),
+  FakeCommentModel(message: "give me your mobile number", user: fakeNames[1], image: fakeImages[6]),
+  FakeCommentModel(message: "can we talk?", user: fakeNames[1], image: fakeImages[7]),
+  FakeCommentModel(message: "looking very very hot", user: fakeNames[2], image: fakeImages[8]),
+  FakeCommentModel(message: "let's hangout", user: fakeNames[3], image: fakeImages[9]),
+  FakeCommentModel(message: "Joined", user: fakeNames[4], image: fakeImages[0]),
+  FakeCommentModel(message: "Hello Dear", user: fakeNames[0], image: fakeImages[1]),
+  FakeCommentModel(message: "9876543210 it is my mobile number", user: fakeNames[3], image: fakeImages[2]),
+  FakeCommentModel(message: "Your Hotness is beating me everytime?", user: fakeNames[4], image: fakeImages[3]),
+  FakeCommentModel(message: "i drop my cap for you?", user: fakeNames[5], image: fakeImages[4]),
+  FakeCommentModel(message: "classy shot and awesome background too", user: fakeNames[6], image: fakeImages[5]),
+  FakeCommentModel(message: "Joined", user: fakeNames[3], image: fakeImages[9]),
+  FakeCommentModel(message: "give me your mobile number", user: fakeNames[7], image: fakeImages[6]),
+  FakeCommentModel(message: "can we talk?", user: fakeNames[1], image: fakeImages[7]),
+  FakeCommentModel(message: "looking very very hot", user: fakeNames[0], image: fakeImages[8]),
+  FakeCommentModel(message: "Joined", user: fakeNames[3], image: fakeImages[9]),
+  FakeCommentModel(message: "How are You?", user: fakeNames[4], image: fakeImages[0]),
+  FakeCommentModel(message: "Hello Dear", user: fakeNames[0], image: fakeImages[1]),
+  FakeCommentModel(message: "9876543210 it is my mobile number", user: fakeNames[1], image: fakeImages[2]),
+  FakeCommentModel(message: "Your Hotness is beating me everytime?", user: fakeNames[2], image: fakeImages[3]),
+  FakeCommentModel(message: "i drop my cap for you?", user: fakeNames[3], image: fakeImages[4]),
+  FakeCommentModel(message: "classy shot and awesome background too", user: fakeNames[4], image: fakeImages[5]),
+  FakeCommentModel(message: "give me your mobile number", user: fakeNames[5], image: fakeImages[6]),
+  FakeCommentModel(message: "Joined", user: fakeNames[1], image: fakeImages[7]),
+  FakeCommentModel(message: "looking very very hot", user: fakeNames[6], image: fakeImages[8]),
+  FakeCommentModel(message: "let's hangout", user: fakeNames[7], image: fakeImages[9]),
+];

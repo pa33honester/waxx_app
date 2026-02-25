@@ -1,0 +1,242 @@
+{
+  "project_info": {
+    "project_number": "797907698440",
+    "project_id": "era-shop-cf3c0",
+    "storage_bucket": "era-shop-cf3c0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:797907698440:android:0b64669492c453cf5fa2bd",
+        "android_client_info": {
+          "package_name": "com.erashop.live"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "797907698440-0uj5fbtgdl0olnkimpchq27lem9bn3dj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.erashop.live",
+            "certificate_hash": "97c198100bb27e82a1c25c009772058043f339f2"
+          }
+        },
+        {
+          "client_id": "797907698440-404mioof8d1en5d9glqfhf3jie799ke6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.erashop.live",
+            "certificate_hash": "60d5d60d44bebd396b095c23310d6e155b5eb17a"
+          }
+        },
+        {
+          "client_id": "797907698440-4hghqo994t0pkfdsoe8j35tna00sntqo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.erashop.live",
+            "certificate_hash": "5acbd158c2f7f6daa55c62290b66c48b558d2c88"
+          }
+        },
+        {
+          "client_id": "797907698440-8u458v44bkafa95ba0msgd5mtutuh3b1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.erashop.live",
+            "certificate_hash": "c6bc57bbe973d200b7686de2e8ed56995e8ca6d1"
+          }
+        },
+        {
+          "client_id": "797907698440-sri2qtpsldrqeg8j77t72h6cbj8ooame.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.erashop.live",
+            "certificate_hash": "1ce78f0a4b2a8234bc53da7aa010e78f77f4baab"
+          }
+        },
+        {
+          "client_id": "797907698440-u5vaf65o2mh2njgn6bnv9ua8cpnqjl92.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.erashop.live",
+            "certificate_hash": "b5a71f98f5215a3a72835e2c6e5d406bcae1d9cd"
+          }
+        },
+        {
+          "client_id": "797907698440-c3t9il1khmvj6ii4k5al2pblp6k2nu1n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdycMpblxwRYvlQeZYlHOedEigBUoaD5o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "797907698440-4jilo37ekcub341irah38uppoi8h0lvg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "797907698440-mg9790l3bc3bekmiiidddt4u0v2s048a.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.erashop.live"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:797907698440:android:07569e3cffa9f1455fa2bd",
+        "android_client_info": {
+          "package_name": "com.incodes.erashop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "797907698440-031o5u7l8b6bodk1k80t43c6tnm83cor.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "2409367921ea9a5088d3938f1935c87c624615f1"
+          }
+        },
+        {
+          "client_id": "797907698440-0pdu15srl1jt10qha3ui1i5goo5kqdf3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "3c1a1daebe41c20622eb6de28f0a4f1fa3aa8159"
+          }
+        },
+        {
+          "client_id": "797907698440-54vj6fbtgghfcdev7o1pun1udi18v29p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "b06949a038a27919bcae9b0db47b59111b14d0ec"
+          }
+        },
+        {
+          "client_id": "797907698440-8bcaot2cta4fdqidhirjvb7vp2177or4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "ae78741b96bc412c018c2398a45c6fceb6f89616"
+          }
+        },
+        {
+          "client_id": "797907698440-ba241rfnrppc71rq6vqag151fsldhrde.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "66e21b469b6e9276b16b99ec4d1b31ed695dad52"
+          }
+        },
+        {
+          "client_id": "797907698440-bvgbo2mmrscdt0gra8d41gt11av7h8ns.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "e64eb2db8decac14eb76afc5b201634b43c2c5cd"
+          }
+        },
+        {
+          "client_id": "797907698440-e0bdkd2ti5unv2d80mmbs31mchomn87m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "97c198100bb27e82a1c25c009772058043f339f2"
+          }
+        },
+        {
+          "client_id": "797907698440-eq4e9j182q7en8e238e588eovsgekv4v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "625768d98ff6f05ddc9910f23cf31318661a2eb3"
+          }
+        },
+        {
+          "client_id": "797907698440-gr5v12mk9e7g2dbe3vosbi41bim2n9d4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "d2b4be5182bb7d0e840ab1e14d20a374f3406f72"
+          }
+        },
+        {
+          "client_id": "797907698440-jrjoptlh5fdnr4kbu835stp36rh6vpam.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "5acbd158c2f7f6daa55c62290b66c48b558d2c88"
+          }
+        },
+        {
+          "client_id": "797907698440-odhrgbafv63ur8sao5fe697adpf6rqkn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "b5a71f98f5215a3a72835e2c6e5d406bcae1d9cd"
+          }
+        },
+        {
+          "client_id": "797907698440-p339g0kvl8gfdngn17hndp501kq6k315.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "fd83e7d353abe483ba426d829e794ae398ec91e2"
+          }
+        },
+        {
+          "client_id": "797907698440-p9v6e9cbct0nte7caeicddrs6rbddvm0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "b31be083555c210e477f2a2243a7ffff40d26b00"
+          }
+        },
+        {
+          "client_id": "797907698440-u4s5k3gg96uku8oi7ffc2osiv40ankaq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.incodes.erashop",
+            "certificate_hash": "0e701379e95d236aeb53eadbfdd1405fd7a2df1e"
+          }
+        },
+        {
+          "client_id": "797907698440-c3t9il1khmvj6ii4k5al2pblp6k2nu1n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdycMpblxwRYvlQeZYlHOedEigBUoaD5o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "797907698440-4jilo37ekcub341irah38uppoi8h0lvg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "797907698440-mg9790l3bc3bekmiiidddt4u0v2s048a.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.erashop.live"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

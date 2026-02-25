@@ -1,0 +1,397 @@
+import 'dart:async';
+import 'dart:developer';
+import 'package:era_shop/ApiModel/user/GetLiveSellerListModel.dart';
+import 'package:era_shop/custom/loading_ui.dart';
+import 'package:era_shop/seller_pages/live_page/controller/live_controller.dart';
+import 'package:era_shop/seller_pages/live_page/widget/live_widget.dart';
+import 'package:era_shop/utils/app_colors.dart';
+import 'package:era_shop/utils/socket_services.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:zego_express_engine/zego_express_engine.dart';
+import 'package:era_shop/utils/database.dart';
+
+import '../../select_product_for_streame/model/selected_product_model.dart';
+
+class LivePageView extends StatefulWidget {
+  const LivePageView({
+    super.key,
+    required this.liveUserList,
+    required this.isHost,
+    required this.isActive,
+  });
+
+  final LiveSeller liveUserList;
+  final bool isHost;
+  final bool isActive;
+
+  @override
+  State<LivePageView> createState() => _LivePageViewState();
+}
+
+class _LivePageViewState extends State<LivePageView> with RouteAware {
+  @override
+  void didPush() {
+    SocketServices.registerLiveScreen(); // Start socket when entering
+  }
+
+  @override
+  void didPop() {
+    SocketServices.unregisterLiveScreen(); // Clean up when exiting
+  }
+
+  LiveController liveController = Get.put(LiveController());
+  String currentPageUserId = "";
+  RxBool isLoading = false.obs;
+  Timer? _initTimer;
+  bool _isInitialized = false;
+
+  // Zego variables
+  String localUserID = Database.loginUserId;
+  String localUserName = "Hello Developer";
+  String roomID = "";
+
+  Widget? localView;
+  int? localViewID;
+  Widget? remoteView;
+  int? remoteViewID;
+
+  @override
+  void initState() {
+    log("Live Page InitState call>>>>>>>");
+    log("Socket >>>>>>>>>>>>${socket?.id ?? ''}");
+    log("Socket >>>>>>>>>>>>${socket?.connected ?? ''}");
+    log("Socket >>>>>>>>>>>>${socket?.query ?? ''}");
+    super.initState();
+    if (SocketServices.mainLiveComments.isNotEmpty) {
+      SocketServices.mainLiveComments.clear();
+    }
+
+    _setupController();
+    if (widget.isActive) {
+      liveController.image = widget.liveUserList.image ?? "";
+      liveController.name = "${widget.liveUserList.firstName ?? ""} ${widget.liveUserList.lastName ?? ""}";
+      liveController.userName = widget.liveUserList.firstName ?? "";
+      roomID = widget.liveUserList.liveSellingHistoryId ?? "";
+      log("Live Page InitState call>>>>>>>");
+      SocketServices.onGetUserLiveDetails(
+        liveHistoryId: widget.liveUserList.liveSellingHistoryId ?? "",
+      );
+      log("Live Page Init  widget.liveUserList:");
+      800.milliseconds.delay().then((value) {
+        log("Live Page Init  widget.liveUserList: ${widget.liveUserList.toJson()}");
+        log("Live Page Init  widget.updatedLiveUserList: ${liveController.updatedLiveUserList?.toJson()}");
+        _startInitialization(liveUserList: liveController.updatedLiveUserList ?? widget.liveUserList);
+      });
+    } else {
+      _startInitialization(liveUserList: liveController.updatedLiveUserList ?? widget.liveUserList);
+    }
+  }
+
+  void _setupController() {
+    // final controllerTag = "live_${widget.liveUserList.liveHistoryId}";
+
+    if (Get.isRegistered<LiveController>()) {
+      liveController = Get.find<LiveController>();
+    } else {
+      liveController = Get.put(
+        LiveController(),
+      );
+    }
+  }
+
+  @override
+  void didUpdateWidget(LivePageView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (SocketServices.mainLiveComments.isNotEmpty) {
+      SocketServices.mainLiveComments.clear();
+    }
+
+    if (widget.isActive && !oldWidget.isActive && !_isInitialized) {
+      log("Live Page Init  widget.liveUserList: ${widget.liveUserList.toJson()}");
+      log("Live Page Init  widget.updatedLiveUserList: ${liveController.updatedLiveUserList?.toJson()}");
+      if (!widget.isHost) {
+        liveController.image = widget.liveUserList.image ?? "";
+        liveController.name = "${widget.liveUserList.firstName ?? ""} ${widget.liveUserList.lastName ?? ""}" ?? "";
+        liveController.userName = widget.liveUserList.firstName ?? "";
+
+        SocketServices.onGetUserLiveDetails(
+          liveHistoryId: widget.liveUserList.liveSellingHistoryId ?? "",
+        );
+
+        800.milliseconds.delay().then((value) {
+          log("Live Page Init  widget.liveUserList: ${widget.liveUserList.toJson()}");
+          log("Live Page Init  widget.updatedLiveUserList: ${liveController.updatedLiveUserList?.toJson()}");
+          _startInitialization(liveUserList: liveController.updatedLiveUserList ?? widget.liveUserList);
+        });
+      }
+    } else if (!widget.isActive && oldWidget.isActive) {
+      _pauseStream();
+    }
+  }
+
+  void _startInitialization({LiveSeller? liveUserList}) async {
+    if (_isInitialized) return;
+
+    isLoading.value = true;
+    roomID = liveUserList?.liveSellingHistoryId ?? "";
+
+    // Set controller data
+    liveController.roomId = liveUserList?.liveSellingHistoryId ?? "";
+    liveController.userId = liveUserList?.id ?? "";
+    liveController.sellerId = liveUserList?.sellerId ?? "";
+
+    liveController.Id = liveUserList?.id ?? "";
+    liveController.liveType = liveUserList?.liveType ?? 0;
+    liveController.isHost = widget.isHost;
+    liveController.liveSelectedProducts = liveUserList?.selectedProducts ?? [];
+    liveController.businessName = liveUserList?.businessName ?? "";
+    liveController.businessTag = liveUserList?.businessTag ?? "";
+
+    log("message>>>>>>>>>${liveController.isHost}");
+    log("message>>>>>>>>>liveController.liveType${liveController.liveType}");
+
+    // Initialize Zego
+    await _initializeZego();
+
+    if (mounted) {
+      isLoading.value = false;
+      _isInitialized = true;
+    }
+  }
+
+  Future<void> _initializeZego() async {
+    log("Live Page Init${widget.liveUserList.sellerId}");
+    try {
+      _startListenEvent();
+      await _loginRoom();
+      log("Live Page Init${widget.liveUserList.sellerId}");
+      if (widget.isHost) {
+        liveController.onChangeTime();
+      } else {
+        liveController.onChangeTime();
+        // Set timeout for remote view
+        Timer(Duration(seconds: 8), () {
+          if (mounted && remoteView == null && widget.isActive) {
+            log('Remote view timeout for room: $roomID');
+            Get.back();
+            // You might want to show an error state here instead of going back
+          }
+        });
+      }
+
+      WakelockPlus.enable();
+    } catch (e) {
+      log('Zego initialization error: $e');
+      if (mounted) {
+        isLoading.value = false;
+      }
+    }
+  }
+
+  void _pauseStream() {
+    // Pause the stream when not active to save resources
+    if (remoteViewID != null) {
+      ZegoExpressEngine.instance.mutePlayStreamVideo("${roomID}_*", true);
+      ZegoExpressEngine.instance.mutePlayStreamAudio("${roomID}_*", true);
+    }
+  }
+
+  void _resumeStream() {
+    // Resume the stream when becoming active
+    if (remoteViewID != null) {
+      ZegoExpressEngine.instance.mutePlayStreamVideo("${roomID}_*", false);
+      ZegoExpressEngine.instance.mutePlayStreamAudio("${roomID}_*", false);
+    }
+  }
+
+  @override
+  void dispose() {
+    log("Live Page Dispose${widget.liveUserList.sellerId}");
+    _initTimer?.cancel();
+
+    if (_isInitialized) {
+      _cleanupZego();
+    }
+
+    // Don't delete the controller here as it might be used by other instances
+    super.dispose();
+  }
+
+  void _cleanupZego() {
+    try {
+      _stopListenEvent();
+      _logoutRoom();
+      SocketServices.onLiveRoomExit(isHost: widget.isHost, liveHistoryId: roomID);
+      liveController.isLivePage = false;
+      WakelockPlus.disable();
+    } catch (e) {
+      log('Zego cleanup error: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: AppColors.transparent,
+        statusBarIconBrightness: Brightness.light,
+      ),
+    );
+
+    return Scaffold(
+      body: GestureDetector(
+        onTap: () {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+            currentFocus.focusedChild?.unfocus();
+          }
+        },
+        child: Container(
+          height: Get.height,
+          width: Get.width,
+          color: AppColors.black,
+          child: LiveUi(
+            liveScreen: widget.isHost ? (localView ?? const SizedBox.shrink()) : remoteView ?? LoadingUi(),
+            isLoading: isLoading,
+            isHost: widget.isHost,
+            liveRoomId: roomID,
+            liveUserId: liveController.userId,
+            liveUserImage: liveController.image,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Zego methods
+  Future<ZegoRoomLoginResult> _loginRoom() async {
+    final user = ZegoUser(localUserID, localUserName);
+    ZegoRoomConfig roomConfig = ZegoRoomConfig.defaultConfig()..isUserStatusNotify = true;
+
+    return ZegoExpressEngine.instance.loginRoom(roomID, user, config: roomConfig).then((ZegoRoomLoginResult loginRoomResult) {
+      debugPrint('loginRoom: errorCode:${loginRoomResult.errorCode}, extendedData:${loginRoomResult.extendedData}');
+      if (loginRoomResult.errorCode == 0) {
+        if (widget.isHost) {
+          _startPreview();
+          _startPublish();
+          SocketServices.liveWatchCount.value = 0;
+          log("Live Page Init>>>>>>>> loginUserId: ${Database.loginUserId}");
+          SocketServices.onLiveRoomConnect(loginUserId: Database.loginUserId, liveHistoryId: roomID);
+        } else {
+          SocketServices.onAddView(loginUserId: Database.loginUserId, liveHistoryId: roomID);
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login room failed: ${loginRoomResult.errorCode}')));
+        }
+      }
+      return loginRoomResult;
+    });
+  }
+
+  Future<ZegoRoomLogoutResult> _logoutRoom() async {
+    _stopPreview();
+    _stopPublish();
+    return ZegoExpressEngine.instance.logoutRoom(roomID);
+  }
+
+  void _startListenEvent() {
+    ZegoExpressEngine.onRoomUserUpdate = (roomID, updateType, List<ZegoUser> userList) {
+      debugPrint('onRoomUserUpdate: roomID: $roomID, updateType: ${updateType.name}, userList: ${userList.map((e) => e.userID)}');
+    };
+
+    ZegoExpressEngine.onRoomStreamUpdate = (roomID, updateType, List<ZegoStream> streamList, extendedData) {
+      debugPrint('onRoomStreamUpdate: roomID: $roomID, updateType: $updateType, streamList: ${streamList.map((e) => e.streamID)}, extendedData: $extendedData');
+      if (updateType == ZegoUpdateType.Add) {
+        for (final stream in streamList) {
+          _startPlayStream(stream.streamID);
+        }
+      } else {
+        for (final stream in streamList) {
+          _stopPlayStream(stream.streamID);
+        }
+      }
+    };
+
+    ZegoExpressEngine.onRoomStateUpdate = (roomID, state, errorCode, extendedData) {
+      debugPrint('onRoomStateUpdate: roomID: $roomID, state: ${state.name}, errorCode: $errorCode, extendedData: $extendedData');
+    };
+
+    ZegoExpressEngine.onPublisherStateUpdate = (streamID, state, errorCode, extendedData) {
+      debugPrint('onPublisherStateUpdate: streamID: $streamID, state: ${state.name}, errorCode: $errorCode, extendedData: $extendedData');
+    };
+  }
+
+  void _stopListenEvent() {
+    if (!widget.isHost) {
+      SocketServices.onLessView(loginUserId: Database.loginUserId, liveHistoryId: roomID);
+    }
+
+    ZegoExpressEngine.onRoomUserUpdate = null;
+    ZegoExpressEngine.onRoomStreamUpdate = null;
+    ZegoExpressEngine.onRoomStateUpdate = null;
+    ZegoExpressEngine.onPublisherStateUpdate = null;
+  }
+
+  Future<void> _startPreview() async {
+    await ZegoExpressEngine.instance.createCanvasView((viewID) {
+      localViewID = viewID;
+      ZegoCanvas previewCanvas = ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFill);
+      ZegoExpressEngine.instance.startPreview(canvas: previewCanvas);
+    }).then((canvasViewWidget) {
+      if (mounted) {
+        log('localViewID:>>>>>>> $localViewID');
+        setState(() => localView = canvasViewWidget);
+      }
+    });
+  }
+
+  Future<void> _stopPreview() async {
+    ZegoExpressEngine.instance.stopPreview();
+    if (localViewID != null) {
+      await ZegoExpressEngine.instance.destroyCanvasView(localViewID!);
+      localViewID = null;
+      localView = null;
+    }
+  }
+
+  Future<void> _startPublish() async {
+    String streamID = '${roomID}_${localUserID}_call';
+    return ZegoExpressEngine.instance.startPublishingStream(streamID);
+  }
+
+  Future<void> _stopPublish() async {
+    return ZegoExpressEngine.instance.stopPublishingStream();
+  }
+
+  Future<void> _startPlayStream(String streamID) async {
+    await ZegoExpressEngine.instance.createCanvasView((viewID) {
+      remoteViewID = viewID;
+      ZegoCanvas canvas = ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFill);
+      ZegoPlayerConfig config = ZegoPlayerConfig.defaultConfig();
+      config.resourceMode = ZegoStreamResourceMode.Default;
+      ZegoExpressEngine.instance.enableCamera(true, channel: ZegoPublishChannel.Main);
+      ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas, config: config);
+    }).then((canvasViewWidget) {
+      if (mounted) {
+        setState(() => remoteView = canvasViewWidget);
+      }
+    });
+  }
+
+  Future<void> _stopPlayStream(String streamID) async {
+    ZegoExpressEngine.instance.stopPlayingStream(streamID);
+    if (remoteViewID != null) {
+      ZegoExpressEngine.instance.destroyCanvasView(remoteViewID!);
+      if (mounted) {
+        setState(() {
+          remoteViewID = null;
+          remoteView = null;
+        });
+      }
+    }
+  }
+}
