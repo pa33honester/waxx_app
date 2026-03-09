@@ -7,9 +7,9 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.6.0' // Use the latest stable version
+        classpath 'com.android.tools.build:gradle:8.9.1' // Use the latest stable version
         classpath 'com.google.gms:google-services:4.4.1' // Required for Firebase & Google Sign-In
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10' // Kotlin
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0' // Kotlin
     }
 }
 

@@ -7,8 +7,8 @@ plugins {
 }
 
 android {
-    namespace = "com.incodes.erashop"
-    compileSdk = 35
+    namespace = "com.waxxapp"
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     lintOptions {
@@ -27,7 +27,7 @@ android {
 
 
     defaultConfig {
-        applicationId = "com.incodes.erashop"
+        applicationId = "com.waxxapp"
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

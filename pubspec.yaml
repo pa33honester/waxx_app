@@ -39,7 +39,7 @@ dependencies:
   get: ^4.7.2
   get_storage: ^2.1.1
   loading_animation_widget: ^1.3.0
-  google_fonts: ^6.2.1
+  google_fonts: 8.0.2
   blurrycontainer: ^2.1.0
   smooth_page_indicator: ^1.2.1
   dotted_line: ^3.2.3
@@ -105,12 +105,12 @@ dependencies:
   slide_action: ^0.0.2
   flutter_bounce: ^1.1.0
   lottie: ^3.3.1
-  date_picker_plus: ^4.0.0
   flutter_html: ^3.0.0
   flutter_flip_card: ^0.0.6
   flutter_sticky_header: ^0.8.0
   connectivity_plus: ^6.1.4
   internet_connection_checker: ^3.0.1
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -204,3 +204,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/waxxapp_icon.png" # Path to your icon image
+  adaptive_icon_background: "#ffffff"   # (Optional) Background color for adaptive icon on Android
+  adaptive_icon_foreground: "assets/icons/waxxapp_icon.png"  # (Optional) Foreground image for adaptive icon

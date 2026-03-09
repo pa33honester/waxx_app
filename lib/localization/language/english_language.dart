@@ -1,6 +1,6 @@
 final Map<String, String> enUS = {
-  "appName": "EraShop",
-  "appNameProduct": "EraShop Product",
+  "appName": "Waxxapp",
+  "appNameProduct": "Waxxapp Product",
   "nextText": "Next",
   "emailTextFieldTitle": "Email",
   "passwordTextFieldTitle": "Password",

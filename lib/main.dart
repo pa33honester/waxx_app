@@ -224,7 +224,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       },
       child: GetMaterialApp(
         navigatorObservers: [Get.find<LivePageRouteObserver>()],
-        title: "Era Shop 2.0",
+        title: "Waxxapp 2.0",
         // themeMode: ThemeService().theme,
         theme: Themes.light,
         // darkTheme: Themes.darks,
