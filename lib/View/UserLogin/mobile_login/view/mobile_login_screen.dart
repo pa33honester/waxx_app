@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:era_shop/View/UserLogin/mobile_login/controller/mobile_login_controller.dart';
-import 'package:era_shop/main.dart';
 import 'package:era_shop/utils/CoustomWidget/Sign_in_material/common_sign_in_button.dart';
 import 'package:era_shop/utils/CoustomWidget/Sign_in_material/sign_in_back_button.dart';
 import 'package:era_shop/utils/Strings/strings.dart';
@@ -92,11 +91,12 @@ class PhoneNoTextField extends StatelessWidget {
         GetBuilder<MobileLoginController>(builder: (logic) {
           return IntlPhoneField(
             onCountryChanged: (value) {
-              log("Country Code => ${value.dialCode}");
-              dialCode = value.dialCode;
+              final selectedDialCode = value.dialCode.startsWith('+') ? value.dialCode : '+${value.dialCode}';
+              log("Country Code => $selectedDialCode");
+              dialCode = selectedDialCode;
+              logic.dialCode = selectedDialCode;
               countryCode = value.code;
-              getDialCode();
-              // logic.phoneFirstDigit = "+${value.dialCode}";
+              logic.update();
             },
             flagsButtonPadding: const EdgeInsets.all(8),
             dropdownIconPosition: IconPosition.trailing,

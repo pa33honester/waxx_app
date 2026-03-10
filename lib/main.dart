@@ -64,6 +64,15 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  final app = Firebase.app();
+  log('FIREBASE_DEBUG appName=${app.name}');
+  log('FIREBASE_DEBUG projectId=${app.options.projectId}');
+  log('FIREBASE_DEBUG appId=${app.options.appId}');
+  log('FIREBASE_DEBUG messagingSenderId=${app.options.messagingSenderId}');
+  log('FIREBASE_DEBUG apiKey=${app.options.apiKey.substring(0, 8)}...');
+
+
   await GetStorage.init();
 
   await onInitializeBranchIo();

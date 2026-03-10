@@ -1,8 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:era_shop/custom/loading_ui.dart';
-import 'package:era_shop/utils/database.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:era_shop/utils/globle_veriables.dart' as gv;
 import 'package:era_shop/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,20 +27,36 @@ class MobileLoginController extends GetxController {
   @override
   void onInit() async {
     numberController.clear();
+    dialCode = gv.dialCode;
     super.onInit();
+  }
+
+  String _buildPhoneNumber() {
+    final rawNumber = numberController.text.trim().replaceAll(' ', '');
+
+    // If user enters full E.164 (e.g. +15555550123), use as-is.
+    if (rawNumber.startsWith('+')) {
+      return rawNumber;
+    }
+
+    final code = dialCode ?? gv.dialCode ?? '+91';
+    return '$code$rawNumber';
   }
 
   void sendOtp() async {
     final number = numberController.text.trim();
-    final code = dialCode ?? '+91';
-    final phoneNumber = '$code$number';
+    final phoneNumber = _buildPhoneNumber();
+    final digitsOnly = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+
+    log('FIREBASE_DEBUG phoneNumber=$phoneNumber');
+
 
     if (number.isEmpty) {
       Utils.showToast("Please enter mobile number");
       return;
     }
 
-    if (number.length < 7 || number.length > 15) {
+    if (digitsOnly.length < 7 || digitsOnly.length > 15) {
       Utils.showToast("Enter a valid mobile number");
       return;
     }
@@ -119,8 +134,9 @@ class MobileLoginController extends GetxController {
     otpController.clear();
 
     final number = numberController.text.trim();
-    final code = dialCode ?? '+91';
-    final phoneNumber = '$code$number';
+    final phoneNumber = _buildPhoneNumber();
+
+    log('FIREBASE_DEBUG resendPhoneNumber=$phoneNumber');
 
     try {
       Get.dialog(LoadingUi(), barrierDismissible: false);
@@ -157,7 +173,7 @@ class MobileLoginController extends GetxController {
 
       if (xFiles != null) {
         selectedImage = File(xFiles.path);
-        imageXFile = selectedImage;
+        gv.imageXFile = selectedImage;
         update();
         log("Image selected from gallery: ${selectedImage!.path}");
       }
@@ -173,7 +189,7 @@ class MobileLoginController extends GetxController {
 
       if (xFiles != null) {
         selectedImage = File(xFiles.path);
-        imageXFile = selectedImage;
+        gv.imageXFile = selectedImage;
         update();
         log("Photo captured from camera: ${selectedImage!.path}");
       }
@@ -186,7 +202,7 @@ class MobileLoginController extends GetxController {
   // Method to clear image
   void clearImage() {
     selectedImage = null;
-    imageXFile = null;
+    gv.imageXFile = null;
     update();
   }
 
