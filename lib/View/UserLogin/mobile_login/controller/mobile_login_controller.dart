@@ -1,6 +1,10 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:era_shop/Controller/GetxController/login/login_controller.dart';
+import 'package:era_shop/View/UserLogin/demo_sign_in.dart';
 import 'package:era_shop/custom/loading_ui.dart';
+import 'package:era_shop/utils/Theme/theme_service.dart';
+import 'package:era_shop/utils/database.dart';
 import 'package:era_shop/utils/globle_veriables.dart' as gv;
 import 'package:era_shop/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -41,6 +45,44 @@ class MobileLoginController extends GetxController {
 
     final code = dialCode ?? gv.dialCode ?? '+91';
     return '$code$rawNumber';
+  }
+
+  Future<void> _loginOrRouteToSignup() async {
+    final loginController = Get.put(LoginController());
+    final number = numberController.text.trim();
+    final code = dialCode ?? gv.dialCode ?? '+91';
+
+    await loginController.getLoginData(
+      firstName: '',
+      lastName: '',
+      email: '',
+      mobileNumber: number,
+      password: '',
+      loginType: 5,
+      fcmToken: gv.fcmToken,
+      identity: gv.identify,
+      countryCode: code,
+    );
+
+    final isExistingUserLogin = loginController.userLogin?.status == true && loginController.userLogin?.signUp != true;
+
+    if (isExistingUserLogin) {
+      LoginSuccessUi.onShow(
+        callBack: () {
+          Get.back();
+          Get.offAllNamed('/BottomTabBar');
+        },
+      );
+      return;
+    }
+
+    // New mobile user: do not keep logged-in state yet, require profile completion.
+    await getStorage.write("isLogin", false);
+    await getStorage.remove("userId");
+    await Database.onSetLoginUserId("");
+    await Database.onSetLoginType(0);
+    gv.loginUserId = "";
+    Get.toNamed('/FillProfileScreen');
   }
 
   void sendOtp() async {
@@ -120,7 +162,7 @@ class MobileLoginController extends GetxController {
       final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
       log("User logged in: ${userCredential.user?.uid}");
       Get.back();
-      Get.toNamed('/FillProfileScreen');
+      await _loginOrRouteToSignup();
     } on FirebaseAuthException catch (e) {
       Get.back();
       Utils.showToast(e.message ?? "Invalid OTP");

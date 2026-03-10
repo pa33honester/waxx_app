@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:era_shop/Controller/ApiControllers/user/api_profile_edit_controller.dart';
 import 'package:era_shop/Controller/GetxController/login/login_controller.dart';
 import 'package:era_shop/View/UserLogin/demo_sign_in.dart';
 import 'package:era_shop/View/UserLogin/mobile_login/controller/mobile_login_controller.dart';
@@ -8,6 +9,7 @@ import 'package:era_shop/custom/simple_app_bar_widget.dart';
 import 'package:era_shop/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
 import 'package:era_shop/utils/CoustomWidget/App_theme_services/textfields.dart';
 import 'package:era_shop/utils/Strings/strings.dart';
+import 'package:era_shop/utils/Theme/theme_service.dart';
 import 'package:era_shop/utils/all_images.dart';
 import 'package:era_shop/utils/app_asset.dart';
 import 'package:era_shop/utils/app_colors.dart';
@@ -24,6 +26,7 @@ class FillProfileScreen extends StatelessWidget {
   FillProfileScreen({super.key});
 
   final LoginController loginController = Get.put(LoginController());
+  final ApiProfileEditController apiProfileEditController = Get.put(ApiProfileEditController());
   final MobileLoginController mobileController = Get.find<MobileLoginController>();
 
   @override
@@ -47,23 +50,46 @@ class FillProfileScreen extends StatelessWidget {
                 if (!_validateForm(mobileController)) {
                   return;
                 }
-                final fullPhoneNumber = '${dialCode ?? '+91'}${mobileController.numberController.text}';
-                print("Full Phone Number: $fullPhoneNumber");
+                final nameParts = _splitFullName(mobileController.fullNameController.text);
+                final firstName = nameParts.$1;
+                final lastName = nameParts.$2;
+                final selectedDialCode = mobileController.dialCode ?? dialCode ?? '+91';
+                final selectedNumber = mobileController.numberController.text.trim();
 
                 Get.dialog(LoadingUi(), barrierDismissible: false);
 
                 await loginController.getLoginData(
-                  firstName: mobileController.fullNameController.text.trim(),
-                  lastName: "",
+                  firstName: firstName,
+                  lastName: lastName,
                   email: "",
                   password: "",
                   loginType: 5,
                   fcmToken: fcmToken,
                   identity: identify,
-                  mobileNumber: mobileController.numberController.text.trim(),
-                  countryCode: dialCode ?? '+91',
+                  mobileNumber: selectedNumber,
+                  countryCode: selectedDialCode,
                 );
-                if (loginController.userLogin!.status == true) {
+
+                final userId = loginController.userLogin?.user?.id ?? '';
+                if (loginController.userLogin?.status == true && userId.isNotEmpty) {
+                  await apiProfileEditController.profileEditData(
+                    userId: userId,
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: loginController.userLogin?.user?.email?.toString() ?? "",
+                    dob: loginController.userLogin?.user?.dob?.toString() ?? "",
+                    gender: loginController.userLogin?.user?.gender?.toString() ?? "",
+                    location: loginController.userLogin?.user?.location?.toString() ?? "",
+                    mobileNumber: selectedNumber,
+                    countryCode: selectedDialCode,
+                  );
+                }
+
+                if (loginController.userLogin?.status == true && (apiProfileEditController.profileEditModel?.status ?? true)) {
+                  editFirstName = firstName;
+                  editLastName = lastName;
+                  getStorage.write("editFirstName", firstName);
+                  getStorage.write("editLastName", lastName);
                   LoginSuccessUi.onShow(
                     callBack: () {
                       Get.back();
@@ -71,6 +97,7 @@ class FillProfileScreen extends StatelessWidget {
                     },
                   );
                 } else {
+                  Get.back();
                   displayToast(message: St.somethingWentWrong.tr);
                 }
               } catch (e) {
@@ -389,6 +416,20 @@ class FillProfileScreen extends StatelessWidget {
     // }
 
     return true;
+  }
+
+  (String, String) _splitFullName(String fullName) {
+    final cleaned = fullName.trim().replaceAll(RegExp(r'\s+'), ' ');
+    if (cleaned.isEmpty) {
+      return ('', '');
+    }
+    final parts = cleaned.split(' ');
+    if (parts.length == 1) {
+      return (parts.first, '');
+    }
+    final firstName = parts.first;
+    final lastName = parts.sublist(1).join(' ');
+    return (firstName, lastName);
   }
 
   void _showImagePickerDialog(MobileLoginController controller) {

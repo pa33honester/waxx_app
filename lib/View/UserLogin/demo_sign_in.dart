@@ -1,9 +1,8 @@
 import 'dart:io';
 
-import 'package:era_shop/Controller/GetxController/login/user_login_controller.dart';
+import 'package:era_shop/View/UserLogin/mobile_login/controller/mobile_login_controller.dart';
+import 'package:era_shop/View/UserLogin/mobile_login/view/mobile_login_screen.dart';
 import 'package:era_shop/custom/exit_app_dialog.dart';
-import 'package:era_shop/utils/CoustomWidget/Sign_in_material/common_sign_in_button.dart';
-import 'package:era_shop/utils/CoustomWidget/Sign_in_material/common_sign_in_textfield.dart';
 import 'package:era_shop/utils/CoustomWidget/Sign_in_material/dont_account.dart';
 import 'package:era_shop/utils/CoustomWidget/Sign_in_material/other_button.dart';
 import 'package:era_shop/utils/Strings/strings.dart';
@@ -30,9 +29,9 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  UserLoginController userLoginController = Get.put(UserLoginController());
   SellerDataController sellerDataController = Get.put(SellerDataController());
   GoogleLoginController googleLoginController = Get.put(GoogleLoginController());
+  MobileLoginController mobileLoginController = Get.put(MobileLoginController());
 
   RxBool demoLoginLoading = false.obs;
   RxBool demoUserLoading = false.obs;
@@ -93,43 +92,59 @@ class _SignInState extends State<SignIn> {
                                       const SizedBox(
                                         height: 40,
                                       ),
-                                      CommonSignInTextField(
-                                        titleText: St.emailTextFieldTitle.tr,
-                                        hintText: St.emailTextFieldHintText.tr,
-                                        controllerType: "FirstSignInEmail",
+                                      const PhoneNoTextField(),
+                                      16.height,
+                                      GestureDetector(
+                                        onTap: () {
+                                          mobileLoginController.sendOtp();
+                                        },
+                                        child: Container(
+                                          height: 55,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primary,
+                                            borderRadius: BorderRadius.circular(30),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Image.asset(
+                                                AppImage.mobileIcon,
+                                                height: 22,
+                                              ),
+                                              10.width,
+                                              Text(
+                                                St.mobileLogin.tr,
+                                                style: AppFontStyle.styleW700(AppColors.black, 16),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
-                                      Padding(
-                                          padding: const EdgeInsets.only(top: 30),
-                                          child: CommonSignInButton(
-                                            text: St.conWithEmail.tr,
-                                            onTaped: () {
-                                              userLoginController.firstSignInWhenEmpty();
-                                            },
-                                          )),
                                       Padding(
                                         padding: const EdgeInsets.only(top: 35),
                                         child: Buttons.orContinue(),
                                       ),
-                                      30.height,
+                                      16.height,
                                       Row(
-                                        // mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
                                           Expanded(
                                             child: Buttons.newButton(
-                                                image: AppImage.mobileIcon,
-                                                onTap: () {
-                                                  Get.toNamed("/MobileLoginScreen");
-                                                },
-                                                text: St.mobileLogin.tr),
+                                              onTap: () {
+                                                Get.toNamed("/SignInEmail");
+                                              },
+                                              image: AppImage.messageWhite,
+                                              text: "Email Login",
+                                            ),
                                           ),
                                           10.width,
                                           Expanded(
                                             child: Buttons.newButton(
-                                                image: AppImage.googleIcon,
-                                                onTap: () {
-                                                  googleLoginController.googleLogin();
-                                                },
-                                                text: St.googleLogIn.tr),
+                                              image: AppImage.googleIcon,
+                                              onTap: () {
+                                                googleLoginController.googleLogin();
+                                              },
+                                              text: St.googleLogIn.tr,
+                                            ),
                                           ),
                                         ],
                                       ),
