@@ -8,6 +8,7 @@ import 'package:era_shop/utils/database.dart';
 import 'package:era_shop/utils/globle_veriables.dart' as gv;
 import 'package:era_shop/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -32,7 +33,20 @@ class MobileLoginController extends GetxController {
   void onInit() async {
     numberController.clear();
     dialCode = gv.dialCode;
+    await _configureAuthSettings();
     super.onInit();
+  }
+
+  Future<void> _configureAuthSettings() async {
+    // In debug mode, disable app verification so Firebase test phone numbers
+    // (configured in Firebase Console → Authentication → Phone → Test numbers)
+    // work without reCAPTCHA / Play Integrity / APNs verification.
+    if (kDebugMode) {
+      await auth.setSettings(
+        appVerificationDisabledForTesting: true,
+      );
+      log('FIREBASE_DEBUG appVerificationDisabledForTesting=true');
+    }
   }
 
   String _buildPhoneNumber() {
@@ -106,29 +120,50 @@ class MobileLoginController extends GetxController {
     try {
       Get.dialog(LoadingUi(), barrierDismissible: false);
 
+      // Ensure test-phone settings are applied before every verify call
+      await _configureAuthSettings();
+
+      log('FIREBASE_DEBUG calling verifyPhoneNumber for $phoneNumber ...');
+
       await auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         timeout: const Duration(seconds: 60),
         verificationCompleted: (PhoneAuthCredential credential) async {
-          await auth.signInWithCredential(credential);
+          // Auto-verification (e.g. on Android with auto-SMS-retrieval or test numbers)
+          log('FIREBASE_DEBUG ✅ verificationCompleted fired — auto signing in');
+          try {
+            final userCredential = await auth.signInWithCredential(credential);
+            log('FIREBASE_DEBUG ✅ Auto sign-in success uid=${userCredential.user?.uid}');
+            if (Get.isDialogOpen ?? false) Get.back(); // dismiss loading dialog
+            await _loginOrRouteToSignup();
+          } catch (e) {
+            log('FIREBASE_DEBUG ❌ Auto sign-in failed: $e');
+            if (Get.isDialogOpen ?? false) Get.back();
+            Utils.showToast("Auto sign-in failed: $e");
+          }
         },
         verificationFailed: (FirebaseAuthException e) {
-          Get.back();
+          log('FIREBASE_DEBUG ❌ verificationFailed code=${e.code} message=${e.message}');
+          if (Get.isDialogOpen ?? false) Get.back();
           Utils.showToast(e.message ?? "OTP sending failed");
         },
         codeSent: (String id, int? resendToken) {
-          Get.back();
+          log('FIREBASE_DEBUG ✅ codeSent fired — verificationId=$id');
+          if (Get.isDialogOpen ?? false) Get.back();
           verificationId = id;
           Get.toNamed("/VerifyOtpScreen");
         },
         codeAutoRetrievalTimeout: (String id) {
-          log("Auto-retrieval timeout reached");
+          log('FIREBASE_DEBUG codeAutoRetrievalTimeout fired');
           verificationId = id;
           update();
         },
       );
+
+      log('FIREBASE_DEBUG verifyPhoneNumber call returned');
     } catch (e) {
-      Get.back();
+      log('FIREBASE_DEBUG ❌ verifyPhoneNumber threw exception: $e');
+      if (Get.isDialogOpen ?? false) Get.back();
       Utils.showToast("OTP process failed: $e");
     }
   }
@@ -146,7 +181,7 @@ class MobileLoginController extends GetxController {
       return;
     }
 
-    if (verificationId == null) {
+    if (verificationId.isEmpty) {
       Utils.showToast("Verification ID missing");
       return;
     }
@@ -155,7 +190,7 @@ class MobileLoginController extends GetxController {
       Get.dialog(LoadingUi(), barrierDismissible: false);
 
       final credential = PhoneAuthProvider.credential(
-        verificationId: verificationId!,
+        verificationId: verificationId,
         smsCode: smsCode,
       );
 
@@ -182,15 +217,24 @@ class MobileLoginController extends GetxController {
 
     try {
       Get.dialog(LoadingUi(), barrierDismissible: false);
-      await FirebaseAuth.instance.verifyPhoneNumber(
+
+      // Ensure test-phone settings are applied before every verify call
+      await _configureAuthSettings();
+
+      await auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         timeout: const Duration(seconds: 60),
         verificationCompleted: (PhoneAuthCredential credential) async {
-          await FirebaseAuth.instance.signInWithCredential(credential);
+          await auth.signInWithCredential(credential);
           Get.back();
         },
         verificationFailed: (FirebaseAuthException e) {
+          log('FIREBASE_DEBUG resend verify failed code=${e.code} message=${e.message}');
           Get.back();
+          if ((e.message ?? '').contains('play_integrity_token') || e.code == 'app-not-authorized') {
+            Utils.showToast("App verification failed. Try emulator with Play Store image or a real device.");
+            return;
+          }
           Utils.showToast(e.message ?? "OTP sending failed");
         },
         codeSent: (String id, int? resendToken) {
