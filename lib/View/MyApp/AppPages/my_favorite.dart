@@ -122,7 +122,8 @@ class _MyFavoriteState extends State<MyFavorite> with TickerProviderStateMixin {
               ),
               child: GeneralTitle(title: "Wishlist Collection"),
             ),
-            Obx(
+            Expanded(
+              child: Obx(
               () => showFavoriteController.isLoading.value /*|| getAllCategoryController.isLoading.value*/
                   ? Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
@@ -268,7 +269,7 @@ class _MyFavoriteState extends State<MyFavorite> with TickerProviderStateMixin {
                           padding: const EdgeInsets.all(16.0),
                           child: GridView.builder(
                             // physics: const BouncingScrollPhysics(),
-                            shrinkWrap: true,
+                            shrinkWrap: false,
                             itemCount: showFavoriteController.favoriteProducts.length,
                             padding: const EdgeInsets.only(bottom: 100),
                             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -514,6 +515,7 @@ class _MyFavoriteState extends State<MyFavorite> with TickerProviderStateMixin {
                             },
                           ),
                         ),
+            ),
             ),
           ],
         )),

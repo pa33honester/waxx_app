@@ -58,7 +58,7 @@ class InventoryProduct {
   String createStatus;
   String updateStatus;
   String date;
-  DateTime scheduleTime;
+  DateTime? scheduleTime;
   DateTime? auctionStartDate;
   DateTime? auctionEndDate;
   String productName;
@@ -143,7 +143,7 @@ class InventoryProduct {
         createStatus: json["createStatus"],
         updateStatus: json["updateStatus"],
         date: json["date"],
-        scheduleTime: DateTime.parse(json["scheduleTime"]),
+        scheduleTime: json["scheduleTime"] == null ? null : DateTime.parse(json["scheduleTime"]),
         auctionStartDate: json["auctionStartDate"] == null ? null : DateTime.parse(json["auctionStartDate"]),
         auctionEndDate: json["auctionEndDate"] == null ? null : DateTime.parse(json["auctionEndDate"]),
         productName: json["productName"],
@@ -186,7 +186,7 @@ class InventoryProduct {
         "createStatus": createStatus,
         "updateStatus": updateStatus,
         "date": date,
-        "scheduleTime": scheduleTime.toIso8601String(),
+        "scheduleTime": scheduleTime?.toIso8601String(),
         "auctionStartDate": auctionStartDate?.toIso8601String(),
         "auctionEndDate": auctionEndDate?.toIso8601String(),
         "productName": productName,

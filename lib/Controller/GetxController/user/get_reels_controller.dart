@@ -61,6 +61,7 @@ class GetReelsForUserController extends GetxController {
       log('Short Response Api :: ${response.statusCode} \n RESPONSE :: ${response.body}');
 
       if (response.statusCode == 200) {
+        allReels.clear();
         likeDislikes.clear();
         likeCounts.clear();
         final jsonResponse = json.decode(response.body);

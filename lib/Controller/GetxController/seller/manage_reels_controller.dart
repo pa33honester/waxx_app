@@ -226,6 +226,7 @@ class ManageShortsController extends GetxController {
   uploadReels(String description) async {
     try {
       isLoading(true);
+      log("Upload started - isLoading: ${isLoading.value}");
       var data = await UploadReelsApi().uploadReelApi(
         sellerId: sellerId,
         productId: selectedProductIds,
@@ -240,6 +241,16 @@ class ManageShortsController extends GetxController {
         Get.back();
       } else {
         displayToast(message: data.message.toString());
+      }
+    } catch (e) {
+      log("Upload Reels Error: $e");
+      final errorStr = e.toString();
+      if (errorStr.contains('413') || errorStr.contains('Entity Too Large')) {
+        displayToast(message: "Video file is too large. Please use a shorter or lower-quality video.");
+      } else if (errorStr.contains('timed out')) {
+        displayToast(message: "Upload timed out. Please check your connection and try again.");
+      } else {
+        displayToast(message: "Upload failed. Please try again.");
       }
     } finally {
       isLoading(false);

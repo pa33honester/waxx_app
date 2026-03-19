@@ -455,7 +455,7 @@ class _HomepageJustForYouState extends State<HomepageJustForYou> {
                                       scrollDirection: Axis.horizontal,
                                       child: Row(
                                         children: [
-                                          for (int i = 0; i < (products?.attributes?[0].values?.length ?? 0); i++)
+                                          for (int i = 0; i < (products?.attributes?.isNotEmpty == true ? (products?.attributes?[0].values?.length ?? 0) : 0); i++)
                                             Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                                               margin: const EdgeInsets.only(right: 5),

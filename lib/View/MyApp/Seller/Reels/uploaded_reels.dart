@@ -178,12 +178,8 @@ class _UploadedShortState extends State<UploadedShort> {
                                         var reelItem = showUploadedShortsController.reelsItems[index];
                                         Get.to(ShortsPreview(
                                           ifUploadedReel: true,
-                                          productList: showUploadedShortsController.reelsItems[index].productId,
-                                          // productImage: reelItem.productId?[0].mainImage,
+                                          productList: reelItem.productId,
                                           productDescription: reelItem.description,
-                                          // productName: reelItem.productId?[0].productName,
-                                          // productPrice: reelItem.productId?[0].price.toString(),
-                                          // attributesArray: jsonDecode(jsonEncode(reelItem.productId?[0].attributes)),
                                           videoUrl: reelItem.video,
                                         ));
                                       },
@@ -204,7 +200,9 @@ class _UploadedShortState extends State<UploadedShort> {
                                                       children: [
                                                         CachedNetworkImage(
                                                           fit: BoxFit.cover,
-                                                          imageUrl: showUploadedShortsController.reelsItems[index].productId![0].mainImage.toString(),
+                                                        imageUrl: (showUploadedShortsController.reelsItems[index].productId?.isNotEmpty == true)
+                                                            ? showUploadedShortsController.reelsItems[index].productId![0].mainImage.toString()
+                                                            : "",
                                                           placeholder: (context, url) => const Center(
                                                               child: CupertinoActivityIndicator(
                                                             animating: true,
@@ -225,9 +223,15 @@ class _UploadedShortState extends State<UploadedShort> {
                                                         child: Column(
                                                           crossAxisAlignment: CrossAxisAlignment.start,
                                                           children: [
-                                                            Text(showUploadedShortsController.reelsItems[index].productId![0].productName.toString(), overflow: TextOverflow.ellipsis, style: AppFontStyle.styleW600(AppColors.lightGrey, 13)),
                                                             Text(
-                                                              "$currencySymbol${showUploadedShortsController.reelsItems[index].productId![0].price}",
+                                                              (showUploadedShortsController.reelsItems[index].productId?.isNotEmpty == true)
+                                                                  ? showUploadedShortsController.reelsItems[index].productId![0].productName.toString()
+                                                                  : "",
+                                                              overflow: TextOverflow.ellipsis,
+                                                              style: AppFontStyle.styleW600(AppColors.lightGrey, 13),
+                                                            ),
+                                                            Text(
+                                                              "$currencySymbol${(showUploadedShortsController.reelsItems[index].productId?.isNotEmpty == true) ? showUploadedShortsController.reelsItems[index].productId![0].price : ""}",
                                                               style: GoogleFonts.plusJakartaSans(color: AppColors.primaryPink, fontSize: 14, fontWeight: FontWeight.bold),
                                                             ),
                                                           ],

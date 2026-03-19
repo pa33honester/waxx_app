@@ -20,6 +20,7 @@ import 'package:era_shop/utils/database.dart';
 import 'package:era_shop/utils/globle_veriables.dart';
 import 'package:era_shop/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -252,10 +253,29 @@ class SellerCommonController extends GetxController {
             ),
             barrierDismissible: false,
           );
-          log("PHONE NUMBER ** $countryCode** ${phoneController.text}");
+
+          // Apply the same debug-bypass setting that MobileLoginController uses,
+          // so Play Integrity / reCAPTCHA checks are skipped in debug builds.
+          // On a real device in release mode this block is skipped and Firebase
+          // will use Play Integrity (SHA-1 must be registered in Firebase Console).
+          await FirebaseAuth.instance.setSettings(
+            appVerificationDisabledForTesting: kDebugMode,
+          );
+          log('SELLER_DEBUG appVerificationDisabledForTesting=$kDebugMode');
+
+          // Build a valid E.164 phone number (+<dialCode><number>).
+          // `dialCode` from intl_phone_field returns digits only (e.g. "91"),
+          // so we must prefix with "+" when it is missing.
+          final rawDialCode = (dialCode ?? "91").replaceAll('+', '');
+          final rawPhone = phoneController.text.trim();
+          final fullPhone = '+$rawDialCode$rawPhone';
+
+          log("SELLER_DEBUG phoneNumber=$fullPhone");
           await FirebaseAuth.instance.verifyPhoneNumber(
-            phoneNumber: "$countryCode${phoneController.text}",
+            phoneNumber: fullPhone,
+            timeout: const Duration(seconds: 60),
             verificationCompleted: (PhoneAuthCredential credential) async {
+              if (Get.isDialogOpen ?? false) Get.back();
               await checkLoginController.getCheckUserData(
                 email: eMailController.text,
                 password: passwordController.text,
@@ -268,14 +288,20 @@ class SellerCommonController extends GetxController {
               }
             },
             verificationFailed: (FirebaseAuthException e) {
+              log('SELLER_DEBUG verificationFailed code=${e.code} message=${e.message}');
+              if (Get.isDialogOpen ?? false) Get.back(); // dismiss loading dialog
               displayToast(message: "Mobile verification failed: ${e.message}");
             },
             codeSent: (String verificationId, int? resendToken) {
+              log('SELLER_DEBUG codeSent verificationId=$verificationId');
+              if (Get.isDialogOpen ?? false) Get.back(); // dismiss loading dialog
               bankBusinessNameController.text = businessNameController.text;
               otpVerificationId = verificationId;
               Get.toNamed("/SellerEnterOtp");
             },
-            codeAutoRetrievalTimeout: (String verificationId) {},
+            codeAutoRetrievalTimeout: (String verificationId) {
+              otpVerificationId = verificationId;
+            },
           );
         } catch (e) {
           Get.back();

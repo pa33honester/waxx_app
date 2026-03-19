@@ -1,6 +1,7 @@
 import 'package:era_shop/View/MyApp/AppPages/reels_page/controller/reels_controller.dart';
 import 'package:era_shop/View/MyApp/AppPages/reels_page/widget/reels_widget.dart';
 import 'package:era_shop/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
+import 'package:era_shop/utils/CoustomWidget/App_theme_services/no_data_found.dart';
 import 'package:era_shop/utils/Strings/strings.dart';
 import 'package:era_shop/utils/shimmers.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,12 @@ class ReelsView extends GetView<ReelsController> {
           builder: (controller) => controller.isLoadingReels
               ? Shimmers.reelsView()
               : controller.mainReels.isEmpty
-                  ? Text(St.noDataFound.tr)
+                  ? Center(
+                      child: noDataFound(
+                        image: "assets/no_data_found/reels_not_found.png",
+                        text: St.noShortFound.tr,
+                      ),
+                    )
                   : PreloadPageView.builder(
                       controller: controller.preloadPageController,
                       itemCount: controller.mainReels.length,

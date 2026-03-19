@@ -140,7 +140,7 @@ class _UserViewBiddingScreenState extends State<UserViewBiddingScreen> {
                                       scrollDirection: Axis.horizontal,
                                       child: Row(
                                         children: [
-                                          for (int i = 0; i < (product.attributes?[0].values?.length ?? 0); i++)
+                                          for (int i = 0; i < (product.attributes?.isNotEmpty == true ? (product.attributes?[0].values?.length ?? 0) : 0); i++)
                                             Container(
                                               margin: EdgeInsets.only(right: 5),
                                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -153,7 +153,7 @@ class _UserViewBiddingScreenState extends State<UserViewBiddingScreen> {
                                                 // color: AppColors.unselected.withValues(alpha: 0.3),
                                               ),
                                               child: Text(
-                                                product.attributes![0].values?[i] ?? "",
+                                                product.attributes?.isNotEmpty == true ? (product.attributes?[0].values?[i] ?? "") : "",
                                                 overflow: TextOverflow.ellipsis,
                                                 maxLines: 2,
                                                 style: AppFontStyle.styleW500(AppColors.unselected, 12),

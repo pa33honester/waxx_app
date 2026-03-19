@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:blurrycontainer/blurrycontainer.dart';
-import 'package:chewie/chewie.dart';
 import 'package:era_shop/custom/preview_image_widget.dart';
 import 'package:era_shop/utils/Strings/strings.dart';
 import 'package:era_shop/utils/app_circular.dart';
@@ -38,9 +37,10 @@ class ShortsPreview extends StatefulWidget {
 
 class _ShortsPreviewState extends State<ShortsPreview> {
   ManageShortsController manageShortsController = Get.put(ManageShortsController());
-  late VideoPlayerController _videoController;
-  late ChewieController _chewieController;
+  VideoPlayerController? _videoController;
   bool _isInitialized = false;
+  bool _hasError = false;
+  bool _ownsVideoController = false; // true only when we created the controller (network videos)
 
   @override
   void initState() {
@@ -55,38 +55,60 @@ class _ShortsPreviewState extends State<ShortsPreview> {
   }
 
   Future<void> _initializeVideoPlayer() async {
-    _videoController = widget.ifUploadedReel == true ? VideoPlayerController.network("${widget.videoUrl}") : VideoPlayerController.file(manageShortsController.reelVideo!);
+    try {
+      VideoPlayerController videoCtrl;
 
-    await _videoController.initialize();
+      if (widget.ifUploadedReel == true) {
+        // Network video: create a new controller
+        videoCtrl = VideoPlayerController.networkUrl(Uri.parse("${widget.videoUrl}"));
+      } else {
+        // Local file: create a separate controller to avoid conflicts with CreateShort's widgets
+        videoCtrl = VideoPlayerController.file(manageShortsController.reelVideo!);
+      }
+      _ownsVideoController = true;
 
-    _chewieController = ChewieController(
-      videoPlayerController: _videoController,
-      aspectRatio: Get.width / Get.height,
-      showControls: false,
-      autoPlay: true,
-      autoInitialize: true,
-      looping: true,
-    );
+      await videoCtrl.initialize();
+      videoCtrl.setLooping(true);
 
-    setState(() {
-      _isInitialized = true;
-    });
+      _videoController = videoCtrl;
+
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+        });
+
+        // Defer play() to after the build is complete
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            videoCtrl.play();
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint("Video initialization error: $e");
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+          _hasError = true;
+        });
+      }
+    }
   }
 
   void _disposeVideoPlayer() {
-    if (_isInitialized) {
-      _videoController.dispose();
-      _chewieController.dispose();
-    }
+    _videoController?.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     if (!_isInitialized) {
-      return const Center(
-          child: CircularProgressIndicator(
-        color: AppColors.lightPrimary,
-      ));
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: const Center(
+            child: CircularProgressIndicator(
+          color: AppColors.lightPrimary,
+        )),
+      );
     }
     return Stack(
       children: [
@@ -99,7 +121,14 @@ class _ShortsPreviewState extends State<ShortsPreview> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Chewie(controller: _chewieController),
+                if (_videoController != null && _videoController!.value.isInitialized)
+                  Positioned.fill(
+                    child: VideoPlayer(_videoController!),
+                  )
+                else
+                  Positioned.fill(
+                    child: Container(color: Colors.black),
+                  ),
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(

@@ -150,7 +150,6 @@ class CreateShort extends StatelessWidget {
                                                 child: Container(
                                                   clipBehavior: Clip.hardEdge,
                                                   decoration: BoxDecoration(
-                                                    // color: AppColors.tabBackground,
                                                     borderRadius: BorderRadius.circular(13),
                                                   ),
                                                   child: Center(
@@ -202,7 +201,21 @@ class CreateShort extends StatelessWidget {
                                       //   ),
                                       // ).paddingSymmetric(horizontal: 16),
                                     )
-                                  : GestureDetector(
+                                  : manageShortsController.videoPlayerController == null || !manageShortsController.videoPlayerController!.value.isInitialized
+                                      ? Container(
+                                          width: Get.height * 0.190,
+                                          height: Get.height * 0.240,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.tabBackground,
+                                            borderRadius: BorderRadius.circular(15),
+                                          ),
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                                            ),
+                                          ),
+                                        )
+                                      : GestureDetector(
                                       onTap: () {
                                         if (manageShortsController.videoPlayerController!.value.isPlaying) {
                                           manageShortsController.videoPlayerController!.pause();
@@ -568,11 +581,21 @@ class CreateShort extends StatelessWidget {
                 } else if (manageShortsController.selectedProductDescription.text.isEmpty) {
                   displayToast(message: St.selectADescriptionToProceed.tr);
                 } else {
+                  // Dispose the video controller before navigating to avoid Android ExoPlayer conflicts
+                  manageShortsController.videoPlayerController?.dispose();
+                  manageShortsController.videoPlayerController = null;
                   Get.to(
                       () => ShortsPreview(
                             productDescription: manageShortsController.selectedProductDescription.text,
                           ),
-                      transition: Transition.rightToLeft);
+                      transition: Transition.rightToLeft)?.then((_) async {
+                    // Reinitialize video controller when returning from preview
+                    if (manageShortsController.reelVideo != null) {
+                      manageShortsController.videoPlayerController = VideoPlayerController.file(manageShortsController.reelVideo!);
+                      await manageShortsController.videoPlayerController!.initialize();
+                      manageShortsController.update();
+                    }
+                  });
                 }
                 // manageShortsController.reelsXFiles == null
                 //     ? displayToast(message: St.selectAVideoToProceed.tr)

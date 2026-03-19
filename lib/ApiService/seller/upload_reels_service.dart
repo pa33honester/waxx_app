@@ -41,15 +41,25 @@ class UploadReelsApi extends GetxService {
     log("Upload reel by seller :: $body");
 
     request.fields.addAll(body);
-    var res1 = await request.send();
+
+    // Log file size for debugging
+    log("Video file size :: ${(video.lengthSync() / (1024 * 1024)).toStringAsFixed(2)} MB");
+
+    var res1 = await request.send().timeout(
+      const Duration(minutes: 3),
+      onTimeout: () {
+        throw Exception('Upload timed out. The video file may be too large or your connection is slow.');
+      },
+    );
     var response = await http.Response.fromStream(res1);
 
+    log('Reels add By Seller :: STATUS CODE :: ${response.statusCode} \n RESPONSE :: ${response.body}');
+
     if (response.statusCode == 200) {
-      log('Reels add By Seller :: STATUS CODE :: ${response.statusCode} \n RESPONSE :: ${response.body}');
       final jsonResponse = json.decode(response.body);
       return UploadReelModel.fromJson(jsonResponse);
     } else {
-      throw Exception('Upload Reels failed');
+      throw Exception('Upload Reels failed with status ${response.statusCode}: ${response.body}');
     }
   }
 }

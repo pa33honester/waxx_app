@@ -73,16 +73,19 @@ class _ShortsViewState extends State<ShortsView> {
           },
           itemBuilder: (context, index) {
             final shorts = getAllReels[index];
-            List<Attribute>? attributesArray = shorts.productId![0].attributes;
+            // Guard: skip reels with no associated products
+            final hasProduct = shorts.productId != null && shorts.productId!.isNotEmpty;
+            final product = hasProduct ? shorts.productId![0] : null;
+            List<Attribute>? attributesArray = product?.attributes;
             return ShowShorts(
               videoUrl: "${shorts.video}",
-              productName: "${shorts.productId![0].productName}",
-              productPrice: "${shorts.productId![0].price}",
-              productImage: "${shorts.productId![0].mainImage}",
-              productId: "${shorts.productId![0].id}",
-              productDescription: "${shorts.productId![0].description}",
-              attributeArray: jsonDecode(jsonEncode(attributesArray)),
-              businessName: "${shorts.sellerId!.businessName}",
+              productName: product?.productName ?? "",
+              productPrice: "${product?.price ?? ""}",
+              productImage: product?.mainImage ?? "",
+              productId: product?.id ?? "",
+              productDescription: product?.description ?? "",
+              attributeArray: jsonDecode(jsonEncode(attributesArray ?? [])),
+              businessName: "${shorts.sellerId?.businessName ?? ""}",
               reelId: "${shorts.id}",
               isLikeOrNot: getReelsForUserController.likeDislikes[index],
               selectedIndex: index,
