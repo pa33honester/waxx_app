@@ -12,6 +12,17 @@ import 'package:preload_page_view/preload_page_view.dart';
 class ReelsView extends GetView<ReelsController> {
   const ReelsView({super.key});
 
+  /// Override the default [GetView.controller] getter so that [ReelsController]
+  /// is always available when this view builds — even after SmartManagement
+  /// cleanup or a hot-reload that preserves widget tree state.
+  @override
+  ReelsController get controller {
+    if (!Get.isRegistered<ReelsController>()) {
+      return Get.put(ReelsController(), permanent: true);
+    }
+    return Get.find<ReelsController>();
+  }
+
   @override
   Widget build(BuildContext context) {
     final bottomBarController = Get.find<BottomBarController>();
