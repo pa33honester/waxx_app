@@ -29,6 +29,11 @@ class BottomBarController extends GetxController {
 
   @override
   void onInit() {
+    // Register ReelsController immediately (synchronously) so it is always
+    // available when ReelsView builds, regardless of async timing in init().
+    if (!Get.isRegistered<ReelsController>()) {
+      Get.put(ReelsController(), permanent: true);
+    }
     init();
     settingApiCall();
     super.onInit();
@@ -69,9 +74,6 @@ class BottomBarController extends GetxController {
       Get.put(SellerDataController());
     }
 
-    if (!Get.isRegistered<ReelsController>()) {
-      Get.put(ReelsController(), permanent: true);
-    }
     if (isSeller == true) {
       log("IsSeller TrUeeeeeeeee>>>>>>>${sellerId}     ${loginUserId}>>>>>>>>>>>>>>>${Database.loginUserId}${Database.sellerId}");
       Database.fetchSellerDetailsModel = await FetchSellerProfileApi.callApi(sellerId: Database.sellerId, loginUserId: Database.loginUserId);
