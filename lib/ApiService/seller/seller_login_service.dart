@@ -2,11 +2,33 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:era_shop/ApiModel/seller/SellerLoginModel.dart';
 import 'package:era_shop/utils/api_url.dart';
 import 'package:get/get.dart';
 
 class SellerLoginApi extends GetxService {
+  /// Returns the correct [MediaType] for the given file [path] based on its
+  /// extension.  Falls back to `image/jpeg` so that the server never receives
+  /// the generic `application/octet-stream` type that multer rejects.
+  MediaType _getMediaType(String path) {
+    final ext = path.split('.').last.toLowerCase();
+    switch (ext) {
+      case 'png':
+        return MediaType('image', 'png');
+      case 'gif':
+        return MediaType('image', 'gif');
+      case 'webp':
+        return MediaType('image', 'webp');
+      case 'bmp':
+        return MediaType('image', 'bmp');
+      case 'jpg':
+      case 'jpeg':
+      default:
+        return MediaType('image', 'jpeg');
+    }
+  }
+
   Future<SellerLoginModel?> sellerLogin({
     required String userId,
     required String storeName,
@@ -42,20 +64,36 @@ class SellerLoginApi extends GetxService {
     request.headers["Content-Type"] = "multipart/form-data";
 
     log("Logo path :: ${logo.path}");
-    var addImage = await http.MultipartFile.fromPath('logo', logo.path);
+    var addImage = await http.MultipartFile.fromPath(
+      'logo',
+      logo.path,
+      contentType: _getMediaType(logo.path),
+    );
     request.files.add(addImage);
 
     log("Gov ID Images :: $govId");
     for (int i = 0; i < govId.length; i++) {
-      var addImages = await http.MultipartFile.fromPath('govId', govId[i].path);
+      var addImages = await http.MultipartFile.fromPath(
+        'govId',
+        govId[i].path,
+        contentType: _getMediaType(govId[i].path),
+      );
       request.files.add(addImages);
     }
     for (int i = 0; i < registrationCert.length; i++) {
-      var addImages = await http.MultipartFile.fromPath('registrationCert', registrationCert[i].path);
+      var addImages = await http.MultipartFile.fromPath(
+        'registrationCert',
+        registrationCert[i].path,
+        contentType: _getMediaType(registrationCert[i].path),
+      );
       request.files.add(addImages);
     }
     for (int i = 0; i < addressProof.length; i++) {
-      var addImages = await http.MultipartFile.fromPath('addressProof', addressProof[i].path);
+      var addImages = await http.MultipartFile.fromPath(
+        'addressProof',
+        addressProof[i].path,
+        contentType: _getMediaType(addressProof[i].path),
+      );
       request.files.add(addImages);
     }
 

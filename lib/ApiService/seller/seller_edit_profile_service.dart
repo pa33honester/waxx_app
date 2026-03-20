@@ -1,12 +1,31 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:era_shop/ApiModel/seller/SellerEditProfileModel.dart';
 import 'package:era_shop/utils/api_url.dart';
 import 'package:era_shop/utils/globle_veriables.dart';
 import 'package:get/get.dart';
 
 class SellerProfileEditApi extends GetxService {
+  MediaType _getMediaType(String path) {
+    final ext = path.split('.').last.toLowerCase();
+    switch (ext) {
+      case 'png':
+        return MediaType('image', 'png');
+      case 'gif':
+        return MediaType('image', 'gif');
+      case 'webp':
+        return MediaType('image', 'webp');
+      case 'bmp':
+        return MediaType('image', 'bmp');
+      case 'jpg':
+      case 'jpeg':
+      default:
+        return MediaType('image', 'jpeg');
+    }
+  }
+
   Future<SellerEditProfileModel?> sellerProfileEdit({
     required String businessName,
     required String businessTag,
@@ -49,8 +68,11 @@ class SellerProfileEditApi extends GetxService {
       if (sellerImageXFile == null) {
         log("sellerImageXFile NULL");
       } else {
-        var addImage =
-            await http.MultipartFile.fromPath('image', sellerImageXFile!.path);
+        var addImage = await http.MultipartFile.fromPath(
+          'image',
+          sellerImageXFile!.path,
+          contentType: _getMediaType(sellerImageXFile!.path),
+        );
         request.files.add(addImage);
         log("IMAGE ==========================================${sellerImageXFile!.path}=======");
       }

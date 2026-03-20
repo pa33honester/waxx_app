@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:era_shop/ApiModel/seller/ProductEditModel.dart';
 import 'package:era_shop/utils/api_url.dart';
 import 'package:get/get.dart';
@@ -9,6 +10,24 @@ import 'package:get/get.dart';
 import '../../utils/globle_veriables.dart';
 
 class ProductEditApi extends GetxService {
+  MediaType _getMediaType(String path) {
+    final ext = path.split('.').last.toLowerCase();
+    switch (ext) {
+      case 'png':
+        return MediaType('image', 'png');
+      case 'gif':
+        return MediaType('image', 'gif');
+      case 'webp':
+        return MediaType('image', 'webp');
+      case 'bmp':
+        return MediaType('image', 'bmp');
+      case 'jpg':
+      case 'jpeg':
+      default:
+        return MediaType('image', 'jpeg');
+    }
+  }
+
   Future<ProductEditModel> editProduct({
     required String sellerId,
     required File mainImage,
@@ -56,9 +75,17 @@ class ProductEditApi extends GetxService {
       // request.files.add(addImage);
 
       for (final img in images) {
-        request.files.add(await http.MultipartFile.fromPath('images', img.path));
+        request.files.add(await http.MultipartFile.fromPath(
+          'images',
+          img.path,
+          contentType: _getMediaType(img.path),
+        ));
       }
-      request.files.add(await http.MultipartFile.fromPath('mainImage', mainImage.path));
+      request.files.add(await http.MultipartFile.fromPath(
+        'mainImage',
+        mainImage.path,
+        contentType: _getMediaType(mainImage.path),
+      ));
     }
 
     request.headers.addAll({
