@@ -130,21 +130,46 @@ class _SellerEnterOtpState extends State<SellerEnterOtp> {
               25.height,
               DoNotAccount(
                   onTaped: () async {
-                    displayToast(message: St.pleaseWaitToast.tr);
-                    await FirebaseAuth.instance.verifyPhoneNumber(
-                      phoneNumber: "+${sellerController.countryCode} ${sellerController.mobileNumberController.text}",
-                      verificationCompleted: (PhoneAuthCredential credential) {
-                        Get.toNamed("/SellerAddressDetails");
-                      },
-                      verificationFailed: (FirebaseAuthException e) {
-                        log("verification Failed Error :: $e");
-                        displayToast(message: "Mobile Verification Failed");
-                      },
-                      codeSent: (String verificationId, int? resendToken) {
-                        displayToast(message: St.otpSendSuccessfully.tr);
-                      },
-                      codeAutoRetrievalTimeout: (String verificationId) {},
-                    );
+                    try {
+                      displayToast(message: St.pleaseWaitToast.tr);
+
+                      // App is NOT on Google Play Store → Play Integrity always
+                      // fails. Force reCAPTCHA so real numbers get a real SMS OTP.
+                      await FirebaseAuth.instance.setSettings(
+                        forceRecaptchaFlow: true,
+                      );
+
+                      // Build proper E.164 phone number (no space between dial
+                      // code and number).  phoneController holds the number the
+                      // user typed on the previous screen.
+                      final rawDialCode = (sellerController.countryCode).replaceAll('+', '');
+                      final rawPhone = sellerController.phoneController.text.trim();
+                      final fullPhone = '+$rawDialCode$rawPhone';
+                      log('SELLER_RESEND phoneNumber=$fullPhone');
+
+                      await FirebaseAuth.instance.verifyPhoneNumber(
+                        phoneNumber: fullPhone,
+                        timeout: const Duration(seconds: 60),
+                        verificationCompleted: (PhoneAuthCredential credential) {
+                          // Auto-verified — nothing extra needed on resend.
+                        },
+                        verificationFailed: (FirebaseAuthException e) {
+                          log('SELLER_RESEND verificationFailed code=${e.code} message=${e.message}');
+                          displayToast(message: "Resend failed: ${e.message}");
+                        },
+                        codeSent: (String verificationId, int? resendToken) {
+                          log('SELLER_RESEND codeSent verificationId=$verificationId');
+                          SellerCommonController.otpVerificationId = verificationId;
+                          displayToast(message: St.otpSendSuccessfully.tr);
+                        },
+                        codeAutoRetrievalTimeout: (String verificationId) {
+                          SellerCommonController.otpVerificationId = verificationId;
+                        },
+                      );
+                    } catch (e) {
+                      log('SELLER_RESEND error: $e');
+                      displayToast(message: "Resend OTP failed: $e");
+                    }
                   },
                   tapText: St.resendCodeText.tr,
                   text: St.donReceiveCode.tr),

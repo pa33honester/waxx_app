@@ -8,7 +8,6 @@ import 'package:era_shop/utils/database.dart';
 import 'package:era_shop/utils/globle_veriables.dart' as gv;
 import 'package:era_shop/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -38,15 +37,15 @@ class MobileLoginController extends GetxController {
   }
 
   Future<void> _configureAuthSettings() async {
-    // In debug mode, disable app verification so Firebase test phone numbers
-    // (configured in Firebase Console → Authentication → Phone → Test numbers)
-    // work without reCAPTCHA / Play Integrity / APNs verification.
-    if (kDebugMode) {
-      await auth.setSettings(
-        appVerificationDisabledForTesting: true,
-      );
-      log('FIREBASE_DEBUG appVerificationDisabledForTesting=true');
-    }
+    // App is NOT on Google Play Store → Play Integrity always fails.
+    // forceRecaptchaFlow: true makes Firebase use reCAPTCHA for app
+    // verification instead, which works on any build with the correct
+    // SHA fingerprints registered in Firebase.  Real phone numbers receive
+    // a genuine SMS OTP (no test-number restriction).
+    await auth.setSettings(
+      forceRecaptchaFlow: true,
+    );
+    log('FIREBASE forceRecaptchaFlow=true');
   }
 
   String _buildPhoneNumber() {

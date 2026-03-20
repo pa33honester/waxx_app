@@ -31,6 +31,21 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
+            <!--
+                Required for Firebase Phone Auth reCAPTCHA flow.
+                After the reCAPTCHA challenge completes in Chrome Custom Tab,
+                Firebase redirects back to the app via:
+                  com.waxxapp://firebaseauth/link?...
+                Without this intent-filter Android cannot route the redirect
+                back to the app and the OTP flow stalls on the reCAPTCHA screen.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="com.waxxapp"/>
+            </intent-filter>
+
             <intent-filter>
                 <!-- If utilizing $deeplink_path please explicitly declare your hosts, or utilize a wildcard(*) -->
                 <!-- REPLACE `android:scheme` with your Android URI scheme -->

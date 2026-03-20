@@ -361,12 +361,14 @@ class PhoneNoTextField extends StatelessWidget {
             enabled: Database.fetchLoginUserProfileModel?.user?.loginType == 5 ? false : true,
             onCountryChanged: (value) {
               log("Country Code => ${value.dialCode}");
-              dialCode = value.dialCode;
-              countryCode = value.code;
-              print('DIAL CODE :: ${value.code}');
-              getDialCode();
-              // controller.phoneFirstDigit = "+${value.dialCode}";
-              // controller.countryWisePhoneLength = value.maxLength;
+              dialCode = value.dialCode;    // global: digits only, e.g. "91"
+              countryCode = value.code;     // global: ISO code, e.g. "IN"
+              getDialCode();               // converts ISO → "+91", updates global dialCode
+              // Keep the controller's instance field in sync so that
+              // onSubmitSellerDetails() and the resend-OTP screen use the
+              // correct dial code when building the E.164 phone number.
+              controller.countryCode = dialCode ?? '+${value.dialCode}';
+              log('SELLER countryCode updated to ${controller.countryCode}');
             },
             flagsButtonPadding: const EdgeInsets.all(8),
             dropdownIconPosition: IconPosition.trailing,

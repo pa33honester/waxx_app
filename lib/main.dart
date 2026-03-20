@@ -23,7 +23,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -74,17 +73,18 @@ Future<void> main() async {
   log('FIREBASE_DEBUG messagingSenderId=${app.options.messagingSenderId}');
   log('FIREBASE_DEBUG apiKey=${app.options.apiKey.substring(0, 8)}...');
 
-  // Enable Firebase test phone numbers in debug mode.
-  // This disables app verification (reCAPTCHA/Play Integrity) so that
-  // test phone numbers configured in Firebase Console work correctly.
-  // The server will recognize the test number and fire codeSent without
-  // actually sending an SMS.
-  if (kDebugMode) {
-    await FirebaseAuth.instance.setSettings(
-      appVerificationDisabledForTesting: true,
-    );
-    log('FIREBASE_DEBUG ✅ appVerificationDisabledForTesting=true set in main()');
-  }
+  // Since this app is NOT deployed to Google Play Store, Play Integrity
+  // cannot verify the app identity and will always fail with "missing a
+  // valid app identifier".
+  //
+  // forceRecaptchaFlow: true → Firebase uses reCAPTCHA instead of Play
+  // Integrity for app verification.  This allows REAL phone numbers to
+  // receive a genuine SMS OTP on any build (debug or release) as long as
+  // the SHA-1 / SHA-256 fingerprints are registered in the Firebase project.
+  await FirebaseAuth.instance.setSettings(
+    forceRecaptchaFlow: true,
+  );
+  log('FIREBASE ✅ forceRecaptchaFlow=true set in main()');
 
   await GetStorage.init();
 

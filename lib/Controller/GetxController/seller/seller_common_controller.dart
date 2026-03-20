@@ -20,7 +20,6 @@ import 'package:era_shop/utils/database.dart';
 import 'package:era_shop/utils/globle_veriables.dart';
 import 'package:era_shop/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -254,19 +253,22 @@ class SellerCommonController extends GetxController {
             barrierDismissible: false,
           );
 
-          // Apply the same debug-bypass setting that MobileLoginController uses,
-          // so Play Integrity / reCAPTCHA checks are skipped in debug builds.
-          // On a real device in release mode this block is skipped and Firebase
-          // will use Play Integrity (SHA-1 must be registered in Firebase Console).
+          // App is NOT on Google Play Store → Play Integrity always fails.
+          // forceRecaptchaFlow: true makes Firebase use reCAPTCHA instead,
+          // which works on any build with the correct SHA fingerprints
+          // registered in Firebase.  Real phone numbers receive a genuine
+          // SMS OTP (no test-number restriction).
           await FirebaseAuth.instance.setSettings(
-            appVerificationDisabledForTesting: kDebugMode,
+            forceRecaptchaFlow: true,
           );
-          log('SELLER_DEBUG appVerificationDisabledForTesting=$kDebugMode');
+          log('SELLER forceRecaptchaFlow=true');
 
           // Build a valid E.164 phone number (+<dialCode><number>).
-          // `dialCode` from intl_phone_field returns digits only (e.g. "91"),
-          // so we must prefix with "+" when it is missing.
-          final rawDialCode = (dialCode ?? "91").replaceAll('+', '');
+          // Use the instance `countryCode` field (e.g. "+91") which is kept in
+          // sync with the IntlPhoneField selection via onCountryChanged in
+          // seller_login.dart and initialised in onInit() from the global
+          // dialCode set by getDialCode() at app startup.
+          final rawDialCode = countryCode.replaceAll('+', '');
           final rawPhone = phoneController.text.trim();
           final fullPhone = '+$rawDialCode$rawPhone';
 
@@ -507,9 +509,13 @@ class SellerCommonController extends GetxController {
 
   @override
   void onInit() {
-    // TODO: implement onInit
     getBankName();
-    dialCode = Database.fetchLoginUserProfileModel?.user?.countryCode;
+    // NOTE: user?.countryCode stores the ISO country code (e.g. "IN"), NOT a
+    // phone dial code (e.g. "+91").  We must NOT write it into the global
+    // `dialCode` variable because that would corrupt phone-number building.
+    // The global `dialCode` is already set correctly by getDialCode() in
+    // main.dart at startup.  We just sync the instance field from it.
+    countryCode = dialCode ?? '+91';
     super.onInit();
   }
 
