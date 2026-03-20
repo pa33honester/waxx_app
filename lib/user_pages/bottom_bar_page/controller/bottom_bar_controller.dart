@@ -69,10 +69,8 @@ class BottomBarController extends GetxController {
       Get.put(SellerDataController());
     }
 
-    try {
-      Get.find<ReelsController>();
-    } catch (e) {
-      Get.put(ReelsController());
+    if (!Get.isRegistered<ReelsController>()) {
+      Get.put(ReelsController(), permanent: true);
     }
     if (isSeller == true) {
       log("IsSeller TrUeeeeeeeee>>>>>>>${sellerId}     ${loginUserId}>>>>>>>>>>>>>>>${Database.loginUserId}${Database.sellerId}");
