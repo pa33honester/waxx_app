@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/seller/SellerOrderCountModel.dart';
-import 'package:era_shop/ApiService/seller/seller_order_count_service.dart';
+import 'package:waxxapp/ApiModel/seller/SellerOrderCountModel.dart';
+import 'package:waxxapp/ApiService/seller/seller_order_count_service.dart';
 import 'package:get/get.dart';
 
 class SellerOrderCountController extends GetxController {

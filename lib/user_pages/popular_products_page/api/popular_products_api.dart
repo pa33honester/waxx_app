@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:era_shop/user_pages/popular_products_page/model/popular_product_model.dart';
-import 'package:era_shop/utils/api_url.dart';
+import 'package:waxxapp/user_pages/popular_products_page/model/popular_product_model.dart';
+import 'package:waxxapp/utils/api_url.dart';
 import 'package:http/http.dart' as http;
 
 class PopularProductApi {

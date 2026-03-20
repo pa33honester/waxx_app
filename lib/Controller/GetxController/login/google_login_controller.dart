@@ -1,8 +1,8 @@
 import 'dart:developer';
-import 'package:era_shop/View/UserLogin/demo_sign_in.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/show_toast.dart';
+import 'package:waxxapp/View/UserLogin/demo_sign_in.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/show_toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';

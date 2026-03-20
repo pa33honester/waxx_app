@@ -1,10 +1,10 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/user/UserAddAddressModel.dart';
-import 'package:era_shop/ApiService/user/user_add_address_service.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/Theme/theme_service.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/ApiModel/user/UserAddAddressModel.dart';
+import 'package:waxxapp/ApiService/user/user_add_address_service.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/Theme/theme_service.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

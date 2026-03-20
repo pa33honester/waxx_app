@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:era_shop/user_pages/bottom_bar_page/model/admin_setting_model.dart';
-import 'package:era_shop/utils/api_url.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/user_pages/bottom_bar_page/model/admin_setting_model.dart';
+import 'package:waxxapp/utils/api_url.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:http/http.dart' as http;
 
 class AdminSettingsApi {

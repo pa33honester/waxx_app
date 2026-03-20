@@ -1,10 +1,10 @@
 import 'dart:developer';
-import 'package:era_shop/ApiModel/seller/get_all_bank_model.dart';
-import 'package:era_shop/Controller/ApiControllers/seller/api_seller_edit_profile_controller.dart';
-import 'package:era_shop/Controller/GetxController/user/user_add_address_controller.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/show_toast.dart';
+import 'package:waxxapp/ApiModel/seller/get_all_bank_model.dart';
+import 'package:waxxapp/Controller/ApiControllers/seller/api_seller_edit_profile_controller.dart';
+import 'package:waxxapp/Controller/GetxController/user/user_add_address_controller.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/show_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 

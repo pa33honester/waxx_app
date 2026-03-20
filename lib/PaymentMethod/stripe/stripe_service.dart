@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:era_shop/PaymentMethod/stripe/stripe_pay_model.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/PaymentMethod/stripe/stripe_pay_model.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
 import 'package:http/http.dart' as http;

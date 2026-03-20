@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
-import 'package:era_shop/utils/api_url.dart';
+import 'package:waxxapp/utils/api_url.dart';
 import 'package:get/get.dart';
 import '../../ApiModel/seller/UpdateStatusWiseOrderModel.dart';
 

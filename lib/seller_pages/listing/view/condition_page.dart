@@ -1,14 +1,14 @@
-import 'package:era_shop/View/MyApp/AppPages/product_detail.dart';
-import 'package:era_shop/View/MyApp/AppPages/product_detail_new.dart';
-import 'package:era_shop/custom/main_button_widget.dart';
-import 'package:era_shop/seller_pages/listing/controller/listing_controller.dart';
-import 'package:era_shop/seller_pages/listing/view/listing_summary.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/app_asset.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/app_constant.dart';
-import 'package:era_shop/utils/font_style.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/View/MyApp/AppPages/product_detail.dart';
+import 'package:waxxapp/View/MyApp/AppPages/product_detail_new.dart';
+import 'package:waxxapp/custom/main_button_widget.dart';
+import 'package:waxxapp/seller_pages/listing/controller/listing_controller.dart';
+import 'package:waxxapp/seller_pages/listing/view/listing_summary.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/app_asset.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/app_constant.dart';
+import 'package:waxxapp/utils/font_style.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

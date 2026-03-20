@@ -1,14 +1,14 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:era_shop/Controller/GetxController/seller/seller_edit_profile_controller.dart';
-import 'package:era_shop/custom/main_button_widget.dart';
-import 'package:era_shop/custom/simple_app_bar_widget.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/font_style.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/Controller/GetxController/seller/seller_edit_profile_controller.dart';
+import 'package:waxxapp/custom/main_button_widget.dart';
+import 'package:waxxapp/custom/simple_app_bar_widget.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/font_style.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';

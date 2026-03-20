@@ -1,7 +1,7 @@
 import 'dart:developer';
-import 'package:era_shop/ApiModel/user/GetLiveSellerListModel.dart';
-import 'package:era_shop/ApiService/user/get_live_seller_list_service.dart';
-import 'package:era_shop/utils/database.dart';
+import 'package:waxxapp/ApiModel/user/GetLiveSellerListModel.dart';
+import 'package:waxxapp/ApiService/user/get_live_seller_list_service.dart';
+import 'package:waxxapp/utils/database.dart';
 import 'package:get/get.dart';
 
 class GetLiveSellerListController extends GetxController {

@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/seller/SellerEditProfileModel.dart';
-import 'package:era_shop/ApiService/seller/seller_edit_profile_service.dart';
+import 'package:waxxapp/ApiModel/seller/SellerEditProfileModel.dart';
+import 'package:waxxapp/ApiService/seller/seller_edit_profile_service.dart';
 import 'package:get/get.dart';
 
 class SellerEditController extends GetxController {

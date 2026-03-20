@@ -2,10 +2,10 @@ import 'dart:developer' as log;
 import 'dart:io';
 import 'dart:math';
 
-import 'package:era_shop/Controller/GetxController/seller/attributes_add_product_controller.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/Controller/GetxController/seller/attributes_add_product_controller.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

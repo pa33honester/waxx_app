@@ -1,7 +1,7 @@
 // import 'dart:async';
 // import 'dart:developer';
-// import 'package:era_shop/seller_pages/live_page/view/live_view.dart';
-// import 'package:era_shop/utils/app_colors.dart';
+// import 'package:waxxapp/seller_pages/live_page/view/live_view.dart';
+// import 'package:waxxapp/utils/app_colors.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
 // import 'package:get/get.dart';

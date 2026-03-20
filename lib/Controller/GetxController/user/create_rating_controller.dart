@@ -1,5 +1,5 @@
 import 'dart:developer';
-import 'package:era_shop/utils/show_toast.dart';
+import 'package:waxxapp/utils/show_toast.dart';
 import 'package:get/get.dart';
 import '../../../ApiModel/user/CreateRatingModel.dart';
 import '../../../ApiService/user/create_rating_service.dart';

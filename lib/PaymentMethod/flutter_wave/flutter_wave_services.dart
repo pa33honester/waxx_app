@@ -1,6 +1,6 @@
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/utils.dart';
  import 'package:flutterwave_standard/flutterwave.dart';
  import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';

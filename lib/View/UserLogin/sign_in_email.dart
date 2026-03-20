@@ -1,16 +1,16 @@
 import 'dart:io';
 
-import 'package:era_shop/Controller/GetxController/login/user_login_controller.dart';
-import 'package:era_shop/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
-import 'package:era_shop/utils/CoustomWidget/App_theme_services/text_titles.dart';
-import 'package:era_shop/utils/CoustomWidget/Sign_in_material/common_sign_in_button.dart';
-import 'package:era_shop/utils/CoustomWidget/Sign_in_material/common_sign_in_passwordfield.dart';
-import 'package:era_shop/utils/CoustomWidget/Sign_in_material/common_sign_in_textfield.dart';
-import 'package:era_shop/utils/CoustomWidget/Sign_in_material/dont_account.dart';
-import 'package:era_shop/utils/CoustomWidget/Sign_in_material/other_button.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/font_style.dart';
+import 'package:waxxapp/Controller/GetxController/login/user_login_controller.dart';
+import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
+import 'package:waxxapp/utils/CoustomWidget/App_theme_services/text_titles.dart';
+import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/common_sign_in_button.dart';
+import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/common_sign_in_passwordfield.dart';
+import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/common_sign_in_textfield.dart';
+import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/dont_account.dart';
+import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/other_button.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/font_style.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

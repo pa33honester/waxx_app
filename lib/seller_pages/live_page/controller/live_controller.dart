@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/user/GetLiveSellerListModel.dart';
-import 'package:era_shop/custom/loading_ui.dart';
-import 'package:era_shop/seller_pages/select_product_for_streame/model/selected_product_model.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/database.dart';
-import 'package:era_shop/utils/socket_services.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/ApiModel/user/GetLiveSellerListModel.dart';
+import 'package:waxxapp/custom/loading_ui.dart';
+import 'package:waxxapp/seller_pages/select_product_for_streame/model/selected_product_model.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/database.dart';
+import 'package:waxxapp/utils/socket_services.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

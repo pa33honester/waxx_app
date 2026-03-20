@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:developer';
-import 'package:era_shop/ApiModel/user/GetLiveSellerListModel.dart';
-import 'package:era_shop/custom/loading_ui.dart';
-import 'package:era_shop/seller_pages/live_page/controller/live_controller.dart';
-import 'package:era_shop/seller_pages/live_page/widget/live_widget.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/socket_services.dart';
+import 'package:waxxapp/ApiModel/user/GetLiveSellerListModel.dart';
+import 'package:waxxapp/custom/loading_ui.dart';
+import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
+import 'package:waxxapp/seller_pages/live_page/widget/live_widget.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/socket_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
-import 'package:era_shop/utils/database.dart';
+import 'package:waxxapp/utils/database.dart';
 
 import '../../select_product_for_streame/model/selected_product_model.dart';
 

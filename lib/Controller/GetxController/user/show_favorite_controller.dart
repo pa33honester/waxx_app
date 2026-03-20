@@ -1,6 +1,6 @@
 import 'dart:developer';
-import 'package:era_shop/ApiModel/user/FavoriteItemsModel.dart';
-import 'package:era_shop/ApiService/user/favorite_item_service.dart';
+import 'package:waxxapp/ApiModel/user/FavoriteItemsModel.dart';
+import 'package:waxxapp/ApiService/user/favorite_item_service.dart';
 import 'package:get/get.dart';
 
 class ShowFavoriteController extends GetxController {

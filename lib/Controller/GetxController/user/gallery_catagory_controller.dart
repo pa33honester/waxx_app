@@ -1,8 +1,8 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/user/GalleryCategoryModel.dart';
-import 'package:era_shop/ApiService/user/gallery_catagory_service.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/ApiModel/user/GalleryCategoryModel.dart';
+import 'package:waxxapp/ApiService/user/gallery_catagory_service.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

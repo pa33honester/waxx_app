@@ -1,7 +1,7 @@
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/database.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/database.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

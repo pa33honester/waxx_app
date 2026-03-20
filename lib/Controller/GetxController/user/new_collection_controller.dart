@@ -1,9 +1,9 @@
 import 'dart:developer';
-import 'package:era_shop/ApiModel/user/AddToFavoriteModel.dart';
-import 'package:era_shop/ApiService/user/add_to_favorite_service.dart';
+import 'package:waxxapp/ApiModel/user/AddToFavoriteModel.dart';
+import 'package:waxxapp/ApiService/user/add_to_favorite_service.dart';
 import 'package:get/get.dart';
-import 'package:era_shop/ApiModel/user/GetNewCollectionModel.dart';
-import 'package:era_shop/ApiService/user/get_new_collection_service.dart';
+import 'package:waxxapp/ApiModel/user/GetNewCollectionModel.dart';
+import 'package:waxxapp/ApiService/user/get_new_collection_service.dart';
 
 class NewCollectionController extends GetxController {
   GetNewCollectionModel? getNewCollection;

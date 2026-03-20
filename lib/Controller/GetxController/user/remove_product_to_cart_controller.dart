@@ -1,9 +1,9 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/user/RemoveProductToCartModel.dart';
-import 'package:era_shop/ApiService/user/remove_product_to_cart_service.dart';
-import 'package:era_shop/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/ApiModel/user/RemoveProductToCartModel.dart';
+import 'package:waxxapp/ApiService/user/remove_product_to_cart_service.dart';
+import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:get/get.dart';
 
 import '../../../utils/show_toast.dart';

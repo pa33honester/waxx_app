@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:era_shop/seller_pages/select_product_for_streame/model/selected_product_model.dart';
+import 'package:waxxapp/seller_pages/select_product_for_streame/model/selected_product_model.dart';
 
 SellerLiveStreamListModel sellerLiveStreamListModelFromJson(String str) => SellerLiveStreamListModel.fromJson(json.decode(str));
 

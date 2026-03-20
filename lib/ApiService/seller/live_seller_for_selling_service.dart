@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:http/http.dart' as http;
-import 'package:era_shop/utils/api_url.dart';
+import 'package:waxxapp/utils/api_url.dart';
 import 'package:get/get.dart';
 import '../../ApiModel/seller/LiveSellerForSellingModel.dart';
 import '../../utils/globle_veriables.dart';

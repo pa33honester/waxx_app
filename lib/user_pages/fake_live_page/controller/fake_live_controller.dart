@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:era_shop/user_pages/fake_live_page/widget/fake_comment_data.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/user_pages/fake_live_page/widget/fake_comment_data.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

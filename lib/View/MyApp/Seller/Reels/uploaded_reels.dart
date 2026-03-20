@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:era_shop/View/MyApp/Seller/Reels/shorts_preview.dart';
-import 'package:era_shop/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
-import 'package:era_shop/utils/app_asset.dart';
-import 'package:era_shop/utils/font_style.dart';
+import 'package:waxxapp/View/MyApp/Seller/Reels/shorts_preview.dart';
+import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
+import 'package:waxxapp/utils/app_asset.dart';
+import 'package:waxxapp/utils/font_style.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,8 +14,8 @@ import '../../../../Controller/GetxController/seller/manage_reels_controller.dar
 import '../../../../Controller/GetxController/seller/show_uploaded_reels_controller.dart';
 import '../../../../utils/CoustomWidget/App_theme_services/no_data_found.dart';
 import '../../../../utils/CoustomWidget/App_theme_services/text_titles.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/app_colors.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/app_colors.dart';
 import '../../../../utils/globle_veriables.dart';
 import '../../../../utils/shimmers.dart';
 

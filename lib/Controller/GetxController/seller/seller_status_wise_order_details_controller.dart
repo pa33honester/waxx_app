@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiService/seller/seller_status_wise_order_details_Service.dart';
+import 'package:waxxapp/ApiService/seller/seller_status_wise_order_details_Service.dart';
 
 import 'package:get/get.dart';
 

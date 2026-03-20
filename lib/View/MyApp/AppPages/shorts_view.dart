@@ -1,7 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'dart:convert';
-import 'package:era_shop/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:preload_page_view/preload_page_view.dart';

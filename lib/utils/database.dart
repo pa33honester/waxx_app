@@ -1,10 +1,10 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/login/WhoLoginModel.dart';
-import 'package:era_shop/ApiService/login/who_login_service.dart';
-import 'package:era_shop/user_pages/preview_seller_profile_page/api/fetch_seller_profile_api.dart';
-import 'package:era_shop/user_pages/preview_seller_profile_page/model/fetch_seller_profile_model.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/ApiModel/login/WhoLoginModel.dart';
+import 'package:waxxapp/ApiService/login/who_login_service.dart';
+import 'package:waxxapp/user_pages/preview_seller_profile_page/api/fetch_seller_profile_api.dart';
+import 'package:waxxapp/user_pages/preview_seller_profile_page/model/fetch_seller_profile_model.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';

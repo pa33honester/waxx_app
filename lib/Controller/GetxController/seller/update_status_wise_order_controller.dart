@@ -1,8 +1,8 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiService/seller/confirm_cod_order_item_by_seller_service.dart';
-import 'package:era_shop/Controller/GetxController/seller/seller_status_wise_order_details_controller.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/ApiService/seller/confirm_cod_order_item_by_seller_service.dart';
+import 'package:waxxapp/Controller/GetxController/seller/seller_status_wise_order_details_controller.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 

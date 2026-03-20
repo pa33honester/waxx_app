@@ -1,5 +1,5 @@
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:get/get.dart';
 import '../../seller_wallet_page/model/fetch_withdraw_history_model.dart';
 import '../api/fetch_seller_withdraw_history_api.dart';

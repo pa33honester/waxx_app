@@ -1,4 +1,4 @@
-import 'package:era_shop/utils/app_colors.dart';
+import 'package:waxxapp/utils/app_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 

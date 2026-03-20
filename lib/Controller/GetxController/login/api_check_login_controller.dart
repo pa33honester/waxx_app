@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/login/CheckUserLoginModel.dart';
-import 'package:era_shop/ApiService/login/ckeck_login_service.dart';
+import 'package:waxxapp/ApiModel/login/CheckUserLoginModel.dart';
+import 'package:waxxapp/ApiService/login/ckeck_login_service.dart';
 import 'package:get/get.dart';
 
 class CheckLoginController extends GetxController {

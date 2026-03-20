@@ -1,11 +1,11 @@
 import 'dart:developer';
-import 'package:era_shop/ApiModel/user/MyOrdersModel.dart';
-import 'package:era_shop/ApiService/user/my_order_serivice.dart';
-import 'package:era_shop/user_pages/my_order_page/widget/cancelled_order_view.dart';
-import 'package:era_shop/user_pages/my_order_page/widget/delivered_order_view.dart';
-import 'package:era_shop/user_pages/my_order_page/widget/processing_order_view.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/ApiModel/user/MyOrdersModel.dart';
+import 'package:waxxapp/ApiService/user/my_order_serivice.dart';
+import 'package:waxxapp/user_pages/my_order_page/widget/cancelled_order_view.dart';
+import 'package:waxxapp/user_pages/my_order_page/widget/delivered_order_view.dart';
+import 'package:waxxapp/user_pages/my_order_page/widget/processing_order_view.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

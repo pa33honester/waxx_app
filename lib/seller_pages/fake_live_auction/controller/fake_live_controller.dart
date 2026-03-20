@@ -2,7 +2,7 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 //
@@ -11,8 +11,8 @@ import 'package:get/get.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
 //
-// import 'package:era_shop/seller_pages/select_product_for_streame/model/selected_product_model.dart';
-// import 'package:era_shop/seller_pages/live_page/controller/live_controller.dart';
+// import 'package:waxxapp/seller_pages/select_product_for_streame/model/selected_product_model.dart';
+// import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
 //
 // class LocalChatMessage {
 //   final String id;

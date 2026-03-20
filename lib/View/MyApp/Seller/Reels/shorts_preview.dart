@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:blurrycontainer/blurrycontainer.dart';
-import 'package:era_shop/custom/preview_image_widget.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/app_circular.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/font_style.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/show_toast.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/custom/preview_image_widget.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/app_circular.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/font_style.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/show_toast.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';

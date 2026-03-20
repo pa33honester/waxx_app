@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:era_shop/ApiModel/user/MyOrdersModel.dart';
+import 'package:waxxapp/ApiModel/user/MyOrdersModel.dart';
 import 'package:http/http.dart' as http;
-import 'package:era_shop/utils/api_url.dart';
+import 'package:waxxapp/utils/api_url.dart';
 import 'package:get/get.dart';
 
 class MyOrderApi extends GetxService {

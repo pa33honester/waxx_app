@@ -1,6 +1,6 @@
-// import 'package:era_shop/utils/CoustomWidget/App_theme_services/textfields.dart';
-// import 'package:era_shop/utils/CoustomWidget/Page_devided/home_page_divided.dart';
-// import 'package:era_shop/utils/app_colors.dart';
+// import 'package:waxxapp/utils/CoustomWidget/App_theme_services/textfields.dart';
+// import 'package:waxxapp/utils/CoustomWidget/Page_devided/home_page_divided.dart';
+// import 'package:waxxapp/utils/app_colors.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
 // import '../../../Controller/GetxController/user/get_live_seller_list_controller.dart';

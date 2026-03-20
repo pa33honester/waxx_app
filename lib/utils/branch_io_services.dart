@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:developer';
-import 'package:era_shop/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
-import 'package:era_shop/user_pages/preview_seller_profile_page/view/preview_seller_profile_view.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
+import 'package:waxxapp/user_pages/preview_seller_profile_page/view/preview_seller_profile_view.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:get/get.dart';
 

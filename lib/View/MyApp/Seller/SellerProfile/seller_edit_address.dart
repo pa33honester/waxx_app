@@ -2,17 +2,17 @@
 
 import 'dart:convert';
 
-import 'package:era_shop/Controller/GetxController/seller/seller_edit_profile_controller.dart';
-import 'package:era_shop/Controller/GetxController/user/user_add_address_controller.dart';
-import 'package:era_shop/View/MyApp/Profile/MyAddress/widget/address_select_sheet.dart';
-import 'package:era_shop/custom/main_button_widget.dart';
-import 'package:era_shop/model/ConutryDataModel.dart' as countryData;
-import 'package:era_shop/utils/CoustomWidget/App_theme_services/textfields.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/Zego/ZegoUtils/device_orientation.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/font_style.dart';
-import 'package:era_shop/utils/show_toast.dart';
+import 'package:waxxapp/Controller/GetxController/seller/seller_edit_profile_controller.dart';
+import 'package:waxxapp/Controller/GetxController/user/user_add_address_controller.dart';
+import 'package:waxxapp/View/MyApp/Profile/MyAddress/widget/address_select_sheet.dart';
+import 'package:waxxapp/custom/main_button_widget.dart';
+import 'package:waxxapp/model/ConutryDataModel.dart' as countryData;
+import 'package:waxxapp/utils/CoustomWidget/App_theme_services/textfields.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/Zego/ZegoUtils/device_orientation.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/font_style.dart';
+import 'package:waxxapp/utils/show_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

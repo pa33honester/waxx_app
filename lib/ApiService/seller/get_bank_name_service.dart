@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/seller/get_all_bank_model.dart';
-import 'package:era_shop/utils/api_url.dart';
+import 'package:waxxapp/ApiModel/seller/get_all_bank_model.dart';
+import 'package:waxxapp/utils/api_url.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 

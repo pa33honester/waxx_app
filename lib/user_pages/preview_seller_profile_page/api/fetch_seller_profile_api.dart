@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/seller/SellerFollowersModel.dart';
-import 'package:era_shop/ApiModel/seller/SellerReelsModel.dart';
-import 'package:era_shop/user_pages/preview_seller_profile_page/model/fetch_seller_profile_model.dart';
-import 'package:era_shop/utils/api_url.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/ApiModel/seller/SellerFollowersModel.dart';
+import 'package:waxxapp/ApiModel/seller/SellerReelsModel.dart';
+import 'package:waxxapp/user_pages/preview_seller_profile_page/model/fetch_seller_profile_model.dart';
+import 'package:waxxapp/utils/api_url.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:http/http.dart' as http;
 
 class FetchSellerProfileApi {

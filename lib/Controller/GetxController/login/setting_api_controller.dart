@@ -1,6 +1,6 @@
 import 'dart:developer';
-import 'package:era_shop/utils/Theme/theme_service.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/Theme/theme_service.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:get/get.dart';
 
 import '../../../ApiModel/login/SettingApiModel.dart';

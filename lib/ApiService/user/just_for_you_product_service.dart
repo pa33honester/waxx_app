@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:http/http.dart' as http;
-import 'package:era_shop/utils/api_url.dart';
+import 'package:waxxapp/utils/api_url.dart';
 import 'package:get/get.dart';
 
 import '../../ApiModel/user/JustForYouProductModel.dart';

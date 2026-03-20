@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:era_shop/utils/show_toast.dart';
+import 'package:waxxapp/utils/show_toast.dart';
 import 'package:get/get.dart';
 
 import '../../../ApiModel/seller/ShowUploadedReelsModel.dart';

@@ -1,8 +1,8 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/user/GetAllUserAddressModel.dart';
-import 'package:era_shop/ApiService/user/get_all_user_address_service.dart';
-import 'package:era_shop/Controller/GetxController/user/user_add_address_controller.dart';
+import 'package:waxxapp/ApiModel/user/GetAllUserAddressModel.dart';
+import 'package:waxxapp/ApiService/user/get_all_user_address_service.dart';
+import 'package:waxxapp/Controller/GetxController/user/user_add_address_controller.dart';
 import 'package:get/get.dart';
 
 class GetAllUserAddressController extends GetxController {

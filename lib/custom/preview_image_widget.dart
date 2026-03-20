@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:era_shop/utils/app_asset.dart';
+import 'package:waxxapp/utils/app_asset.dart';
 import 'package:flutter/material.dart';
 
 class PreviewImageWidget extends StatelessWidget {

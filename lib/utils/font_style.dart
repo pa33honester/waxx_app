@@ -1,4 +1,4 @@
-import 'package:era_shop/utils/app_constant.dart';
+import 'package:waxxapp/utils/app_constant.dart';
 import 'package:flutter/material.dart';
 
 abstract class AppFontStyle {

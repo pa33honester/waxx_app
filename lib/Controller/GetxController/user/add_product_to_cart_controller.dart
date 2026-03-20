@@ -1,12 +1,12 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/user/AddProductToCartModel.dart';
-import 'package:era_shop/ApiService/user/add_product_to_cart_service.dart';
-import 'package:era_shop/Controller/GetxController/user/remove_all_product_from_cart_controller.dart';
-import 'package:era_shop/Controller/GetxController/user/user_product_details_controller.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/ApiModel/user/AddProductToCartModel.dart';
+import 'package:waxxapp/ApiService/user/add_product_to_cart_service.dart';
+import 'package:waxxapp/Controller/GetxController/user/remove_all_product_from_cart_controller.dart';
+import 'package:waxxapp/Controller/GetxController/user/user_product_details_controller.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';

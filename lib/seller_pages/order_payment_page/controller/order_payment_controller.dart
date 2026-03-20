@@ -1,20 +1,20 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/user/CreateOrderByUserModel.dart';
-import 'package:era_shop/ApiService/user/check_out_service.dart';
-import 'package:era_shop/ApiService/user/create_order_by_user_service.dart';
-import 'package:era_shop/PaymentMethod/flutter_wave/flutter_wave_services.dart';
-import 'package:era_shop/PaymentMethod/razor_pay/razor_pay_view.dart';
-import 'package:era_shop/PaymentMethod/stripe/stripe_service.dart';
-import 'package:era_shop/View/MyApp/AppPages/cheak_out.dart';
-import 'package:era_shop/custom/loading_ui.dart';
-import 'package:era_shop/seller_pages/order_payment_page/view/order_payment_view.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/Theme/theme_service.dart';
-import 'package:era_shop/utils/app_asset.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/show_toast.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/ApiModel/user/CreateOrderByUserModel.dart';
+import 'package:waxxapp/ApiService/user/check_out_service.dart';
+import 'package:waxxapp/ApiService/user/create_order_by_user_service.dart';
+import 'package:waxxapp/PaymentMethod/flutter_wave/flutter_wave_services.dart';
+import 'package:waxxapp/PaymentMethod/razor_pay/razor_pay_view.dart';
+import 'package:waxxapp/PaymentMethod/stripe/stripe_service.dart';
+import 'package:waxxapp/View/MyApp/AppPages/cheak_out.dart';
+import 'package:waxxapp/custom/loading_ui.dart';
+import 'package:waxxapp/seller_pages/order_payment_page/view/order_payment_view.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/Theme/theme_service.dart';
+import 'package:waxxapp/utils/app_asset.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/show_toast.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:get/get.dart';
 
 import '../../../utils/database.dart' show Database;

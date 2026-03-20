@@ -1,10 +1,10 @@
 import 'dart:developer';
-import 'package:era_shop/ApiModel/seller/DeleteCatalogBySellerModel.dart';
-import 'package:era_shop/ApiService/seller/delete_catalog_api.dart';
-import 'package:era_shop/seller_pages/seller_catalogs_page/view/seller_catalogs_view.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/show_toast.dart';
+import 'package:waxxapp/ApiModel/seller/DeleteCatalogBySellerModel.dart';
+import 'package:waxxapp/ApiService/seller/delete_catalog_api.dart';
+import 'package:waxxapp/seller_pages/seller_catalogs_page/view/seller_catalogs_view.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/show_toast.dart';
 import 'package:get/get.dart';
 
 class DeleteCatalogController extends GetxController {

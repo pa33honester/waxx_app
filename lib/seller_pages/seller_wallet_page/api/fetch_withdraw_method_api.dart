@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:era_shop/seller_pages/seller_wallet_page/model/fetch_withdraw_list_model.dart';
-import 'package:era_shop/utils/api_url.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/seller_pages/seller_wallet_page/model/fetch_withdraw_list_model.dart';
+import 'package:waxxapp/utils/api_url.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:http/http.dart' as http;
 
 class FetchWithdrawMethodApi {

@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/user/UserAddressSelectModel.dart';
-import 'package:era_shop/ApiService/user/user_address_select_service.dart';
+import 'package:waxxapp/ApiModel/user/UserAddressSelectModel.dart';
+import 'package:waxxapp/ApiService/user/user_address_select_service.dart';
 import 'package:get/get.dart';
 
 import '../../../utils/show_toast.dart';

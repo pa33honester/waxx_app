@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:era_shop/ApiModel/seller/AddProductModel.dart';
-import 'package:era_shop/Controller/GetxController/seller/add_product_controller.dart';
-import 'package:era_shop/utils/api_url.dart';
+import 'package:waxxapp/ApiModel/seller/AddProductModel.dart';
+import 'package:waxxapp/Controller/GetxController/seller/add_product_controller.dart';
+import 'package:waxxapp/utils/api_url.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';

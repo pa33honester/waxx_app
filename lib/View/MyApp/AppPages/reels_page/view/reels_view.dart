@@ -1,9 +1,9 @@
-import 'package:era_shop/View/MyApp/AppPages/reels_page/controller/reels_controller.dart';
-import 'package:era_shop/View/MyApp/AppPages/reels_page/widget/reels_widget.dart';
-import 'package:era_shop/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
-import 'package:era_shop/utils/CoustomWidget/App_theme_services/no_data_found.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/shimmers.dart';
+import 'package:waxxapp/View/MyApp/AppPages/reels_page/controller/reels_controller.dart';
+import 'package:waxxapp/View/MyApp/AppPages/reels_page/widget/reels_widget.dart';
+import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
+import 'package:waxxapp/utils/CoustomWidget/App_theme_services/no_data_found.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';

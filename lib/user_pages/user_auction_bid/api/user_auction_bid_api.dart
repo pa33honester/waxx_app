@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:era_shop/user_pages/user_auction_bid/model/product_wise_user_auction_bid_model.dart';
-import 'package:era_shop/user_pages/user_auction_bid/model/user_auction_bid_model.dart';
-import 'package:era_shop/utils/api_url.dart';
+import 'package:waxxapp/user_pages/user_auction_bid/model/product_wise_user_auction_bid_model.dart';
+import 'package:waxxapp/user_pages/user_auction_bid/model/user_auction_bid_model.dart';
+import 'package:waxxapp/utils/api_url.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 

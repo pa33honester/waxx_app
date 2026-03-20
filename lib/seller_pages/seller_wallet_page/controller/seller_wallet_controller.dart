@@ -1,15 +1,15 @@
-import 'package:era_shop/custom/loading_ui.dart';
-import 'package:era_shop/seller_pages/seller_wallet_page/api/fetch_withdraw_method_api.dart';
-import 'package:era_shop/seller_pages/seller_wallet_page/api/seller_create_withdraw_request_api.dart';
-import 'package:era_shop/seller_pages/seller_wallet_page/api/seller_wallet_history_api.dart';
-import 'package:era_shop/seller_pages/seller_wallet_page/dialog/confirm_withdraw_dialog.dart';
-import 'package:era_shop/seller_pages/seller_wallet_page/model/create_withdraw_request_model.dart';
-import 'package:era_shop/seller_pages/seller_wallet_page/model/fetch_seller_history_model.dart';
-import 'package:era_shop/seller_pages/seller_wallet_page/model/fetch_withdraw_list_model.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/Theme/theme_service.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/custom/loading_ui.dart';
+import 'package:waxxapp/seller_pages/seller_wallet_page/api/fetch_withdraw_method_api.dart';
+import 'package:waxxapp/seller_pages/seller_wallet_page/api/seller_create_withdraw_request_api.dart';
+import 'package:waxxapp/seller_pages/seller_wallet_page/api/seller_wallet_history_api.dart';
+import 'package:waxxapp/seller_pages/seller_wallet_page/dialog/confirm_withdraw_dialog.dart';
+import 'package:waxxapp/seller_pages/seller_wallet_page/model/create_withdraw_request_model.dart';
+import 'package:waxxapp/seller_pages/seller_wallet_page/model/fetch_seller_history_model.dart';
+import 'package:waxxapp/seller_pages/seller_wallet_page/model/fetch_withdraw_list_model.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/Theme/theme_service.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

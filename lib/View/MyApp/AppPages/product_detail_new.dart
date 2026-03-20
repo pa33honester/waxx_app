@@ -1,15 +1,15 @@
 // import 'dart:io';
 //
 // import 'package:cached_network_image/cached_network_image.dart';
-// import 'package:era_shop/Controller/GetxController/user/user_product_details_controller.dart';
-// import 'package:era_shop/custom/main_button_widget.dart';
-// import 'package:era_shop/utils/Strings/strings.dart';
-// import 'package:era_shop/utils/app_asset.dart';
-// import 'package:era_shop/utils/app_colors.dart';
-// import 'package:era_shop/utils/app_constant.dart';
-// import 'package:era_shop/utils/font_style.dart';
-// import 'package:era_shop/utils/globle_veriables.dart';
-// import 'package:era_shop/utils/utils.dart';
+// import 'package:waxxapp/Controller/GetxController/user/user_product_details_controller.dart';
+// import 'package:waxxapp/custom/main_button_widget.dart';
+// import 'package:waxxapp/utils/Strings/strings.dart';
+// import 'package:waxxapp/utils/app_asset.dart';
+// import 'package:waxxapp/utils/app_colors.dart';
+// import 'package:waxxapp/utils/app_constant.dart';
+// import 'package:waxxapp/utils/font_style.dart';
+// import 'package:waxxapp/utils/globle_veriables.dart';
+// import 'package:waxxapp/utils/utils.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
 // import 'package:shimmer/shimmer.dart';

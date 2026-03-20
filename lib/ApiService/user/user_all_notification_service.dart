@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import '../../ApiModel/user/get_all_notifications_model.dart';

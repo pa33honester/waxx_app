@@ -1,14 +1,14 @@
 // ignore_for_file: must_be_immutable
 
-import 'package:era_shop/Controller/GetxController/user/UserPasswordManage/user_password_controller.dart';
-import 'package:era_shop/custom/simple_app_bar_widget.dart';
-import 'package:era_shop/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
-import 'package:era_shop/utils/CoustomWidget/App_theme_services/textfields.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/Theme/theme_service.dart';
-import 'package:era_shop/utils/app_circular.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/font_style.dart';
+import 'package:waxxapp/Controller/GetxController/user/UserPasswordManage/user_password_controller.dart';
+import 'package:waxxapp/custom/simple_app_bar_widget.dart';
+import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
+import 'package:waxxapp/utils/CoustomWidget/App_theme_services/textfields.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/Theme/theme_service.dart';
+import 'package:waxxapp/utils/app_circular.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/font_style.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';

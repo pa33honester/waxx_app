@@ -1,12 +1,12 @@
 import 'dart:developer';
-import 'package:era_shop/ApiModel/login/LoginModel.dart';
-import 'package:era_shop/ApiService/login/login_service.dart';
-import 'package:era_shop/ApiService/login/who_login_service.dart';
-import 'package:era_shop/Controller/ApiControllers/seller/api_seller_data_controller.dart';
-import 'package:era_shop/user_pages/preview_seller_profile_page/api/fetch_seller_profile_api.dart';
-import 'package:era_shop/utils/Theme/theme_service.dart';
-import 'package:era_shop/utils/database.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/ApiModel/login/LoginModel.dart';
+import 'package:waxxapp/ApiService/login/login_service.dart';
+import 'package:waxxapp/ApiService/login/who_login_service.dart';
+import 'package:waxxapp/Controller/ApiControllers/seller/api_seller_data_controller.dart';
+import 'package:waxxapp/user_pages/preview_seller_profile_page/api/fetch_seller_profile_api.dart';
+import 'package:waxxapp/utils/Theme/theme_service.dart';
+import 'package:waxxapp/utils/database.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:get/get.dart';
 
 class LoginController extends GetxController {

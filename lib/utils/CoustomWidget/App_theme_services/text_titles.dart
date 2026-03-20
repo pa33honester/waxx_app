@@ -1,6 +1,6 @@
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/app_constant.dart';
-import 'package:era_shop/utils/font_style.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/app_constant.dart';
+import 'package:waxxapp/utils/font_style.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

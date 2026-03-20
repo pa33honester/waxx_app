@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:era_shop/Controller/GetxController/login/user_login_controller.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
+import 'package:waxxapp/Controller/GetxController/login/user_login_controller.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

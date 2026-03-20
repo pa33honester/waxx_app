@@ -2,8 +2,8 @@
 
 import 'dart:developer';
 import 'dart:io';
-import 'package:era_shop/Controller/GetxController/seller/seller_product_detail_controller.dart';
-import 'package:era_shop/utils/show_toast.dart';
+import 'package:waxxapp/Controller/GetxController/seller/seller_product_detail_controller.dart';
+import 'package:waxxapp/utils/show_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import '../../../ApiModel/seller/ProductEditModel.dart';

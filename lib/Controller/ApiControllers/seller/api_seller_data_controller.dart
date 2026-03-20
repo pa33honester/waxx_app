@@ -1,7 +1,7 @@
 import 'dart:developer';
-import 'package:era_shop/ApiService/seller/seller_data_service.dart';
-import 'package:era_shop/utils/database.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/ApiService/seller/seller_data_service.dart';
+import 'package:waxxapp/utils/database.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:get/get.dart';
 
 import '../../../ApiModel/seller/seller_data_model.dart';

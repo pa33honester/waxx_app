@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:era_shop/seller_pages/listing/controller/listing_controller.dart';
-import 'package:era_shop/seller_pages/listing/view/photos_edit_screen.dart';
-import 'package:era_shop/seller_pages/listing/widget/list_title.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/app_constant.dart';
-import 'package:era_shop/utils/font_style.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/seller_pages/listing/controller/listing_controller.dart';
+import 'package:waxxapp/seller_pages/listing/view/photos_edit_screen.dart';
+import 'package:waxxapp/seller_pages/listing/widget/list_title.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/app_constant.dart';
+import 'package:waxxapp/utils/font_style.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

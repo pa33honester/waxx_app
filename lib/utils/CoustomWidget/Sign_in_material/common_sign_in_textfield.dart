@@ -1,7 +1,7 @@
-import 'package:era_shop/Controller/GetxController/login/user_login_controller.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/font_style.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/Controller/GetxController/login/user_login_controller.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/font_style.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

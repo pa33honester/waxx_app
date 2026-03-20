@@ -1,9 +1,9 @@
-import 'package:era_shop/custom/simple_app_bar_widget.dart';
-import 'package:era_shop/utils/CoustomWidget/Sign_in_material/common_sign_in_button.dart';
-import 'package:era_shop/utils/CoustomWidget/Sign_in_material/dont_account.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/font_style.dart';
+import 'package:waxxapp/custom/simple_app_bar_widget.dart';
+import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/common_sign_in_button.dart';
+import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/dont_account.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/font_style.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';

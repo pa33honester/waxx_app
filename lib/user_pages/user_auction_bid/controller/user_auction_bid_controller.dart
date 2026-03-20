@@ -1,10 +1,10 @@
-import 'package:era_shop/Controller/GetxController/user/user_product_details_controller.dart';
-import 'package:era_shop/user_pages/user_auction_bid/api/user_auction_bid_api.dart';
-import 'package:era_shop/user_pages/user_auction_bid/model/product_wise_user_auction_bid_model.dart';
-import 'package:era_shop/user_pages/user_auction_bid/model/user_auction_bid_model.dart';
-import 'package:era_shop/utils/app_constant.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/show_toast.dart';
+import 'package:waxxapp/Controller/GetxController/user/user_product_details_controller.dart';
+import 'package:waxxapp/user_pages/user_auction_bid/api/user_auction_bid_api.dart';
+import 'package:waxxapp/user_pages/user_auction_bid/model/product_wise_user_auction_bid_model.dart';
+import 'package:waxxapp/user_pages/user_auction_bid/model/user_auction_bid_model.dart';
+import 'package:waxxapp/utils/app_constant.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/show_toast.dart';
 import 'package:get/get.dart';
 
 class UserAuctionBidController extends GetxController {

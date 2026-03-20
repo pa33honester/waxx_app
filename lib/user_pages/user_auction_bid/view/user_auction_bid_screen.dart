@@ -1,13 +1,13 @@
-import 'package:era_shop/custom/simple_app_bar_widget.dart';
-import 'package:era_shop/user_pages/user_auction_bid/widget/user_auction_bid_item.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/shimmers.dart';
+import 'package:waxxapp/custom/simple_app_bar_widget.dart';
+import 'package:waxxapp/user_pages/user_auction_bid/widget/user_auction_bid_item.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../controller/user_auction_bid_controller.dart';
-import 'package:era_shop/utils/app_constant.dart';
+import 'package:waxxapp/utils/app_constant.dart';
 
 class UserAuctionBidScreen extends StatelessWidget {
   final controller = Get.put(UserAuctionBidController());

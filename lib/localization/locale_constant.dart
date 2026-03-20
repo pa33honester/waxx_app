@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'dart:ui';
 
-import 'package:era_shop/utils/Theme/theme_service.dart';
+import 'package:waxxapp/utils/Theme/theme_service.dart';
 
 Future<Locale> getLocale() async {
   String languageCode = getStorage.read(LocalizationConstant.selectedLanguage) ?? LocalizationConstant.languageEn;

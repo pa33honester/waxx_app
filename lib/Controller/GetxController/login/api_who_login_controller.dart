@@ -1,6 +1,6 @@
 import 'dart:developer';
-import 'package:era_shop/ApiModel/login/WhoLoginModel.dart';
-import 'package:era_shop/ApiService/login/who_login_service.dart';
+import 'package:waxxapp/ApiModel/login/WhoLoginModel.dart';
+import 'package:waxxapp/ApiService/login/who_login_service.dart';
 import 'package:get/get.dart';
 
 import '../../../utils/database.dart' show Database;

@@ -1,6 +1,6 @@
 import 'dart:developer';
-import 'package:era_shop/ApiModel/login/ForgotPasswordModel.dart';
-import 'package:era_shop/ApiService/login/forgot_password_service.dart';
+import 'package:waxxapp/ApiModel/login/ForgotPasswordModel.dart';
+import 'package:waxxapp/ApiService/login/forgot_password_service.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 

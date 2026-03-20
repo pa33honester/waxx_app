@@ -1,7 +1,7 @@
-import 'package:era_shop/View/OnboardingScreens/on_boarding.dart';
-import 'package:era_shop/custom/exit_app_dialog.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/View/OnboardingScreens/on_boarding.dart';
+import 'package:waxxapp/custom/exit_app_dialog.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';

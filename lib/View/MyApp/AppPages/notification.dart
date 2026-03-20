@@ -1,14 +1,14 @@
 // ignore_for_file: must_be_immutable
 
-import 'package:era_shop/custom/custom_color_bg_widget.dart';
-import 'package:era_shop/custom/preview_profile_image_widget.dart';
-import 'package:era_shop/custom/simple_app_bar_widget.dart';
-import 'package:era_shop/utils/CoustomWidget/App_theme_services/no_data_found.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/font_style.dart';
-import 'package:era_shop/utils/shimmers.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/custom/custom_color_bg_widget.dart';
+import 'package:waxxapp/custom/preview_profile_image_widget.dart';
+import 'package:waxxapp/custom/simple_app_bar_widget.dart';
+import 'package:waxxapp/utils/CoustomWidget/App_theme_services/no_data_found.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/font_style.dart';
+import 'package:waxxapp/utils/shimmers.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';

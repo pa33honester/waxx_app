@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:era_shop/ApiModel/seller/SellerProductDetailsModel.dart';
-import 'package:era_shop/ApiService/seller/seller_product_details_service.dart';
-import 'package:era_shop/Controller/GetxController/seller/add_product_controller.dart';
-import 'package:era_shop/Controller/GetxController/seller/attributes_add_product_controller.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/ApiModel/seller/SellerProductDetailsModel.dart';
+import 'package:waxxapp/ApiService/seller/seller_product_details_service.dart';
+import 'package:waxxapp/Controller/GetxController/seller/add_product_controller.dart';
+import 'package:waxxapp/Controller/GetxController/seller/attributes_add_product_controller.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 

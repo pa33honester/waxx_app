@@ -1,11 +1,11 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:era_shop/Controller/GetxController/seller/show_uploaded_reels_controller.dart';
-import 'package:era_shop/seller_pages/listing/controller/chat_gpt_controller.dart';
-import 'package:era_shop/utils/app_constant.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/show_toast.dart';
+import 'package:waxxapp/Controller/GetxController/seller/show_uploaded_reels_controller.dart';
+import 'package:waxxapp/seller_pages/listing/controller/chat_gpt_controller.dart';
+import 'package:waxxapp/utils/app_constant.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/show_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_video_thumbnail/get_video_thumbnail.dart';

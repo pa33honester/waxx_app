@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:era_shop/seller_pages/select_product_for_streame/model/selected_product_model.dart';
+import 'package:waxxapp/seller_pages/select_product_for_streame/model/selected_product_model.dart';
 import 'package:get/get.dart';
 
 import '../../../ApiModel/seller/LiveSellerForSellingModel.dart';

@@ -1,13 +1,13 @@
 // import 'dart:io';
 //
-// import 'package:era_shop/Controller/ApiControllers/seller/api_seller_data_controller.dart';
-// import 'package:era_shop/View/MyApp/AppPages/cart_page.dart';
-// import 'package:era_shop/View/MyApp/AppPages/reels_page/controller/reels_controller.dart';
-// import 'package:era_shop/View/MyApp/AppPages/reels_page/view/reels_view.dart';
-// import 'package:era_shop/user_pages/home_page/view/home_view.dart';
-// import 'package:era_shop/utils/Zego/create_engine.dart';
-// import 'package:era_shop/utils/all_images.dart';
-// import 'package:era_shop/utils/app_colors.dart';
+// import 'package:waxxapp/Controller/ApiControllers/seller/api_seller_data_controller.dart';
+// import 'package:waxxapp/View/MyApp/AppPages/cart_page.dart';
+// import 'package:waxxapp/View/MyApp/AppPages/reels_page/controller/reels_controller.dart';
+// import 'package:waxxapp/View/MyApp/AppPages/reels_page/view/reels_view.dart';
+// import 'package:waxxapp/user_pages/home_page/view/home_view.dart';
+// import 'package:waxxapp/utils/Zego/create_engine.dart';
+// import 'package:waxxapp/utils/all_images.dart';
+// import 'package:waxxapp/utils/app_colors.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
 // import '../../../Controller/GetxController/login/api_who_login_controller.dart';

@@ -1,6 +1,6 @@
-import 'package:era_shop/ApiModel/user/ProfileEditModel.dart';
-import 'package:era_shop/ApiService/login/profile_edit_service.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/ApiModel/user/ProfileEditModel.dart';
+import 'package:waxxapp/ApiService/login/profile_edit_service.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:get/get.dart';
 
 class ApiProfileEditController extends GetxController {

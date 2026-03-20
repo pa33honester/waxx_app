@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:era_shop/ApiModel/seller/DeleteCatalogBySellerModel.dart';
-import 'package:era_shop/utils/api_url.dart';
+import 'package:waxxapp/ApiModel/seller/DeleteCatalogBySellerModel.dart';
+import 'package:waxxapp/utils/api_url.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 

@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:era_shop/main.dart';
-import 'package:era_shop/seller_pages/live_page/controller/live_controller.dart';
-import 'package:era_shop/utils/api_url.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/main.dart';
+import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
+import 'package:waxxapp/utils/api_url.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;

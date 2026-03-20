@@ -1,6 +1,6 @@
 import 'dart:developer';
-import 'package:era_shop/ApiModel/seller/SelectedProductForLiveModel.dart';
-import 'package:era_shop/ApiService/seller/selected_product_for_live_service.dart';
+import 'package:waxxapp/ApiModel/seller/SelectedProductForLiveModel.dart';
+import 'package:waxxapp/ApiService/seller/selected_product_for_live_service.dart';
 import 'package:get/get.dart';
 
 class SelectedProductForLiveController extends GetxController {

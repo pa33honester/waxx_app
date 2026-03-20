@@ -1,9 +1,9 @@
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:era_shop/ApiModel/seller/ShowCatalogModel.dart';
-import 'package:era_shop/ApiService/seller/show_catalog_service.dart';
-import 'package:era_shop/utils/show_toast.dart';
+import 'package:waxxapp/ApiModel/seller/ShowCatalogModel.dart';
+import 'package:waxxapp/ApiService/seller/show_catalog_service.dart';
+import 'package:waxxapp/utils/show_toast.dart';
 
 class ShowCatalogController extends GetxController {
   ShowCatalogModel? showCatalogData;
@@ -141,9 +141,9 @@ class ShowCatalogController extends GetxController {
 }
 
 // import 'dart:developer';
-// import 'package:era_shop/ApiModel/seller/ShowCatalogModel.dart';
-// import 'package:era_shop/ApiService/seller/show_catalog_service.dart';
-// import 'package:era_shop/utils/show_toast.dart';
+// import 'package:waxxapp/ApiModel/seller/ShowCatalogModel.dart';
+// import 'package:waxxapp/ApiService/seller/show_catalog_service.dart';
+// import 'package:waxxapp/utils/show_toast.dart';
 // import 'package:get/get.dart';
 //
 // class ShowCatalogController extends GetxController {

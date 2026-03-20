@@ -4,12 +4,12 @@
 //
 // import 'package:blurrycontainer/blurrycontainer.dart';
 // import 'package:cached_network_image/cached_network_image.dart';
-// import 'package:era_shop/utils/Strings/strings.dart';
-// import 'package:era_shop/utils/Zego/ZegoUtils/device_orientation.dart';
-// import 'package:era_shop/utils/app_asset.dart';
-// import 'package:era_shop/utils/app_colors.dart';
-// import 'package:era_shop/utils/font_style.dart';
-// import 'package:era_shop/utils/utils.dart';
+// import 'package:waxxapp/utils/Strings/strings.dart';
+// import 'package:waxxapp/utils/Zego/ZegoUtils/device_orientation.dart';
+// import 'package:waxxapp/utils/app_asset.dart';
+// import 'package:waxxapp/utils/app_colors.dart';
+// import 'package:waxxapp/utils/font_style.dart';
+// import 'package:waxxapp/utils/utils.dart';
 // import 'package:flutter/cupertino.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';

@@ -1,12 +1,12 @@
 import 'dart:developer';
-import 'package:era_shop/ApiModel/seller/GetReelsForUserModel.dart';
-import 'package:era_shop/ApiModel/user/report_reason_model.dart';
-import 'package:era_shop/ApiModel/user/report_reel_model.dart';
-import 'package:era_shop/ApiService/user/report_service.dart';
-import 'package:era_shop/View/MyApp/AppPages/reels_page/api/fetch_reels_api.dart';
-import 'package:era_shop/utils/branch_io_services.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/ApiModel/seller/GetReelsForUserModel.dart';
+import 'package:waxxapp/ApiModel/user/report_reason_model.dart';
+import 'package:waxxapp/ApiModel/user/report_reel_model.dart';
+import 'package:waxxapp/ApiService/user/report_service.dart';
+import 'package:waxxapp/View/MyApp/AppPages/reels_page/api/fetch_reels_api.dart';
+import 'package:waxxapp/utils/branch_io_services.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:get/get.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 

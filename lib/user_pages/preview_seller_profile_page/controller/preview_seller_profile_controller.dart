@@ -1,10 +1,10 @@
-import 'package:era_shop/ApiModel/seller/SellerFollowersModel.dart';
-import 'package:era_shop/ApiModel/seller/SellerReelsModel.dart';
-import 'package:era_shop/Controller/GetxController/user/follow_unfollow_controller.dart';
-import 'package:era_shop/Controller/GetxController/user/new_collection_controller.dart';
-import 'package:era_shop/user_pages/preview_seller_profile_page/api/fetch_seller_profile_api.dart';
-import 'package:era_shop/user_pages/preview_seller_profile_page/model/fetch_seller_profile_model.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/ApiModel/seller/SellerFollowersModel.dart';
+import 'package:waxxapp/ApiModel/seller/SellerReelsModel.dart';
+import 'package:waxxapp/Controller/GetxController/user/follow_unfollow_controller.dart';
+import 'package:waxxapp/Controller/GetxController/user/new_collection_controller.dart';
+import 'package:waxxapp/user_pages/preview_seller_profile_page/api/fetch_seller_profile_api.dart';
+import 'package:waxxapp/user_pages/preview_seller_profile_page/model/fetch_seller_profile_model.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

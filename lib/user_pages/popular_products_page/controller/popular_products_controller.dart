@@ -1,5 +1,5 @@
-import 'package:era_shop/user_pages/popular_products_page/model/popular_product_model.dart';
-import 'package:era_shop/user_pages/popular_products_page/api/popular_products_api.dart';
+import 'package:waxxapp/user_pages/popular_products_page/model/popular_product_model.dart';
+import 'package:waxxapp/user_pages/popular_products_page/api/popular_products_api.dart';
 import 'package:get/get.dart';
 
 class PopularProductsController extends GetxController {

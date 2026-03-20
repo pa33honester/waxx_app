@@ -1,4 +1,4 @@
-import 'package:era_shop/utils/app_colors.dart';
+import 'package:waxxapp/utils/app_colors.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 Future<bool?> displayToast({required String message, bool? isBottomToast}) {

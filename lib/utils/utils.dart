@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:math' as math;
-import 'package:era_shop/utils/Zego/ZegoUtils/device_orientation.dart';
-import 'package:era_shop/utils/app_colors.dart';
+import 'package:waxxapp/utils/Zego/ZegoUtils/device_orientation.dart';
+import 'package:waxxapp/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';

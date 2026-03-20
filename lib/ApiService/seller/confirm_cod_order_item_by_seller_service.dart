@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:era_shop/ApiModel/seller/confirm_cod_order_seller_model.dart';
-import 'package:era_shop/utils/api_url.dart';
+import 'package:waxxapp/ApiModel/seller/confirm_cod_order_seller_model.dart';
+import 'package:waxxapp/utils/api_url.dart';
 import 'package:http/http.dart' as http;
 
 class ConfirmCodOrderItemBySellerService {

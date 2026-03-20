@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:era_shop/ApiModel/login/LoginModel.dart';
-import 'package:era_shop/utils/Theme/theme_service.dart';
-import 'package:era_shop/utils/api_url.dart';
+import 'package:waxxapp/ApiModel/login/LoginModel.dart';
+import 'package:waxxapp/utils/Theme/theme_service.dart';
+import 'package:waxxapp/utils/api_url.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
 

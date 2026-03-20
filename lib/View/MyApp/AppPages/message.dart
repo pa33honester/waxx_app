@@ -1,7 +1,7 @@
-import 'package:era_shop/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
-import 'package:era_shop/utils/CoustomWidget/App_theme_services/text_titles.dart';
-import 'package:era_shop/utils/all_images.dart';
-import 'package:era_shop/utils/app_colors.dart';
+import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
+import 'package:waxxapp/utils/CoustomWidget/App_theme_services/text_titles.dart';
+import 'package:waxxapp/utils/all_images.dart';
+import 'package:waxxapp/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';

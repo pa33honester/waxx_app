@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/user/place_bid_model.dart';
-import 'package:era_shop/utils/api_url.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/ApiModel/user/place_bid_model.dart';
+import 'package:waxxapp/utils/api_url.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:http/http.dart' as http;
 
 class AuctionBidService {

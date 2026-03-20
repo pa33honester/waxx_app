@@ -2,17 +2,17 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:era_shop/ApiModel/seller/LiveSellerForSellingModel.dart';
-import 'package:era_shop/ApiModel/user/GetLiveSellerListModel.dart';
-import 'package:era_shop/ApiService/seller/live_seller_for_selling_service.dart';
-import 'package:era_shop/seller_pages/live_page/view/live_view.dart';
-import 'package:era_shop/seller_pages/select_product_for_streame/api/fetch_seller_products_api.dart';
-import 'package:era_shop/utils/Strings/strings.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/ApiModel/seller/LiveSellerForSellingModel.dart';
+import 'package:waxxapp/ApiModel/user/GetLiveSellerListModel.dart';
+import 'package:waxxapp/ApiService/seller/live_seller_for_selling_service.dart';
+import 'package:waxxapp/seller_pages/live_page/view/live_view.dart';
+import 'package:waxxapp/seller_pages/select_product_for_streame/api/fetch_seller_products_api.dart';
+import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:era_shop/seller_pages/select_product_for_streame/model/fetch_product_model.dart';
+import 'package:waxxapp/seller_pages/select_product_for_streame/model/fetch_product_model.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../utils/database.dart' show Database;

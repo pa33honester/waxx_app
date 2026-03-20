@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:era_shop/seller_pages/listing/model/fetch_category_sub_attr_model.dart';
-import 'package:era_shop/utils/api_url.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/seller_pages/listing/model/fetch_category_sub_attr_model.dart';
+import 'package:waxxapp/utils/api_url.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:http/http.dart' as http;
 
 class FetchCategorySubAttributesApi {

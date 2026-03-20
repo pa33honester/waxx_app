@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:era_shop/View/MyApp/AppPages/cheak_out.dart';
-import 'package:era_shop/utils/app_colors.dart';
+import 'package:waxxapp/View/MyApp/AppPages/cheak_out.dart';
+import 'package:waxxapp/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';

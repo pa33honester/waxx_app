@@ -1,8 +1,8 @@
 import 'dart:developer';
 
-import 'package:era_shop/ApiModel/user/GetReviewModel.dart';
-import 'package:era_shop/ApiService/user/get_review_service.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
+import 'package:waxxapp/ApiModel/user/GetReviewModel.dart';
+import 'package:waxxapp/ApiService/user/get_review_service.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:get/get.dart';
 
 class GetReviewController extends GetxController {

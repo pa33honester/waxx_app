@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';

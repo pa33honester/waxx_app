@@ -1,7 +1,7 @@
 import 'dart:developer';
-import 'package:era_shop/localization/locale_constant.dart';
-import 'package:era_shop/localization/localizations_delegate.dart';
-import 'package:era_shop/utils/Theme/theme_service.dart';
+import 'package:waxxapp/localization/locale_constant.dart';
+import 'package:waxxapp/localization/localizations_delegate.dart';
+import 'package:waxxapp/utils/Theme/theme_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

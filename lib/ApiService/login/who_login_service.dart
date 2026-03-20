@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:era_shop/ApiModel/login/WhoLoginModel.dart';
-import 'package:era_shop/utils/api_url.dart';
-import 'package:era_shop/utils/globle_veriables.dart';
-import 'package:era_shop/utils/utils.dart';
+import 'package:waxxapp/ApiModel/login/WhoLoginModel.dart';
+import 'package:waxxapp/utils/api_url.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/utils.dart';
 import 'package:http/http.dart' as http;
 
 class WhoLoginApi {

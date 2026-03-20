@@ -1,7 +1,7 @@
-import 'package:era_shop/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
-import 'package:era_shop/utils/app_asset.dart';
-import 'package:era_shop/utils/app_colors.dart';
-import 'package:era_shop/utils/app_constant.dart';
+import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
+import 'package:waxxapp/utils/app_asset.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/app_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
