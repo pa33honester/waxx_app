@@ -9,8 +9,9 @@ import '../../ApiModel/login/user_sand_otp_model.dart';
 class UserVerifyOtpService extends GetxService {
   Future<UserSandOtpModel> sandOtp({
     required String email,
+    bool isSignUp = false,
   }) async {
-    final url = Uri.parse(Api.baseUrl + Api.userLoginVerifyOtp);
+    final url = Uri.parse(Api.baseUrl + (isSignUp ? Api.otpCreate : Api.userLoginVerifyOtp));
 
     print('URL :: $url');
 

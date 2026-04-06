@@ -46,6 +46,9 @@ class UserLoginController extends GetxController {
   var signUpConfirmPasswordLength = false.obs;
 
   Future<void> sandOtpWhenSignUp() async {
+    final email = eMailController.text.trim();
+    eMailController.text = email;
+
     //// ===== NAME ==== \\\\
     if (firstNameController.text.isBlank == true) {
       firstNameValidate = true.obs;
@@ -56,15 +59,15 @@ class UserLoginController extends GetxController {
     }
 
     //// ===== EMAIL ==== \\\
-    if (eMailController.text.isBlank == true) {
+    if (email.isBlank == true) {
       eMailValidate = true.obs;
       update();
     } else {
       eMailValidate.value = false;
     }
     //---------------------------------------
-    if (eMailController.text.isNotEmpty) {
-      eMailConfirm.value = isEmailValid(eMailController.text);
+    if (email.isNotEmpty) {
+      eMailConfirm.value = isEmailValid(email);
       update();
     }
 
@@ -111,8 +114,10 @@ class UserLoginController extends GetxController {
         try {
           signUpOtpLoading(true);
 
-          await userVerifyOtpController.getOtp(email: eMailController.text);
-          userVerifyOtpController.userSandOtp!.status == true ? Get.to(() => VerifyUserOtp(pageIs: "SignUp"), transition: Transition.rightToLeft) : displayToast(message: St.invalidEmail.tr);
+          await userVerifyOtpController.getOtp(email: email, isSignUp: true);
+          userVerifyOtpController.userSandOtp!.status == true
+              ? Get.to(() => VerifyUserOtp(pageIs: "SignUp"), transition: Transition.rightToLeft)
+              : displayToast(message: userVerifyOtpController.userSandOtp?.message ?? St.invalidEmail.tr);
         } finally {
           signUpOtpLoading(false);
         }
@@ -153,15 +158,16 @@ class UserLoginController extends GetxController {
   Future<void> resendOtpWhenUserSignUp() async {
     try {
       resendCodeLoading(true);
-      await userVerifyOtpController.getOtp(email: eMailController.text);
-      userVerifyOtpController.userSandOtp!.status == true ? displayToast(message: St.otpSendSuccessfully.tr) : displayToast(message: St.invalidEmail.tr);
+      await userVerifyOtpController.getOtp(email: eMailController.text, isSignUp: true);
+      userVerifyOtpController.userSandOtp!.status == true ? displayToast(message: St.otpSendSuccessfully.tr) : displayToast(message: userVerifyOtpController.userSandOtp?.message ?? St.invalidEmail.tr);
     } finally {
       resendCodeLoading(false);
     }
   }
 
   bool isEmailValid(String email) {
-    if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email)) {
+    final normalizedEmail = email.trim();
+    if (!RegExp(r"^[A-Za-z0-9.!#$%&'*+\-/=?^_`{|}~]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$").hasMatch(normalizedEmail)) {
       return true;
     } else {
       return false;

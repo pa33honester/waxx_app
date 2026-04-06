@@ -2,6 +2,112 @@
 
 ---
 
+## 🔧 Version 1.0.1 — Hotfix: Phone Login Fix
+*(Play Store: What's New)*
+
+**Version:** 1.0.1
+**Build Number:** 3
+**Release Date:** April 2026
+**Type:** Hotfix / Patch
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🔧 Bug Fix Update – v1.0.1
+
+✅ Fixed phone number (SMS OTP) login not working
+✅ Fixed "operation not allowed" error on sign-in
+✅ Improved app verification for faster, more reliable OTP delivery
+✅ Better support for debug testing builds
+
+All existing features remain unchanged.
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🐛 Bug Fixes in v1.0.1
+
+**Firebase Phone Authentication — Critical Fix:**
+- **Fixed:** SMS OTP login failing in closed testing with error:
+  *"This operation is not allowed … SMS unable to be sent until this region enabled"*
+- **Root cause:** `forceRecaptchaFlow: true` was hardcoded in 3 files
+  (`main.dart`, `mobile_login_controller.dart`, `seller_common_controller.dart`).
+  This forced reCAPTCHA even in release builds where Play Integrity is available,
+  causing Firebase to reject the app verification request.
+- **Fix:** Changed to `forceRecaptchaFlow: kDebugMode` — reCAPTCHA only in
+  debug/emulator builds; Play Integrity used automatically in release builds.
+
+**Firebase SHA Fingerprint Registration:**
+- Added debug SHA-1 fingerprint to Firebase project (`waxxapp-7ab79`) and
+  re-downloaded `google-services.json` to include both:
+  - Release SHA-1: `8A:94:18:DE:E8:8F:0B:0A:40:F8:49:79:CB:2E:42:B1:47:3C:1D:A8` *(was already registered)*
+  - Debug SHA-1: `18:81:C6:24:6C:D6:CF:CC:C6:2C:40:24:91:2E:64:0F:97:64:1A:C4` *(newly added)*
+
+#### 📁 Files Changed
+| File | Change |
+|---|---|
+| `pubspec.yaml` | Version bumped `1.0.0+2` → `1.0.1+3` |
+| `lib/main.dart` | `forceRecaptchaFlow: true` → `kDebugMode` |
+| `lib/View/UserLogin/mobile_login/controller/mobile_login_controller.dart` | `forceRecaptchaFlow: true` → `kDebugMode` |
+| `lib/Controller/GetxController/seller/seller_common_controller.dart` | `forceRecaptchaFlow: true` → `kDebugMode` |
+| `android/app/google-services.json` | Added debug SHA-1 fingerprint |
+
+#### ✅ Testing Verification (v1.0.1)
+| Target | Method | Status |
+|---|---|---|
+| Closed Testing (Play Store) | Play Integrity | ✅ Fixed |
+| Real device debug (`flutter run`) | reCAPTCHA + debug SHA | ✅ Works |
+| Emulator (Google Play image) | reCAPTCHA + debug SHA | ✅ Works |
+| Emulator (Google APIs image) | Firebase test numbers | ⚠️ Use test numbers |
+
+---
+
+### 🌍 Localized "What's New" Text (v1.0.1)
+
+**Spanish:**
+```
+🔧 Actualización de corrección v1.0.1
+✅ Solucionado: inicio de sesión con número de teléfono no funcionaba
+✅ Corrección del error "operación no permitida" al iniciar sesión
+✅ Entrega de OTP más rápida y confiable
+```
+
+**French:**
+```
+🔧 Mise à jour corrective v1.0.1
+✅ Corrigé : connexion par numéro de téléphone ne fonctionnait pas
+✅ Correction de l'erreur "opération non autorisée" à la connexion
+✅ Livraison OTP plus rapide et fiable
+```
+
+**Arabic:**
+```
+🔧 تحديث إصلاح الأخطاء v1.0.1
+✅ تم إصلاح: تسجيل الدخول برقم الهاتف لم يكن يعمل
+✅ إصلاح خطأ "العملية غير مسموح بها" عند تسجيل الدخول
+✅ تسليم OTP أسرع وأكثر موثوقية
+```
+
+**German:**
+```
+🔧 Fehlerbehebungs-Update v1.0.1
+✅ Behoben: Anmeldung per Telefonnummer funktionierte nicht
+✅ Behebung des Fehlers „Vorgang nicht erlaubt" bei der Anmeldung
+✅ Schnellere und zuverlässigere OTP-Zustellung
+```
+
+**Turkish:**
+```
+🔧 Hata düzeltme güncellemesi v1.0.1
+✅ Düzeltildi: Telefon numarasıyla giriş çalışmıyordu
+✅ Giriş sırasında "işleme izin verilmiyor" hatası düzeltildi
+✅ Daha hızlı ve güvenilir OTP iletimi
+```
+
+
+---
+
 ## 🚀 Version 1.0.0 — Initial Release
 *(Play Store: What's New)*
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'dart:ui' as ui;
 import 'dart:ui';
 
@@ -73,18 +74,17 @@ Future<void> main() async {
   log('FIREBASE_DEBUG messagingSenderId=${app.options.messagingSenderId}');
   log('FIREBASE_DEBUG apiKey=${app.options.apiKey.substring(0, 8)}...');
 
-  // Since this app is NOT deployed to Google Play Store, Play Integrity
-  // cannot verify the app identity and will always fail with "missing a
-  // valid app identifier".
-  //
-  // forceRecaptchaFlow: true → Firebase uses reCAPTCHA instead of Play
-  // Integrity for app verification.  This allows REAL phone numbers to
-  // receive a genuine SMS OTP on any build (debug or release) as long as
-  // the SHA-1 / SHA-256 fingerprints are registered in the Firebase project.
+  // forceRecaptchaFlow strategy:
+  //  • DEBUG / Emulator → true:  Play Integrity is unavailable on emulators
+  //    and sideloaded builds, so we fall back to reCAPTCHA.  Requires the
+  //    debug SHA-1 / SHA-256 to be registered in the Firebase project.
+  //  • RELEASE / Closed-Testing → false:  The app is distributed via Google
+  //    Play, so Firebase can use Play Integrity natively.  Forcing reCAPTCHA
+  //    in release breaks the web flow and triggers "operation-not-allowed".
   await FirebaseAuth.instance.setSettings(
-    forceRecaptchaFlow: true,
+    forceRecaptchaFlow: kDebugMode,
   );
-  log('FIREBASE ✅ forceRecaptchaFlow=true set in main()');
+  log('FIREBASE ✅ forceRecaptchaFlow=${kDebugMode ? "true (debug)" : "false (release)"} set in main()');
 
   await GetStorage.init();
 

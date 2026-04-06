@@ -1,20 +1,20 @@
 {
   "project_info": {
-    "project_number": "325121431101",
-    "project_id": "waxxapp",
-    "storage_bucket": "waxxapp.firebasestorage.app"
+    "project_number": "700017743909",
+    "project_id": "waxxapp-7ab79",
+    "storage_bucket": "waxxapp-7ab79.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:325121431101:android:d3d89d1b86f54e7a7f3c54",
+        "mobilesdk_app_id": "1:700017743909:android:7a8049f9ab163e990707cc",
         "android_client_info": {
           "package_name": "com.waxxapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "325121431101-e7m164erkvqigcp5c083mpad1pso2cb3.apps.googleusercontent.com",
+          "client_id": "700017743909-1p07d45a9mijgmrvu3nf58dqjht9i3n9.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.waxxapp",
@@ -22,20 +22,28 @@
           }
         },
         {
-          "client_id": "325121431101-qdck76ec67ku1u782b35ab5qb8v03h9n.apps.googleusercontent.com",
+          "client_id": "700017743909-8u2egrc69ic94m8vocdemrq6nierblec.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.waxxapp",
+            "certificate_hash": "8a9418dee88f0b0a40f84979cb2e42b1473c1da8"
+          }
+        },
+        {
+          "client_id": "700017743909-v2q5sqd4ktpf8uokgg33d393bcehh905.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDY0LlWTN_yrJ0JX-xONs64GIIAfbMmdgc"
+          "current_key": "AIzaSyAg7rpLIrKc4WaeHGNICxM3ybjM4jNWk2k"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "325121431101-qdck76ec67ku1u782b35ab5qb8v03h9n.apps.googleusercontent.com",
+              "client_id": "700017743909-v2q5sqd4ktpf8uokgg33d393bcehh905.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

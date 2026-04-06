@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 import 'package:waxxapp/ApiModel/seller/get_all_bank_model.dart';
 import 'package:waxxapp/ApiService/seller/get_bank_name_service.dart';
@@ -253,15 +254,14 @@ class SellerCommonController extends GetxController {
             barrierDismissible: false,
           );
 
-          // App is NOT on Google Play Store → Play Integrity always fails.
-          // forceRecaptchaFlow: true makes Firebase use reCAPTCHA instead,
-          // which works on any build with the correct SHA fingerprints
-          // registered in Firebase.  Real phone numbers receive a genuine
-          // SMS OTP (no test-number restriction).
+          // forceRecaptchaFlow strategy:
+          //  • DEBUG / Emulator → true:  Play Integrity unavailable; fall back to reCAPTCHA.
+          //  • RELEASE / Closed-Testing → false:  App is on Play Store; use Play Integrity.
+          //    Forcing reCAPTCHA in release triggers "operation-not-allowed" errors.
           await FirebaseAuth.instance.setSettings(
-            forceRecaptchaFlow: true,
+            forceRecaptchaFlow: kDebugMode,
           );
-          log('SELLER forceRecaptchaFlow=true');
+          log('SELLER forceRecaptchaFlow=${kDebugMode ? "true (debug)" : "false (release)"}');
 
           // Build a valid E.164 phone number (+<dialCode><number>).
           // Use the instance `countryCode` field (e.g. "+91") which is kept in

@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:waxxapp/Controller/GetxController/login/login_controller.dart';
 import 'package:waxxapp/View/UserLogin/demo_sign_in.dart';
 import 'package:waxxapp/custom/loading_ui.dart';
@@ -37,15 +38,14 @@ class MobileLoginController extends GetxController {
   }
 
   Future<void> _configureAuthSettings() async {
-    // App is NOT on Google Play Store → Play Integrity always fails.
-    // forceRecaptchaFlow: true makes Firebase use reCAPTCHA for app
-    // verification instead, which works on any build with the correct
-    // SHA fingerprints registered in Firebase.  Real phone numbers receive
-    // a genuine SMS OTP (no test-number restriction).
+    // forceRecaptchaFlow strategy:
+    //  • DEBUG / Emulator → true:  Play Integrity unavailable; fall back to reCAPTCHA.
+    //  • RELEASE / Closed-Testing → false:  App is on Play Store; use Play Integrity.
+    //    Forcing reCAPTCHA in release triggers "operation-not-allowed" errors.
     await auth.setSettings(
-      forceRecaptchaFlow: true,
+      forceRecaptchaFlow: kDebugMode,
     );
-    log('FIREBASE forceRecaptchaFlow=true');
+    log('FIREBASE forceRecaptchaFlow=${kDebugMode ? "true (debug)" : "false (release)"}');
   }
 
   String _buildPhoneNumber() {

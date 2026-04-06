@@ -21,11 +21,12 @@ class UserVerifyOtpController extends GetxController {
 
   getOtp({
     required String email,
+    bool isSignUp = false,
   }) async {
     try {
       verifyOtpWhenLogin.clear();
       getOtpLoading(true);
-      var data = await UserVerifyOtpService().sandOtp(email: email);
+      var data = await UserVerifyOtpService().sandOtp(email: email, isSignUp: isSignUp);
       userSandOtp = data;
     } finally {
       getOtpLoading(false);
@@ -40,22 +41,23 @@ class UserVerifyOtpController extends GetxController {
   }) async {
     UserLoginController userLoginController = Get.put(UserLoginController());
     CheckLoginController checkLoginController = Get.put(CheckLoginController());
+    final normalizedEmail = email.trim();
     try {
       verifyOtpLoading(true);
       if (verifyOtpWhenLogin.text.isEmpty) {
         displayToast(message: "All fields are required \nto be filled");
       } else {
         await verifyOtpController.getVerifyOtpData(
-          email: email,
+          email: normalizedEmail,
           otp: otp,
         );
         if (verifyOtpController.verifyOtp!.status == true) {
           log("Page is :: $pageIs");
 
           await checkLoginController.getCheckUserData(
-            email: email,
+            email: normalizedEmail,
             password: password,
-            loginType: 1,
+            loginType: 3,
           );
 
           if (pageIs == "SignUp") {
