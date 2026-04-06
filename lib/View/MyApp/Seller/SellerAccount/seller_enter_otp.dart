@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:flutter/foundation.dart';
 
 import 'package:waxxapp/Controller/GetxController/seller/seller_common_controller.dart';
 import 'package:waxxapp/custom/custom_color_bg_widget.dart';
@@ -133,10 +134,11 @@ class _SellerEnterOtpState extends State<SellerEnterOtp> {
                     try {
                       displayToast(message: St.pleaseWaitToast.tr);
 
-                      // App is NOT on Google Play Store → Play Integrity always
-                      // fails. Force reCAPTCHA so real numbers get a real SMS OTP.
+                      // forceRecaptchaFlow: kDebugMode
+                      //  • DEBUG → true:  reCAPTCHA fallback (emulator/debug device)
+                      //  • RELEASE → false: Play Integrity (Play Store build)
                       await FirebaseAuth.instance.setSettings(
-                        forceRecaptchaFlow: true,
+                        forceRecaptchaFlow: kDebugMode,
                       );
 
                       // Build proper E.164 phone number (no space between dial

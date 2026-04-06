@@ -6,7 +6,7 @@
 *(Play Store: What's New)*
 
 **Version:** 1.0.1
-**Build Number:** 3
+**Build Number:** 4
 **Release Date:** April 2026
 **Type:** Hotfix / Patch
 
@@ -31,12 +31,12 @@ All existing features remain unchanged.
 **Firebase Phone Authentication — Critical Fix:**
 - **Fixed:** SMS OTP login failing in closed testing with error:
   *"This operation is not allowed … SMS unable to be sent until this region enabled"*
-- **Root cause:** `forceRecaptchaFlow: true` was hardcoded in 3 files
-  (`main.dart`, `mobile_login_controller.dart`, `seller_common_controller.dart`).
-  This forced reCAPTCHA even in release builds where Play Integrity is available,
-  causing Firebase to reject the app verification request.
-- **Fix:** Changed to `forceRecaptchaFlow: kDebugMode` — reCAPTCHA only in
-  debug/emulator builds; Play Integrity used automatically in release builds.
+- **Root cause:** `forceRecaptchaFlow: true` was hardcoded in **4 files**
+  (`main.dart`, `mobile_login_controller.dart`, `seller_common_controller.dart`,
+  `seller_enter_otp.dart`). This forced reCAPTCHA even in release builds where
+  Play Integrity is available, causing Firebase to reject the app verification request.
+- **Fix:** Changed all occurrences to `forceRecaptchaFlow: kDebugMode` — reCAPTCHA
+  only in debug/emulator builds; Play Integrity used automatically in release builds.
 
 **Firebase SHA Fingerprint Registration:**
 - Added debug SHA-1 fingerprint to Firebase project (`waxxapp-7ab79`) and
@@ -47,10 +47,11 @@ All existing features remain unchanged.
 #### 📁 Files Changed
 | File | Change |
 |---|---|
-| `pubspec.yaml` | Version bumped `1.0.0+2` → `1.0.1+3` |
+| `pubspec.yaml` | Version bumped `1.0.0+2` → `1.0.1+4` |
 | `lib/main.dart` | `forceRecaptchaFlow: true` → `kDebugMode` |
 | `lib/View/UserLogin/mobile_login/controller/mobile_login_controller.dart` | `forceRecaptchaFlow: true` → `kDebugMode` |
 | `lib/Controller/GetxController/seller/seller_common_controller.dart` | `forceRecaptchaFlow: true` → `kDebugMode` |
+| `lib/View/MyApp/Seller/SellerAccount/seller_enter_otp.dart` | `forceRecaptchaFlow: true` → `kDebugMode` (resend OTP) |
 | `android/app/google-services.json` | Added debug SHA-1 fingerprint |
 
 #### ✅ Testing Verification (v1.0.1)
