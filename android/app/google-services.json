@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "700017743909-erh8a331c16r1bhkg6kik4kb1u2dhkff.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.waxxapp",
+            "certificate_hash": "43f494311651d77ab4b0204418922ff48dc9c0e2"
+          }
+        },
+        {
           "client_id": "700017743909-v2q5sqd4ktpf8uokgg33d393bcehh905.apps.googleusercontent.com",
           "client_type": 3
         }
