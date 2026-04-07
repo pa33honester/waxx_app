@@ -2,6 +2,115 @@
 
 ---
 
+## 🔧 Version 1.0.2 — Hotfix: Firebase Auth Fix for Play Store
+*(Play Store: What's New)*
+
+**Version:** 1.0.2
+**Build Number:** 5
+**Release Date:** April 2026
+**Type:** Hotfix / Security
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🔧 Bug Fix Update – v1.0.2
+
+✅ Fixed "not authorized" Firebase Authentication error on Play Store builds
+✅ Resolved Play Integrity token verification failure
+✅ Improved sign-in reliability for phone number (OTP) login
+✅ Security improvement: sensitive config files removed from source control
+
+All existing features remain unchanged.
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🐛 Bug Fixes in v1.0.2
+
+**Firebase Authentication — Play Store Build Fix:**
+- **Fixed:** Firebase Authentication error on Play Store (closed testing) builds:
+  *"This app is not authorized to use Firebase Authentication. A play_integrity_token was passed, but no matching SHA-256 was registered in the Firebase console."*
+- **Root cause:** Google Play App Signing re-signs the AAB with a Google-managed key.
+  The SHA-256 of this App Signing Key (`C8:5C:E5:C6:09:AB:78:38:4A:E8:D1:EB:98:50:21:B3:DE:2C:A2:5D:7D:B5:E2:00:26:52:7B:B6:FD:9F:B7:6E`)
+  was not registered in Firebase Console, so Play Integrity token verification failed.
+- **Fix:** Added Google Play App Signing Key SHA-256 to Firebase Console
+  (Project Settings → com.waxxapp → SHA certificate fingerprints).
+
+**Security Improvement:**
+- Removed `android/app/google-services.json` from git tracking via `.gitignore`
+  to prevent sensitive Firebase API keys and config from being exposed in the repository.
+
+#### 📁 Files Changed
+| File | Change |
+|---|---|
+| `pubspec.yaml` | Version bumped `1.0.1+4` → `1.0.2+5` |
+| `android/app/.gitignore` | `google-services.json` excluded from git (already present) |
+| `android/app/google-services.json` | Removed from git index (`git rm --cached`) |
+
+#### 🔑 Firebase SHA Fingerprints (Full List after v1.0.2)
+| Fingerprint | Type | Source |
+|---|---|---|
+| `8A:94:18:DE...3C:1D:A8` | SHA-1 | Upload key (`waxx_release.jks`) |
+| `18:81:C6:24...64:1A:C4` | SHA-1 | Debug keystore |
+| `DE:FC:1D:B3...19:BE:D3` | SHA-256 | Upload key (`waxx_release.jks`) |
+| `9B:83:91:45...7B:85:6A` | SHA-256 | Debug keystore |
+| `C8:5C:E5:C6...B7:6E` ✅ **(NEW)** | SHA-256 | Google Play App Signing Key |
+
+#### ✅ Testing Verification (v1.0.2)
+| Target | Method | Status |
+|---|---|---|
+| Closed Testing (Play Store) | Play Integrity (App Signing Key) | ✅ Fixed |
+| Sideload / Local APK | Upload key SHA | ✅ Works |
+| Real device debug (`flutter run`) | reCAPTCHA + debug SHA | ✅ Works |
+| Emulator (Google APIs image) | Firebase test numbers | ⚠️ Use test numbers |
+
+---
+
+### 🌍 Localized "What's New" Text (v1.0.2)
+
+**Spanish:**
+```
+🔧 Actualización de corrección v1.0.2
+✅ Solucionado: error de autenticación Firebase en Play Store
+✅ Corrección del fallo de verificación Play Integrity
+✅ Inicio de sesión con OTP más confiable
+```
+
+**French:**
+```
+🔧 Mise à jour corrective v1.0.2
+✅ Corrigé : erreur d'authentification Firebase sur Play Store
+✅ Correction de l'échec de vérification Play Integrity
+✅ Connexion OTP par téléphone plus fiable
+```
+
+**Arabic:**
+```
+🔧 تحديث إصلاح الأخطاء v1.0.2
+✅ تم إصلاح: خطأ في مصادقة Firebase على متجر Play
+✅ إصلاح فشل التحقق من Play Integrity
+✅ تسجيل الدخول عبر OTP أكثر موثوقية
+```
+
+**German:**
+```
+🔧 Fehlerbehebungs-Update v1.0.2
+✅ Behoben: Firebase-Authentifizierungsfehler im Play Store
+✅ Behebung des Play Integrity Verifizierungsfehlers
+✅ Zuverlässigere OTP-Anmeldung per Telefon
+```
+
+**Turkish:**
+```
+🔧 Hata düzeltme güncellemesi v1.0.2
+✅ Düzeltildi: Play Store'da Firebase kimlik doğrulama hatası
+✅ Play Integrity doğrulama hatası giderildi
+✅ Telefon OTP girişi daha güvenilir
+```
+
+---
+
 ## 🔧 Version 1.0.1 — Hotfix: Phone Login Fix
 *(Play Store: What's New)*
 
