@@ -272,8 +272,14 @@ class SellerCommonController extends GetxController {
           // Strip leading zero — many countries use local format with a
           // leading 0 (e.g. Ghana: 0244123456) but E.164 requires none
           // (+233244123456). Without this, Firebase rejects the number.
-          String rawPhone = phoneController.text.trim();
-          if (rawPhone.startsWith('0')) rawPhone = rawPhone.substring(1);
+          final rawPhoneOriginal = phoneController.text.trim();
+          String rawPhone = rawPhoneOriginal;
+          if (rawPhone.startsWith('0')) {
+            rawPhone = rawPhone.substring(1);
+            log("SELLER_DEBUG ⚠️ Leading zero detected and stripped: '$rawPhoneOriginal' → '$rawPhone'");
+          } else {
+            log("SELLER_DEBUG ✅ No leading zero: '$rawPhone'");
+          }
           final fullPhone = '+$rawDialCode$rawPhone';
 
           log("SELLER_DEBUG phoneNumber=$fullPhone");

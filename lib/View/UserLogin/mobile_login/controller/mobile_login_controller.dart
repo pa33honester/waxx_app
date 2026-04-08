@@ -59,7 +59,13 @@ class MobileLoginController extends GetxController {
     // Strip leading zero — many countries use local format with a leading 0
     // (e.g. Ghana: 0244123456, Nigeria: 08012345678) but E.164 requires none.
     // Without this, Firebase rejects the number with "SMS region not enabled".
-    if (rawNumber.startsWith('0')) rawNumber = rawNumber.substring(1);
+    if (rawNumber.startsWith('0')) {
+      final stripped = rawNumber.substring(1);
+      log('FIREBASE_DEBUG ⚠️ Leading zero stripped: "$rawNumber" → "$stripped"');
+      rawNumber = stripped;
+    } else {
+      log('FIREBASE_DEBUG ✅ No leading zero: "$rawNumber"');
+    }
 
     final code = dialCode ?? gv.dialCode ?? '+91';
     return '$code$rawNumber';

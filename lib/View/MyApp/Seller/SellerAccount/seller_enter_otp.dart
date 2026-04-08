@@ -147,8 +147,14 @@ class _SellerEnterOtpState extends State<SellerEnterOtp> {
                       final rawDialCode = (sellerController.countryCode).replaceAll('+', '');
                       // Strip leading zero for countries that use local format
                       // with leading 0 (e.g. Ghana: 0244123456 → 244123456).
-                      String rawPhone = sellerController.phoneController.text.trim();
-                      if (rawPhone.startsWith('0')) rawPhone = rawPhone.substring(1);
+                      final rawPhoneOriginal = sellerController.phoneController.text.trim();
+                      String rawPhone = rawPhoneOriginal;
+                      if (rawPhone.startsWith('0')) {
+                        rawPhone = rawPhone.substring(1);
+                        log('SELLER_RESEND ⚠️ Leading zero stripped: "$rawPhoneOriginal" → "$rawPhone"');
+                      } else {
+                        log('SELLER_RESEND ✅ No leading zero: "$rawPhone"');
+                      }
                       final fullPhone = '+$rawDialCode$rawPhone';
                       log('SELLER_RESEND phoneNumber=$fullPhone');
 
