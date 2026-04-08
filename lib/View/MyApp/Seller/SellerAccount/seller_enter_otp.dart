@@ -141,21 +141,20 @@ class _SellerEnterOtpState extends State<SellerEnterOtp> {
                         forceRecaptchaFlow: kDebugMode,
                       );
 
-                      // Build proper E.164 phone number (no space between dial
-                      // code and number).  phoneController holds the number the
-                      // user typed on the previous screen.
-                      final rawDialCode = (sellerController.countryCode).replaceAll('+', '');
-                      // Strip leading zero for countries that use local format
-                      // with leading 0 (e.g. Ghana: 0244123456 → 244123456).
-                      final rawPhoneOriginal = sellerController.phoneController.text.trim();
-                      String rawPhone = rawPhoneOriginal;
-                      if (rawPhone.startsWith('0')) {
-                        rawPhone = rawPhone.substring(1);
-                        log('SELLER_RESEND ⚠️ Leading zero stripped: "$rawPhoneOriginal" → "$rawPhone"');
+                      // Use the same E.164 that was sent initially (captured
+                      // by IntlPhoneField.onChanged → fullPhoneE164). Falls
+                      // back to manual construction if fullPhoneE164 is null.
+                      late final String fullPhone;
+                      if (sellerController.fullPhoneE164 != null && sellerController.fullPhoneE164!.isNotEmpty) {
+                        fullPhone = sellerController.fullPhoneE164!;
+                        log('SELLER_RESEND ✅ Using fullPhoneE164: $fullPhone');
                       } else {
-                        log('SELLER_RESEND ✅ No leading zero: "$rawPhone"');
+                        final rawDialCode = (sellerController.countryCode).replaceAll('+', '');
+                        String rawPhone = sellerController.phoneController.text.trim();
+                        if (rawPhone.startsWith('0')) rawPhone = rawPhone.substring(1);
+                        fullPhone = '+$rawDialCode$rawPhone';
+                        log('SELLER_RESEND ⚠️ Using fallback construction: $fullPhone');
                       }
-                      final fullPhone = '+$rawDialCode$rawPhone';
                       log('SELLER_RESEND phoneNumber=$fullPhone');
 
                       await FirebaseAuth.instance.verifyPhoneNumber(

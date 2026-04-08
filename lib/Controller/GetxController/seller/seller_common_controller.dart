@@ -51,6 +51,13 @@ class SellerCommonController extends GetxController {
   // int countryWisePhoneLength = 10; // [Default India Phone Len => 10]
   String countryCode = dialCode ?? "+91"; // [Default India Phone Len => +91]
 
+  // Captured by IntlPhoneField.onChanged every time the user types.
+  // Contains the complete E.164 number (e.g. "+233553260033").
+  // Using this is more reliable than building from countryCode + phone because
+  // onCountryChanged only fires when the user explicitly taps the flag picker,
+  // so countryCode can be stale if the initial country was pre-selected.
+  String? fullPhoneE164;
+
   String? bankName;
   final isTermsAndCondition = false.obs;
   void toggleTermsAndCondition() {
@@ -263,24 +270,34 @@ class SellerCommonController extends GetxController {
           );
           log('SELLER forceRecaptchaFlow=${kDebugMode ? "true (debug)" : "false (release)"}');
 
-          // Build a valid E.164 phone number (+<dialCode><number>).
-          // Use the instance `countryCode` field (e.g. "+91") which is kept in
-          // sync with the IntlPhoneField selection via onCountryChanged in
-          // seller_login.dart and initialised in onInit() from the global
-          // dialCode set by getDialCode() at app startup.
-          final rawDialCode = countryCode.replaceAll('+', '');
-          // Strip leading zero — many countries use local format with a
-          // leading 0 (e.g. Ghana: 0244123456) but E.164 requires none
-          // (+233244123456). Without this, Firebase rejects the number.
-          final rawPhoneOriginal = phoneController.text.trim();
-          String rawPhone = rawPhoneOriginal;
-          if (rawPhone.startsWith('0')) {
-            rawPhone = rawPhone.substring(1);
-            log("SELLER_DEBUG ⚠️ Leading zero detected and stripped: '$rawPhoneOriginal' → '$rawPhone'");
+          // ── Phone number building (E.164) ─────────────────────────────────
+          // PRIMARY: use fullPhoneE164 captured by IntlPhoneField.onChanged.
+          //   This is the most reliable source because onChanged fires on every
+          //   keystroke and provides phone.countryCode (the actual displayed
+          //   country dial code) directly from the widget.
+          //
+          // FALLBACK: build manually from countryCode + phoneController.text.
+          //   Used when fullPhoneE164 is null (e.g. pre-filled disabled field
+          //   where onChanged never fired). Re-calls getDialCode() to refresh
+          //   dialCode from the global ISO countryCode so that a stale
+          //   controller.countryCode value (from onInit race condition) doesn't
+          //   produce a wrong country prefix.
+          late final String fullPhone;
+          if (fullPhoneE164 != null && fullPhoneE164!.isNotEmpty) {
+            fullPhone = fullPhoneE164!;
+            log('SELLER_DEBUG ✅ Using fullPhoneE164 (onChanged): $fullPhone');
           } else {
-            log("SELLER_DEBUG ✅ No leading zero: '$rawPhone'");
+            // Fallback: use the global dialCode (set at startup by getDialCode()
+            // in main.dart and updated by onCountryChanged in seller_login.dart).
+            final rawDialCode = (dialCode ?? countryCode).replaceAll('+', '');
+            String rawPhone = phoneController.text.trim();
+            if (rawPhone.startsWith('0')) {
+              rawPhone = rawPhone.substring(1);
+              log("SELLER_DEBUG ⚠️ Fallback: leading zero stripped → '$rawPhone'");
+            }
+            fullPhone = '+$rawDialCode$rawPhone';
+            log('SELLER_DEBUG ⚠️ Using fallback construction: $fullPhone');
           }
-          final fullPhone = '+$rawDialCode$rawPhone';
 
           log("SELLER_DEBUG phoneNumber=$fullPhone");
           await FirebaseAuth.instance.verifyPhoneNumber(

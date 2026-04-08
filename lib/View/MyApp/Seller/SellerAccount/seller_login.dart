@@ -359,6 +359,17 @@ class PhoneNoTextField extends StatelessWidget {
           10.height,
           IntlPhoneField(
             enabled: Database.fetchLoginUserProfileModel?.user?.loginType == 5 ? false : true,
+            onChanged: (phone) {
+              // Capture the complete E.164 number on every keystroke.
+              // This is more reliable than building from countryCode + phone
+              // because onCountryChanged only fires on explicit picker change.
+              // Strip leading zero from national number if present
+              // (Ghana 0553260033 → 553260033 → +233553260033).
+              String national = phone.number.trim();
+              if (national.startsWith('0')) national = national.substring(1);
+              controller.fullPhoneE164 = '+${phone.countryCode}$national';
+              log('SELLER onChanged fullPhoneE164=${controller.fullPhoneE164}');
+            },
             onCountryChanged: (value) {
               log("Country Code => ${value.dialCode}");
               dialCode = value.dialCode;    // global: digits only, e.g. "91"
