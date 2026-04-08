@@ -145,7 +145,10 @@ class _SellerEnterOtpState extends State<SellerEnterOtp> {
                       // code and number).  phoneController holds the number the
                       // user typed on the previous screen.
                       final rawDialCode = (sellerController.countryCode).replaceAll('+', '');
-                      final rawPhone = sellerController.phoneController.text.trim();
+                      // Strip leading zero for countries that use local format
+                      // with leading 0 (e.g. Ghana: 0244123456 → 244123456).
+                      String rawPhone = sellerController.phoneController.text.trim();
+                      if (rawPhone.startsWith('0')) rawPhone = rawPhone.substring(1);
                       final fullPhone = '+$rawDialCode$rawPhone';
                       log('SELLER_RESEND phoneNumber=$fullPhone');
 

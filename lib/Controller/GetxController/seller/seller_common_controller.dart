@@ -269,7 +269,11 @@ class SellerCommonController extends GetxController {
           // seller_login.dart and initialised in onInit() from the global
           // dialCode set by getDialCode() at app startup.
           final rawDialCode = countryCode.replaceAll('+', '');
-          final rawPhone = phoneController.text.trim();
+          // Strip leading zero — many countries use local format with a
+          // leading 0 (e.g. Ghana: 0244123456) but E.164 requires none
+          // (+233244123456). Without this, Firebase rejects the number.
+          String rawPhone = phoneController.text.trim();
+          if (rawPhone.startsWith('0')) rawPhone = rawPhone.substring(1);
           final fullPhone = '+$rawDialCode$rawPhone';
 
           log("SELLER_DEBUG phoneNumber=$fullPhone");
