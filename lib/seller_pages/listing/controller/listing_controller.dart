@@ -317,12 +317,34 @@ class ListingController extends GetxController {
   // }
   File? productImageXFile;
 
-  productPickFromGallery() async {
-    image = await imagePicker.pickImage(source: ImageSource.gallery, imageQuality: 100);
-    productImageXFile = File(image!.path);
-    imageFileList.add(productImageXFile!);
-    print('IMAGE LIST :: $imageFileList');
-    update([AppConstant.idPickImage]);
+  Future<void> productPickFromGallery() async {
+    try {
+      final XFile? pickedImage = await imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 100,
+      );
+
+      if (pickedImage == null || pickedImage.path.isEmpty) {
+        print('Gallery picker returned no image.');
+        return;
+      }
+
+      final selectedFile = File(pickedImage.path);
+      if (!await selectedFile.exists()) {
+        print('Selected gallery image does not exist: ${pickedImage.path}');
+        Get.snackbar('Error', 'Unable to access the selected image.');
+        return;
+      }
+
+      image = pickedImage;
+      productImageXFile = selectedFile;
+      imageFileList.add(selectedFile);
+      print('IMAGE LIST :: $imageFileList');
+      update([AppConstant.idPickImage]);
+    } catch (e) {
+      print('productPickFromGallery error: $e');
+      Get.snackbar('Error', 'Failed to pick image: ${e.toString()}');
+    }
   }
 
   Future<void> takePhoto() async {

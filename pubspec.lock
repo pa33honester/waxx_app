@@ -164,10 +164,9 @@ packages:
   cool_dropdown:
     dependency: "direct main"
     description:
-      name: cool_dropdown
-      sha256: "23926fd242b625bcb7ab30c1336498d60f78267518db439141ca19de403ab030"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/cool_dropdown"
+      relative: true
+    source: path
     version: "2.1.1"
   country_code_picker:
     dependency: "direct main"

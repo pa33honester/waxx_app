@@ -1,7 +1,47 @@
 # Release Notes — Waxx App
 
 ---
+## Version 1.0.3 - Hotfix: Crash Stability Improvements
+*(Play Store: What's New)*
 
+**Version:** 1.0.3
+**Build Number:** 6
+**Release Date:** April 2026
+**Type:** Hotfix / Stability
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+Bug Fix Update - v1.0.3
+
+Fixed a dropdown-related crash in seller product flows.
+Fixed a gallery image picker crash that could happen on some Samsung/Android devices.
+Improved stability when selecting product photos and changing listing options.
+```
+
+### Full Internal Release Notes (for your team)
+
+#### Bug Fixes in v1.0.3
+
+**Dropdown overlay crash fix:**
+- Fixed a crash caused by `DropdownController.close()` attempting to remove an overlay entry after it had already been detached.
+- Root cause: the vendored `cool_dropdown` controller was not guarding repeated close calls during async overlay teardown.
+- Fix: patched the local `cool_dropdown` package to make `close()` idempotent, verify the overlay is still mounted, and clean up controller state safely.
+
+**Listing photo picker null crash:**
+- Fixed a crash in `ListingController.productPickFromGallery()` where `pickImage()` could return `null` and the code immediately forced `image!.path`.
+- This was most visible on some Samsung devices and Android gallery/provider edge cases.
+- Fix: added null checks, empty-path protection, file existence validation, and graceful error handling before adding the image to the listing.
+
+#### Files Changed
+| File | Change |
+|---|---|
+| `pubspec.yaml` | Version bumped `1.0.2+5` -> `1.0.3+6` and local override added for `cool_dropdown` |
+| `lib/seller_pages/listing/controller/listing_controller.dart` | Guarded gallery image picking against null and invalid file results |
+| `packages/cool_dropdown/lib/controllers/dropdown_controller.dart` | Patched overlay close lifecycle handling |
+
+---
 ## 🔧 Version 1.0.2 — Hotfix: Firebase Auth Fix for Play Store
 *(Play Store: What's New)*
 
@@ -344,3 +384,4 @@ Canlı alışveriş yapın, ürün reellerini keşfedin ve açık artırmalara k
 Satıcılar: ürün ekleyin, canlı yayın yapın, siparişleri yönetin.
 Güvenli ödeme, 14+ dil desteği!
 ```
+
