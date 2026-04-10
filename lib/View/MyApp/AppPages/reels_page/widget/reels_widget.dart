@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:blurrycontainer/blurrycontainer.dart';
@@ -26,8 +25,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vibration/vibration.dart';
 import 'package:video_player/video_player.dart';
-
-import '../../../../../ApiModel/seller/GetReelsForUserModel.dart';
 
 class PreviewReelsView extends StatefulWidget {
   const PreviewReelsView({super.key, required this.index, required this.currentPageIndex});

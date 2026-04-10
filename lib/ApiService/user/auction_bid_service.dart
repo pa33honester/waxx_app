@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:waxxapp/ApiModel/user/place_bid_model.dart';
 import 'package:waxxapp/utils/api_url.dart';
-import 'package:waxxapp/utils/utils.dart';
 import 'package:http/http.dart' as http;
 
 class AuctionBidService {

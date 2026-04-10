@@ -40,7 +40,6 @@ class _ShortsPreviewState extends State<ShortsPreview> {
   VideoPlayerController? _videoController;
   bool _isInitialized = false;
   bool _hasError = false;
-  bool _ownsVideoController = false; // true only when we created the controller (network videos)
 
   @override
   void initState() {
@@ -65,8 +64,6 @@ class _ShortsPreviewState extends State<ShortsPreview> {
         // Local file: create a separate controller to avoid conflicts with CreateShort's widgets
         videoCtrl = VideoPlayerController.file(manageShortsController.reelVideo!);
       }
-      _ownsVideoController = true;
-
       await videoCtrl.initialize();
       videoCtrl.setLooping(true);
 
@@ -108,6 +105,21 @@ class _ShortsPreviewState extends State<ShortsPreview> {
             child: CircularProgressIndicator(
           color: AppColors.lightPrimary,
         )),
+      );
+    }
+    if (_hasError) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Text(
+            'Unable to load video preview.',
+            style: GoogleFonts.plusJakartaSans(
+              color: AppColors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       );
     }
     return Stack(

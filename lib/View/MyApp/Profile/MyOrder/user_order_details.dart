@@ -4,7 +4,6 @@ import 'dart:developer';
 
 import 'package:waxxapp/View/MyApp/Profile/MyOrder/cancel_order_by_user.dart';
 import 'package:waxxapp/custom/custom_color_bg_widget.dart';
-import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/simple_app_bar_widget.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
@@ -20,7 +19,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../../../Controller/GetxController/user/create_rating_controller.dart';
 import '../../../../Controller/GetxController/user/create_review_controller.dart';

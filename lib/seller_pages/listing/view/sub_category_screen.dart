@@ -43,7 +43,6 @@ class SubCategoryScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 15),
         child: GetBuilder<ListingController>(
           builder: (controller) {
-            final subCategories = controller.fetchCategorySubAttrModel?.subCategories?.where((sub) => sub.category == categoryId).toList() ?? [];
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,

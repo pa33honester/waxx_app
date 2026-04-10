@@ -1,8 +1,4 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'package:waxxapp/ApiModel/login/IpApiModel.dart';
-import 'package:waxxapp/ApiModel/login/check_password_model.dart';
-import 'package:waxxapp/utils/api_url.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 

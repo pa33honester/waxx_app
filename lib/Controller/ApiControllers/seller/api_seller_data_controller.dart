@@ -5,7 +5,6 @@ import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:get/get.dart';
 
 import '../../../ApiModel/seller/seller_data_model.dart';
-import '../../GetxController/user/SocketManager/socket_manager_controller.dart';
 
 class SellerDataController extends GetxController {
   SellerDataModel? sellerAllData;

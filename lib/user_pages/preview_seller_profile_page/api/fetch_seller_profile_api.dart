@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:waxxapp/ApiModel/seller/SellerFollowersModel.dart';
 import 'package:waxxapp/ApiModel/seller/SellerReelsModel.dart';

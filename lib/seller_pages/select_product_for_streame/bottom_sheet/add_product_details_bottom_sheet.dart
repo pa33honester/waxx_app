@@ -21,9 +21,6 @@ class AddProductDetailsBottomSheet {
     double getBottomSheetHeight() {
       double baseHeight = 0.58;
 
-      if (isAuctionEnabled) {
-        baseHeight = 0.83;
-      }
       if (catalogItems.attributes.length > 3) {
         baseHeight += 0.1;
       }
@@ -315,12 +312,6 @@ class AddProductDetailsBottomSheet {
                               callback: isEmpty
                                   ? null
                                   : () {
-                                      if (isAuctionEnabled) {
-                                        if (bidTimeController.text.isEmpty || bidPriceController.text.isEmpty) {
-                                          Utils.showToast("Please fill auction details");
-                                          return;
-                                        }
-                                      }
                                       Map<String, dynamic> productData = {
                                         'selectedAttributes': selectedAttributes,
                                         'isAuctionEnabled': isAuctionEnabled,

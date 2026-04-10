@@ -12,7 +12,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
-import '../../../utils/globle_veriables.dart';
 
 class LiveController extends GetxController {
   bool isFrontCamera = true;

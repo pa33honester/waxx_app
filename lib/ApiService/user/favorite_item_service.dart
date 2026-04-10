@@ -11,10 +11,6 @@ class FavoriteItemApi extends GetxService {
   Future<FavoriteItemsModel?> showFavoriteItem() async {
     try {
       // String uri = Api.getDomainFromURL(Api.baseUrl);
-      final params = {
-        "userId": loginUserId,
-        // "categoryId": categoryId,
-      };
 
       final url = Uri.parse("${Api.baseUrl + Api.favoriteProducts}?userId=$loginUserId");
       // final url = Uri.https(uri, Api.favoriteProducts, params);

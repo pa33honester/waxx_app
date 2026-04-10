@@ -7,14 +7,12 @@ import 'package:waxxapp/utils/CoustomWidget/App_theme_services/text_titles.dart'
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/Theme/theme_service.dart';
 import 'package:waxxapp/utils/app_colors.dart';
-import 'package:waxxapp/utils/font_style.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../Controller/GetxController/user/delete_address_by_controller.dart';
 import '../../../../utils/CoustomWidget/App_theme_services/no_data_found.dart';
-import '../../../../utils/app_asset.dart';
 import '../../../../utils/app_circular.dart';
 import '../../../../utils/show_toast.dart';
 

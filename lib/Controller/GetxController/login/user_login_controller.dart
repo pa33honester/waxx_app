@@ -11,7 +11,6 @@ import 'package:get/get.dart';
 
 import '../../../View/UserLogin/verify_user_otp.dart';
 import '../../../utils/globle_veriables.dart';
-import '../user/SocketManager/socket_manager_controller.dart';
 import 'api_create_password_controller.dart';
 import 'api_enter_otp_controller.dart';
 import 'api_forgot_password_controller.dart';

@@ -220,7 +220,6 @@ class MobileLoginController extends GetxController {
   onResendOtpClick() async {
     otpController.clear();
 
-    final number = numberController.text.trim();
     final phoneNumber = _buildPhoneNumber();
 
     log('FIREBASE_DEBUG resendPhoneNumber=$phoneNumber');

@@ -4,7 +4,6 @@ import 'package:waxxapp/seller_pages/select_product_for_streame/model/selected_p
 import 'package:get/get.dart';
 
 import '../../../ApiModel/seller/LiveSellerForSellingModel.dart';
-import '../../../ApiService/seller/live_seller_for_selling_service.dart';
 
 class LiveSellerForSellingController extends GetxController {
   LiveSellerForSellingModel? liveSellerForSelling;

@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:waxxapp/ApiModel/seller/ShowCatalogModel.dart';
 import 'package:waxxapp/ApiService/seller/show_catalog_service.dart';
-import 'package:waxxapp/utils/show_toast.dart';
 
 class ShowCatalogController extends GetxController {
   ShowCatalogModel? showCatalogData;

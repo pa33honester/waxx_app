@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/seller_pages/select_product_for_streame/controller/select_product_for_controller.dart';
 import 'package:waxxapp/seller_pages/select_product_for_streame/model/fetch_product_model.dart';
-import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';

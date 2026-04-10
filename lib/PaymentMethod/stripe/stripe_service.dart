@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:waxxapp/PaymentMethod/stripe/stripe_pay_model.dart';
-import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';

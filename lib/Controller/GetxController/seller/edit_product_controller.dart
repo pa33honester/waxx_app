@@ -7,7 +7,6 @@ import 'package:waxxapp/utils/show_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import '../../../ApiModel/seller/ProductEditModel.dart';
-import '../../../ApiService/seller/product_edit_service.dart';
 
 class EditProductController extends GetxController {
   ProductEditModel? productEditModel;

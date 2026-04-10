@@ -6,7 +6,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:waxxapp/Controller/GetxController/user/gallery_catagory_controller.dart';
 import 'package:waxxapp/Controller/GetxController/user/get_all_category_controller.dart';
 import 'package:waxxapp/Controller/GetxController/user/new_collection_controller.dart';
-import 'package:waxxapp/user_pages/home_page/controller/home_controller.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/no_data_found.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/text_titles.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
@@ -19,7 +18,6 @@ import 'package:waxxapp/utils/shimmers.dart';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_rx/src/rx_workers/utils/debouncer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -111,7 +109,6 @@ class _HomeCategoryTabBarWidgetState extends State<HomeCategoryTabBarWidget> wit
 
   @override
   Widget build(BuildContext context) {
-    final homeController = Get.put(HomeController());
 
     return Container(
       width: Get.width,

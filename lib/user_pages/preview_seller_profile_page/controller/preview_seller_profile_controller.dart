@@ -8,7 +8,6 @@ import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../utils/utils.dart';
 
 class PreviewSellerProfileController extends GetxController with GetTickerProviderStateMixin {
   final followUnFollowController = Get.put(FollowUnFollowController());

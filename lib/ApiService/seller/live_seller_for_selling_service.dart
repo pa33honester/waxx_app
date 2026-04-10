@@ -3,9 +3,7 @@ import 'dart:developer';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:waxxapp/utils/api_url.dart';
-import 'package:get/get.dart';
 import '../../ApiModel/seller/LiveSellerForSellingModel.dart';
-import '../../utils/globle_veriables.dart';
 
 /*class LiveSellerForSellingApi extends GetxService {
   Future<LiveSellerForSellingModel> sellerLiveForSellingApi({required List<Map<String, dynamic>> selectedProducts}) async {

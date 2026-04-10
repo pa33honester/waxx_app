@@ -1,13 +1,11 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:waxxapp/custom/main_button_widget.dart';
-import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/seller_pages/listing/controller/listing_controller.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/all_images.dart';
 import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';
-import 'package:waxxapp/utils/app_constant.dart';
 import 'package:waxxapp/utils/font_style.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/utils.dart';
@@ -910,7 +908,7 @@ class PreviewScreen extends StatelessWidget {
 // Individual attribute item for bottom sheet
   Widget _buildBottomSheetAttributeItem(String attributeName, dynamic attributeValue) {
     // String displayValue = '';
-    final displayValues = attributeValue is List ? (attributeValue as List).where((e) => e != null).map((e) => e.toString()).join(', ') : attributeValue?.toString() ?? '';
+    final displayValues = attributeValue is List ? attributeValue.where((e) => e != null).map((e) => e.toString()).join(', ') : attributeValue?.toString() ?? '';
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),

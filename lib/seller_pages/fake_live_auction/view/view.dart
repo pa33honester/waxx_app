@@ -2081,7 +2081,6 @@ class _WinnerPayNow extends StatelessWidget {
       builder: (c) {
         final isVisible = c.isShowWinnerUserPayment;
         final panelWidth = Get.width * 0.75;
-        final offscreenRight = -(panelWidth + 24);
 
         return AnimatedPositioned(
           duration: const Duration(milliseconds: 450),

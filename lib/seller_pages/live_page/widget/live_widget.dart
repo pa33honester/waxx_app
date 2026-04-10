@@ -10,25 +10,17 @@ import 'package:waxxapp/custom/loading_ui.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
 import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
-import 'package:waxxapp/seller_pages/live_page/widget/flip_profile_animation_widget.dart';
-import 'package:waxxapp/seller_pages/select_product_for_streame/model/selected_product_model.dart';
-import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';
-import 'package:waxxapp/utils/app_constant.dart';
 import 'package:waxxapp/utils/branch_io_services.dart';
 import 'package:waxxapp/utils/font_style.dart';
-import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/socket_services.dart';
 import 'package:waxxapp/utils/utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bounce/flutter_bounce.dart';
 import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
 import 'package:lottie/lottie.dart';
-import '../../../utils/database.dart';
 import '../bottom_sheet/product_list_bottom_sheet_ui.dart';
 
 class LiveUi extends StatelessWidget {

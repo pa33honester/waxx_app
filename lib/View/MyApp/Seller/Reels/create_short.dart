@@ -20,7 +20,7 @@ import '../../../../utils/CoustomWidget/App_theme_services/textfields.dart';
 import '../../../../utils/app_asset.dart';
 
 class CreateShort extends StatelessWidget {
-  ManageShortsController manageShortsController = Get.put(ManageShortsController());
+  final ManageShortsController manageShortsController = Get.put(ManageShortsController());
 
   @override
   Widget build(BuildContext context) {

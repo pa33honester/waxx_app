@@ -2,7 +2,6 @@ import 'package:waxxapp/user_pages/preview_seller_profile_page/controller/previe
 import 'package:waxxapp/user_pages/preview_seller_profile_page/widget/store_product_widget.dart';
 import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';
-import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

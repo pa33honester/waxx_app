@@ -87,14 +87,14 @@ class DropdownController<T> implements TickerProvider {
   Animation<double> get rotation => Tween<double>(begin: 0, end: 1).animate(
         CurvedAnimation(
           parent: _controller,
-          curve: this.resultArrowInterval,
+          curve: resultArrowInterval,
         ),
       );
 
   Animation<double> get resultBox => Tween<double>(begin: 0, end: 1).animate(
         CurvedAnimation(
           parent: _controller,
-          curve: this.resultBoxInterval,
+          curve: resultBoxInterval,
         ),
       );
 

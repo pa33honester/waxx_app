@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:waxxapp/utils/api_url.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/utils.dart';
-import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import '../../ApiModel/user/CreateOrderByUserModel.dart';

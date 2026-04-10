@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_colors.dart';

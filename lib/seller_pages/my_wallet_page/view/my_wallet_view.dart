@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:waxxapp/Controller/GetxController/seller/seller_common_controller.dart';
 import 'package:waxxapp/custom/custom_color_bg_widget.dart';
 import 'package:waxxapp/custom/simple_app_bar_widget.dart';

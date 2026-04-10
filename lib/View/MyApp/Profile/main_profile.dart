@@ -6,7 +6,6 @@ import 'package:waxxapp/Controller/GetxController/user/delete_user_account_contr
 import 'package:waxxapp/custom/circle_button_widget.dart';
 import 'package:waxxapp/custom/custom_color_bg_widget.dart';
 import 'package:waxxapp/custom/main_button_widget.dart';
-import 'package:waxxapp/custom/preview_profile_image_widget.dart';
 import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/all_images.dart';

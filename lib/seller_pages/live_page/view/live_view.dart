@@ -13,7 +13,6 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
 import 'package:waxxapp/utils/database.dart';
 
-import '../../select_product_for_streame/model/selected_product_model.dart';
 
 class LivePageView extends StatefulWidget {
   const LivePageView({

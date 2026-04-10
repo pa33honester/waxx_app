@@ -1,7 +1,5 @@
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/material.dart';
-import 'package:cool_dropdown/cool_dropdown.dart';
-import 'package:cool_dropdown/models/cool_dropdown_item.dart';
 import 'package:waxxapp/seller_pages/listing/controller/listing_controller.dart';
 import 'package:waxxapp/seller_pages/listing/widget/listing_app_bar_widget.dart';
 import 'package:waxxapp/seller_pages/listing/widget/title_form_filed.dart';
@@ -9,7 +7,6 @@ import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/font_style.dart';
 import 'package:waxxapp/utils/utils.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class PricingScreen extends StatelessWidget {

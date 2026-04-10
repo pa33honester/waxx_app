@@ -1,5 +1,3 @@
-import 'dart:developer';
-import 'dart:io';
 import 'package:waxxapp/Controller/ApiControllers/user/api_profile_edit_controller.dart';
 import 'package:waxxapp/Controller/GetxController/login/login_controller.dart';
 import 'package:waxxapp/View/UserLogin/demo_sign_in.dart';
@@ -7,7 +5,6 @@ import 'package:waxxapp/View/UserLogin/mobile_login/controller/mobile_login_cont
 import 'package:waxxapp/custom/loading_ui.dart';
 import 'package:waxxapp/custom/simple_app_bar_widget.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
-import 'package:waxxapp/utils/CoustomWidget/App_theme_services/textfields.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/Theme/theme_service.dart';
 import 'package:waxxapp/utils/all_images.dart';

@@ -1,10 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
-import '../../Controller/GetxController/user/get_live_seller_list_controller.dart';
-import '../../View/MyApp/Seller/LiveSelling/live_page.dart';
 
 Future<void> jumpToLivePage(
   BuildContext context, {
@@ -21,7 +17,7 @@ Future<void> jumpToLivePage(
   //   showCatalogController.getCatalogData();
   // }
 
-  GetLiveSellerListController getLiveSellerListController = Get.put(GetLiveSellerListController());
+  // GetLiveSellerListController getLiveSellerListController = Get.put(GetLiveSellerListController());
   //
   // Get.to(
   //       () => LivePage(

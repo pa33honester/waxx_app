@@ -18,7 +18,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../Controller/GetxController/seller/manage_reels_controller.dart';
 import '../../../Controller/GetxController/seller/update_status_wise_order_controller.dart';
 import '../../../Controller/GetxController/user/UserPasswordManage/user_password_controller.dart';
-import '../Page_devided/select_product_when_create_reels.dart';
 
 // searchTextField({TextEditingController? controller, void Function(String)? onFieldSubmitted, context}) {
 //   final FocusNode focusNode = FocusNode();

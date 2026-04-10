@@ -123,7 +123,6 @@ class _SellerProductDetailsViewState extends State<SellerProductDetailsView> {
                                           itemCount: sellerProductDetailsController.sellerProductDetails!.product![0].images?.length,
                                           onPageChanged: (value) {},
                                           itemBuilder: (context, index) {
-                                            final indexData = sellerProductDetailsController.sellerProductDetails!.product![0].images?[index];
                                             return Container(
                                               height: 420,
                                               width: Get.width,

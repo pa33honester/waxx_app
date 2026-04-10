@@ -3,7 +3,6 @@ import 'package:waxxapp/custom/simple_app_bar_widget.dart';
 import 'package:waxxapp/seller_pages/select_product_for_streame/bottom_sheet/add_product_details_bottom_sheet.dart';
 import 'package:waxxapp/seller_pages/select_product_for_streame/bottom_sheet/show_selected_products_bottom_sheet.dart';
 import 'package:waxxapp/seller_pages/select_product_for_streame/controller/select_product_for_controller.dart';
-import 'package:waxxapp/seller_pages/select_product_for_streame/widget/select_product_widget.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/no_data_found.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';

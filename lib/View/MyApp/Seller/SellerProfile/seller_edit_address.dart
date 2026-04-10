@@ -6,7 +6,7 @@ import 'package:waxxapp/Controller/GetxController/seller/seller_edit_profile_con
 import 'package:waxxapp/Controller/GetxController/user/user_add_address_controller.dart';
 import 'package:waxxapp/View/MyApp/Profile/MyAddress/widget/address_select_sheet.dart';
 import 'package:waxxapp/custom/main_button_widget.dart';
-import 'package:waxxapp/model/ConutryDataModel.dart' as countryData;
+import 'package:waxxapp/model/ConutryDataModel.dart' as country_data;
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/textfields.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/Zego/ZegoUtils/device_orientation.dart';
@@ -36,14 +36,14 @@ class _SellerEditAddressState extends State<SellerEditAddress> {
   TextEditingController sheetCityController = TextEditingController();
   List<String>? countries = [];
   List<String>? states = [];
-  List<countryData.ConutryDataModel> countryList = [];
+  List<country_data.ConutryDataModel> countryList = [];
 
   Future<void> loadJsonData() async {
     String jsonContent = await rootBundle.loadString('assets/data/country_state_city.json');
     final data = jsonDecode(jsonContent);
     List list = data;
 
-    countryList = list.map((e) => countryData.ConutryDataModel.fromJson(e)).toList();
+    countryList = list.map((e) => country_data.ConutryDataModel.fromJson(e)).toList();
     countries = countryList.map((e) => e.countryName.toString()).toList();
     updateStatesData(sellerEditProfileController.countryController.text);
   }
@@ -57,10 +57,10 @@ class _SellerEditAddressState extends State<SellerEditAddress> {
     setState(() {});
   }
 
-  List<countryData.StateData>? statesList;
+  List<country_data.StateData>? statesList;
   List<String>? city = [];
   void updateCityData(String selectedStateName) {
-    countryData.StateData? tempData = statesList?.firstWhereOrNull((element) => element.stateName == selectedStateName);
+    country_data.StateData? tempData = statesList?.firstWhereOrNull((element) => element.stateName == selectedStateName);
     city = tempData?.cities?.map((e) => e.cityName.toString()).toList();
 
     setState(() {});

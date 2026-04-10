@@ -1,15 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:waxxapp/main.dart';
 import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
 import 'package:waxxapp/utils/api_url.dart';
-import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
-import '../seller_pages/select_product_for_streame/model/selected_product_model.dart';
 import 'database.dart';
 
 io.Socket? socket;

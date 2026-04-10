@@ -22,7 +22,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
-import '../user/SocketManager/socket_manager_controller.dart';
 import 'api_who_login_controller.dart';
 import 'setting_api_controller.dart';
 

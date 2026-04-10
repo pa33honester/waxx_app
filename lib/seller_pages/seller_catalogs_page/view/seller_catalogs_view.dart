@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:waxxapp/Controller/ApiControllers/seller/show_catalog_controller.dart';
 import 'package:waxxapp/custom/custom_color_bg_widget.dart';
-import 'package:waxxapp/custom/simple_app_bar_widget.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/no_data_found.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_asset.dart';

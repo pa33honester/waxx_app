@@ -7,16 +7,13 @@ import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:country_code_picker/country_code_picker.dart';
-import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/custom/no_internet_dialog.dart';
 import 'package:waxxapp/localization/locale_constant.dart';
 import 'package:waxxapp/localization/localizations_delegate.dart';
 import 'package:waxxapp/utils/Theme/theme_service.dart';
 import 'package:waxxapp/utils/Theme/thems.dart';
 import 'package:waxxapp/utils/Zego/ZegoUtils/device_orientation.dart';
-import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/database.dart';
-import 'package:waxxapp/utils/font_style.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/routes_pages.dart';
 import 'package:waxxapp/utils/utils.dart';

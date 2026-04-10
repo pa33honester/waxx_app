@@ -1,7 +1,4 @@
-import 'dart:developer';
-
 import 'package:waxxapp/ApiModel/user/CreateOrderByUserModel.dart';
-import 'package:waxxapp/ApiService/user/check_out_service.dart';
 import 'package:waxxapp/ApiService/user/create_order_by_user_service.dart';
 import 'package:waxxapp/PaymentMethod/flutter_wave/flutter_wave_services.dart';
 import 'package:waxxapp/PaymentMethod/razor_pay/razor_pay_view.dart';

@@ -1,6 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cool_dropdown/cool_dropdown.dart';
-import 'package:cool_dropdown/models/cool_dropdown_item.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:waxxapp/seller_pages/listing/controller/listing_controller.dart';
 import 'package:waxxapp/seller_pages/listing/widget/listing_app_bar_widget.dart';
@@ -180,7 +178,7 @@ class _ItemSpecificScreenState extends State<ItemSpecificScreen> {
         );
 
       case 3: // File Input
-        final existingFileValue = controller.getAttributeValue(attribute.name);
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -584,7 +582,6 @@ class _ItemSpecificScreenState extends State<ItemSpecificScreen> {
           updatedValues.remove(value);
         } else {
           // final maxSelections = attribute.maxSelections;
-          final maxSelections = 4;
           // if (updatedValues.length < maxSelections) {
           updatedValues.add(value);
           // } else {

@@ -1,7 +1,5 @@
 import 'package:waxxapp/utils/app_colors.dart';
-import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class SignInBackButton extends StatelessWidget {
   final void Function() onTaped;

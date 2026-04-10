@@ -1,14 +1,11 @@
 import 'package:waxxapp/custom/simple_app_bar_widget.dart';
-import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-import '../../../utils/CoustomWidget/App_theme_services/text_titles.dart';
 
 class LegalAndPolicies extends StatelessWidget {
   const LegalAndPolicies({super.key});

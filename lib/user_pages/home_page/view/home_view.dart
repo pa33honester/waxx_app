@@ -8,7 +8,6 @@ import 'package:waxxapp/View/MyApp/AppPages/product_detail.dart';
 import 'package:waxxapp/custom/circle_button_widget.dart';
 import 'package:waxxapp/custom/exit_app_dialog.dart';
 import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
-import 'package:waxxapp/user_pages/home_page/controller/home_controller.dart';
 import 'package:waxxapp/user_pages/home_page/widget/home_category_widget.dart';
 import 'package:waxxapp/user_pages/popular_products_page/controller/popular_products_controller.dart';
 import 'package:waxxapp/user_pages/popular_products_page/view/popular_products_view.dart';
@@ -40,13 +39,11 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(HomeController());
 
     Utils.onChangeSystemColor();
     GetLiveSellerListController getLiveSellerListController = Get.put(GetLiveSellerListController());
     JustForYouProductController justForYouProductController = Get.put(JustForYouProductController());
     NewCollectionController newCollectionController = Get.put(NewCollectionController());
-    GalleryCategoryController galleryCategoryController = Get.put(GalleryCategoryController());
     NewCollectionController addToFavoriteController = Get.put(NewCollectionController());
     PopularProductsController popularProductsController = Get.put(PopularProductsController());
     return PopScope(

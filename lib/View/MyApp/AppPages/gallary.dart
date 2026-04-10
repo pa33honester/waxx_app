@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:waxxapp/Controller/GetxController/user/gallery_catagory_controller.dart';
 import 'package:waxxapp/Controller/GetxController/user/get_all_category_controller.dart';
@@ -34,7 +32,6 @@ class _GalleryState extends State<Gallery> with SingleTickerProviderStateMixin {
 
   //------------------------------------------------------------------------
 
-  final List<bool> _likes = List.generate(100000, (_) => true);
   ScrollController scrollController = ScrollController();
   TabController? tabController;
 

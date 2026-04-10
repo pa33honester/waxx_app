@@ -29,7 +29,6 @@ class ProcessingOrderView extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                 itemBuilder: (context, index) {
-                  final data = myOrderController.myOrdersData?.orderData?[index];
                   return GestureDetector(
                     onTap: () => Get.to(const OrderDetailsView()),
                     child: Container(
