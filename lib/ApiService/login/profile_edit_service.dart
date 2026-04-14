@@ -17,6 +17,7 @@ class ProfileEditApi extends GetxService {
     required String location,
     String? mobileNumber,
     String? countryCode,
+    String? fcmToken,
   }) async {
     try {
       log("userId = $userId");
@@ -28,6 +29,7 @@ class ProfileEditApi extends GetxService {
       log("location = $location");
       log("mobileNumber = $mobileNumber");
       log("countryCode = $countryCode");
+      log("fcmToken = $fcmToken");
 
       final uri = Uri.parse(
         Api.baseUrl + Api.editProfile,
@@ -59,6 +61,10 @@ class ProfileEditApi extends GetxService {
         "mobileNumber": mobileNumber.toString(),
         "countryCode": countryCode.toString(),
       };
+
+      if (fcmToken != null && fcmToken.isNotEmpty) {
+        requestBody["fcmToken"] = fcmToken;
+      }
 
       request.fields.addAll(requestBody);
       var res1 = await request.send();

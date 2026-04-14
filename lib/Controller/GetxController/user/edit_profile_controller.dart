@@ -36,6 +36,7 @@ class EditProfileController extends GetxController {
         location: locationController.text,
         mobileNumber: mobileNumberController.text,
         countryCode: dialCode,
+        fcmToken: fcmToken,
       );
       displayToast(message: "Save changes successfully!");
       getStorage.write("imageXFile", imageXFile.toString());

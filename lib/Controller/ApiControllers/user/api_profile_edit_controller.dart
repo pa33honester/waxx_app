@@ -17,6 +17,7 @@ class ApiProfileEditController extends GetxController {
     required String location,
     String? mobileNumber,
     String? countryCode,
+    String? fcmToken,
   }) async {
     try {
       isLoading(true);
@@ -31,6 +32,7 @@ class ApiProfileEditController extends GetxController {
         location: location,
         mobileNumber: mobileNumber,
         countryCode: countryCode,
+        fcmToken: fcmToken,
       );
       profileEditModel = data;
       if (profileEditModel!.status == true) {

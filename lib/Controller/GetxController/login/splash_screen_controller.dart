@@ -7,18 +7,15 @@ import 'package:waxxapp/ApiModel/login/IpApiModel.dart';
 import 'package:waxxapp/ApiModel/login/WhoLoginModel.dart';
 import 'package:waxxapp/ApiService/login/ip_api_service.dart';
 import 'package:waxxapp/Controller/ApiControllers/seller/api_seller_data_controller.dart';
-import 'package:waxxapp/View/MyApp/AppPages/dialog/payment_dialog.dart';
 import 'package:waxxapp/main.dart';
+import 'package:waxxapp/services/push_notification_service.dart';
 import 'package:waxxapp/utils/Theme/theme_service.dart';
 import 'package:waxxapp/utils/Zego/create_engine.dart';
 import 'package:waxxapp/utils/Zego/key_center.dart';
 import 'package:waxxapp/utils/api_url.dart';
-import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/branch_io_services.dart';
 import 'package:waxxapp/utils/database.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -35,7 +32,7 @@ class SplashScreenController extends GetxController {
   @override
   Future<void> onInit() async {
     log("Splash Screen ");
-    initFirebase();
+    await PushNotificationService.instance.registerInteractionHandlers();
     // getDialCode();
     getIpData();
     await onBoardingFlow();
@@ -174,6 +171,7 @@ class SplashScreenController extends GetxController {
       }
 
       await whoLoginController.getUserWhoLoginData();
+      await PushNotificationService.instance.syncTokenToBackendIfPossible();
       log("isSeller :: ${whoLoginController.whoLoginData?.user?.isSeller}");
 
       if (whoLoginController.whoLoginData?.user?.isSeller == false) {
@@ -190,85 +188,5 @@ class SplashScreenController extends GetxController {
         log("Enter is become seller is false");
       }
     }
-  }
-
-  initFirebase() async {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    await messaging.getToken().then((value) {
-      log("this is fcm token = $value");
-    });
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-
-    if (initialMessage != null) {
-      log("notificationVisit with start :- ${notificationVisit.value}");
-      notificationVisit.value = !notificationVisit.value;
-      log("notificationVisit with SetState :- ${notificationVisit.value}");
-      handleMessage(initialMessage);
-    }
-
-    FirebaseMessaging.onMessageOpenedApp.listen((event) {
-      log("this is event log :- $event");
-      handleMessage(event);
-    });
-
-    FirebaseMessaging.onMessage.listen(
-      (RemoteMessage message) {
-        log('Got a message whilst in the foreground!');
-        log('Message data: ${message.data}');
-
-        if (message.notification != null) {
-          log('Message also contained a notification: ${message.notification}');
-        }
-        const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('mipmap/ic_launcher');
-        flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-        flutterLocalNotificationsPlugin?.initialize(const InitializationSettings(android: initializationSettingsAndroid), onDidReceiveNotificationResponse: (payload) {
-          log("payload is:- $payload");
-          handleMessage(message);
-        });
-        _showNotificationWithSound(message);
-      },
-    );
-  }
-
-  Future<void> handleMessage(RemoteMessage message) async {
-    if (message.data['type'] == "AUCTION_SUCCESS") {
-      Get.dialog(
-        barrierColor: AppColors.black.withValues(alpha: 0.8),
-        CongratulationsPaymentDialog(
-          productName: message.data['productName'],
-          orderId: message.data['orderId'],
-          productId: message.data['productId'],
-          amount: message.data['amount'].toString(),
-          mainImage: message.data['mainImage'],
-          shippingCharges: message.data['shippingCharges'].toString(),
-          reminderMinutes: message.data['reminderMinutes'],
-          productAttributes: List<Map<String, dynamic>>.from(json.decode(message.data['productAttributes'])),
-        ),
-        barrierDismissible: true,
-      );
-    }
-    // Get.snackbar("Now navigate the page", "message");
-  }
-
-  Future _showNotificationWithSound(RemoteMessage message) async {
-    var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
-      '0',
-      'Era shop',
-      channelDescription: 'description',
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-
-    var platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: const DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true),
-    );
-    await flutterLocalNotificationsPlugin?.show(
-      message.hashCode,
-      message.notification!.body.toString(),
-      message.notification!.title.toString(),
-      platformChannelSpecifics,
-      payload: 'Custom_Sound',
-    );
   }
 }

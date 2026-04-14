@@ -28,6 +28,7 @@ import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mobile_device_identifier/mobile_device_identifier.dart';
+import 'package:waxxapp/services/push_notification_service.dart';
 // import 'package:platform_device_id/platform_device_id.dart';
 
 getDialCode() {
@@ -63,6 +64,7 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   final app = Firebase.app();
   log('FIREBASE_DEBUG appName=${app.name}');
@@ -92,16 +94,9 @@ Future<void> main() async {
   identify = (await MobileDeviceIdentifier().getDeviceId())!;
   log("Android Id :: $identify");
 
-  ///************** FCM token ************************\\\
-  try {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    await messaging.getToken().then((value) {
-      fcmToken = value!;
-      log("Fcm Token :: $fcmToken");
-    });
-  } catch (e) {
-    log("Error FCM token: $e");
-  }
+  ///************** PUSH NOTIFICATION ************************\\\
+  await PushNotificationService.instance.initialize();
+
   if (identify != "" && fcmToken != "") {
     await Database.init(identify, fcmToken);
   }
