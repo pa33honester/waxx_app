@@ -122,7 +122,7 @@ class PushNotificationService {
       message.hashCode,
       title,
       body,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           _channel.id,
           _channel.name,
