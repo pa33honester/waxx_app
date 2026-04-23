@@ -242,13 +242,21 @@ class SellerProfileItemWidget extends StatelessWidget {
             child: Image.asset(icon, width: iconSize, color: AppColors.black),
           ),
           15.width,
-          Text(
-            title,
-            style: AppFontStyle.styleW700(AppColors.white, 16),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppFontStyle.styleW700(AppColors.white, 16).copyWith(
+                fontFamilyFallback: const ['Roboto', 'sans-serif'],
+              ),
+            ),
           ),
+          if (child != null) ...[
+            10.width,
+            child!,
+          ],
           10.width,
-          SizedBox(child: child),
-          const Spacer(),
           Image.asset(AppAsset.icArrowRight, width: 10, color: AppColors.unselected),
           15.width,
         ],

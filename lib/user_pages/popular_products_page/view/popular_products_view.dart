@@ -13,7 +13,9 @@ import 'package:get/get.dart';
 class PopularProductsView extends StatelessWidget {
   PopularProductsView({super.key});
 
-  final controller = Get.put(PopularProductsController());
+  final controller = Get.isRegistered<PopularProductsController>()
+      ? Get.find<PopularProductsController>()
+      : Get.put(PopularProductsController());
 
   @override
   Widget build(BuildContext context) {

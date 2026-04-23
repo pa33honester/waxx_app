@@ -109,7 +109,11 @@ class _ProductDetailState extends State<ProductDetail> {
     super.initState();
   }
 
-  bool areAllAttributesFilled = false;
+  bool get areAllAttributesFilled {
+    final requiredKeys = userProductDetailsController.selectedValuesByType.keys;
+    if (requiredKeys.isEmpty) return true;
+    return requiredKeys.every((key) => selectedValues[key] != null);
+  }
 
   // double slidePosition = 0.0;
   // double maxSlide = 400.0;
@@ -136,17 +140,13 @@ class _ProductDetailState extends State<ProductDetail> {
   Future<void> onBuyNow() async {
     if (!areAllAttributesFilled) {
       displayToast(message: St.pleaseFillAllAttributes.tr, isBottomToast: true);
-      // resetButtonPosition();
-    } else {
-      await addToCart();
-
-      Get.back();
-      final controller = Get.put(BottomBarController());
-      controller.onChangeBottomBar(2);
-
-      if (await Vibration.hasVibrator()) {
-        Vibration.vibrate();
-      }
+      return;
+    }
+    await addToCart();
+    Get.back();
+    Get.toNamed("/CheckOut");
+    if (await Vibration.hasVibrator()) {
+      Vibration.vibrate();
     }
   }
 
@@ -507,8 +507,6 @@ class _ProductDetailState extends State<ProductDetail> {
                                                         onTap: () {
                                                           setState(() {
                                                             selectedValues[key] = value;
-                                                            bool allAttributesFilled = userProductDetailsController.selectedValuesByType.keys.every((key) => selectedValues[key] != null);
-                                                            areAllAttributesFilled = allAttributesFilled;
                                                           });
                                                         },
                                                         child:
@@ -950,7 +948,9 @@ class _ProductDetailState extends State<ProductDetail> {
                                             // slidePosition = 0.0;
                                           });
                                           Get.back();
-                                          final controller = Get.put(BottomBarController());
+                                          final controller = Get.isRegistered<BottomBarController>()
+                                              ? Get.find<BottomBarController>()
+                                              : Get.put(BottomBarController());
                                           controller.onChangeBottomBar(2);
                                         },
                                       ),

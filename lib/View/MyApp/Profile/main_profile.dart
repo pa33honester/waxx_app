@@ -179,6 +179,13 @@ class _MainProfileState extends State<MainProfile> {
                         callback: () => Get.toNamed("/UserAddress"),
                       ),
                       15.height,
+                      ProfileItemWidget(
+                        title: 'Giveaway Wins',
+                        icon: AppAsset.icCartFill,
+                        iconSize: 22,
+                        callback: () => Get.toNamed("/MyGiveawayWins"),
+                      ),
+                      15.height,
                       // ProfileItemWidget(
                       //   title: St.paymentMethod.tr,
                       //   icon: AppAsset.icPayment,
@@ -200,7 +207,11 @@ class _MainProfileState extends State<MainProfile> {
                       ),
                       15.height,
                       ProfileItemWidget(
-                        title: isSeller == true ? Database.fetchSellerDetailsModel?.data?.businessName ?? '' : St.becomeSeller.tr,
+                        title: isSeller == true
+                            ? ((Database.fetchSellerDetailsModel?.data?.businessName?.trim().isNotEmpty ?? false)
+                                ? Database.fetchSellerDetailsModel!.data!.businessName!
+                                : St.sellerAccount.tr)
+                            : St.becomeSeller.tr,
                         icon: AppAsset.icStoreProduct,
                         color: AppColors.black,
                         iconSize: 22,

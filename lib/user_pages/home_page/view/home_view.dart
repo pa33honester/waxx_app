@@ -9,6 +9,7 @@ import 'package:waxxapp/custom/circle_button_widget.dart';
 import 'package:waxxapp/custom/exit_app_dialog.dart';
 import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
 import 'package:waxxapp/user_pages/home_page/widget/home_category_widget.dart';
+import 'package:waxxapp/user_pages/home_page/widget/home_live_grid.dart';
 import 'package:waxxapp/user_pages/popular_products_page/controller/popular_products_controller.dart';
 import 'package:waxxapp/user_pages/popular_products_page/view/popular_products_view.dart';
 import 'package:waxxapp/user_pages/search_page/view/search_view.dart';
@@ -38,15 +39,31 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  late final GetLiveSellerListController getLiveSellerListController;
+  late final JustForYouProductController justForYouProductController;
+  late final NewCollectionController newCollectionController;
+  late final PopularProductsController popularProductsController;
+  late final GalleryCategoryController galleryCategoryController;
+
+  T _putOnce<T>(T Function() create) {
+    if (Get.isRegistered<T>()) return Get.find<T>();
+    return Get.put<T>(create());
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getLiveSellerListController = _putOnce<GetLiveSellerListController>(() => GetLiveSellerListController());
+    justForYouProductController = _putOnce<JustForYouProductController>(() => JustForYouProductController());
+    newCollectionController = _putOnce<NewCollectionController>(() => NewCollectionController());
+    popularProductsController = _putOnce<PopularProductsController>(() => PopularProductsController());
+    galleryCategoryController = _putOnce<GalleryCategoryController>(() => GalleryCategoryController());
+  }
+
   @override
   Widget build(BuildContext context) {
-
     Utils.onChangeSystemColor();
-    GetLiveSellerListController getLiveSellerListController = Get.put(GetLiveSellerListController());
-    JustForYouProductController justForYouProductController = Get.put(JustForYouProductController());
-    NewCollectionController newCollectionController = Get.put(NewCollectionController());
-    NewCollectionController addToFavoriteController = Get.put(NewCollectionController());
-    PopularProductsController popularProductsController = Get.put(PopularProductsController());
+    final NewCollectionController addToFavoriteController = newCollectionController;
     return PopScope(
       canPop: false,
       onPopInvoked: (bool didPop) {
@@ -89,7 +106,7 @@ class _HomeViewState extends State<HomeView> {
                   delegate: SliverChildListDelegate(
                     [
                       15.height,
-                      const HomePageLiveSelling(),
+                      const HomeLiveGrid(),
                       20.height,
                       const HomePageShorts(),
                       20.height,

@@ -29,9 +29,15 @@ class HomeCategoryTabBarWidget extends StatefulWidget {
 }
 
 class _HomeCategoryTabBarWidgetState extends State<HomeCategoryTabBarWidget> with SingleTickerProviderStateMixin {
-  GalleryCategoryController galleryCategoryController = Get.put(GalleryCategoryController());
-  GetAllCategoryController getAllCategoryController = Get.put(GetAllCategoryController());
-  NewCollectionController addToFavoriteController = Get.put(NewCollectionController());
+  GalleryCategoryController galleryCategoryController = Get.isRegistered<GalleryCategoryController>()
+      ? Get.find<GalleryCategoryController>()
+      : Get.put(GalleryCategoryController());
+  GetAllCategoryController getAllCategoryController = Get.isRegistered<GetAllCategoryController>()
+      ? Get.find<GetAllCategoryController>()
+      : Get.put(GetAllCategoryController());
+  NewCollectionController addToFavoriteController = Get.isRegistered<NewCollectionController>()
+      ? Get.find<NewCollectionController>()
+      : Get.put(NewCollectionController());
 
   ScrollController scrollController = ScrollController();
   bool isApiCalling = true;
@@ -273,8 +279,12 @@ class _HomeCategoryTabBarWidgetState extends State<HomeCategoryTabBarWidget> wit
 class HomeCategoriesWidget extends StatelessWidget {
   HomeCategoriesWidget({super.key});
 
-  GetAllCategoryController getAllCategoryController = Get.put(GetAllCategoryController());
-  NewCollectionController addToFavoriteController = Get.put(NewCollectionController());
+  GetAllCategoryController getAllCategoryController = Get.isRegistered<GetAllCategoryController>()
+      ? Get.find<GetAllCategoryController>()
+      : Get.put(GetAllCategoryController());
+  NewCollectionController addToFavoriteController = Get.isRegistered<NewCollectionController>()
+      ? Get.find<NewCollectionController>()
+      : Get.put(NewCollectionController());
 
   @override
   Widget build(BuildContext context) {
