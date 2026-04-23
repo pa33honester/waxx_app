@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Gradle cache (build-time, per-machine)
+**/.gradle/
+**/build/
+
+# Firebase / Google Services config — do not commit (contains API keys)
+**/google-services.json
+**/GoogleService-Info.plist
+
+# Letta local settings
+.letta/
