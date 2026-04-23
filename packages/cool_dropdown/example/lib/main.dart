@@ -14,7 +14,16 @@ class MyApp extends StatefulWidget {
 
 List<CoolDropdownItem<String>> dropdownItemList = [];
 
-List<String> pokemons = ['pikachu', 'charmander', 'squirtle', 'bullbasaur', 'snorlax', 'mankey', 'psyduck', 'meowth'];
+List<String> pokemons = [
+  'pikachu',
+  'charmander',
+  'squirtle',
+  'bullbasaur',
+  'snorlax',
+  'mankey',
+  'psyduck',
+  'meowth'
+];
 List<String> fruits = [
   'apple',
   'banana',
