@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:waxxapp/ApiModel/giveaway/giveaway_model.dart';
 import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
+import 'package:waxxapp/user_pages/giveaway/controller/user_giveaway_controller.dart';
 import 'package:waxxapp/utils/api_url.dart';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -115,6 +117,63 @@ class SocketServices {
       onEndLiveSeller(liveSellingHistoryId: liveSellingHistoryId);
     });
 
+    // ----- Giveaways (buyer + seller watch the same events) -----
+    socket!.on("giveawayStarted", (data) {
+      log("Socket Listen => giveawayStarted: $data");
+      final parsed = _parseSocketPayload(data);
+      if (parsed == null) return;
+      final model = GiveawayModel.fromStartedEvent(parsed);
+      if (Get.isRegistered<UserGiveawayController>()) {
+        Get.find<UserGiveawayController>().onGiveawayStarted(model);
+      }
+    });
+
+    socket!.on("giveawayEntryAdded", (data) {
+      log("Socket Listen => giveawayEntryAdded: $data");
+      final parsed = _parseSocketPayload(data);
+      if (parsed == null) return;
+      if (Get.isRegistered<UserGiveawayController>()) {
+        Get.find<UserGiveawayController>().onEntryAdded(
+          giveawayId: parsed['giveawayId']?.toString() ?? '',
+          entryCount: (parsed['entryCount'] as num?)?.toInt() ?? 0,
+        );
+      }
+    });
+
+    socket!.on("giveawayWinnerRevealed", (data) {
+      log("Socket Listen => giveawayWinnerRevealed: $data");
+      final parsed = _parseSocketPayload(data);
+      if (parsed == null) return;
+      if (Get.isRegistered<UserGiveawayController>()) {
+        Get.find<UserGiveawayController>().onWinnerRevealed(GiveawayWinnerEvent.fromJson(parsed));
+      }
+    });
+
+    socket!.on("giveawayClosed", (data) {
+      log("Socket Listen => giveawayClosed: $data");
+      final parsed = _parseSocketPayload(data);
+      if (parsed == null) return;
+      if (Get.isRegistered<UserGiveawayController>()) {
+        Get.find<UserGiveawayController>().onGiveawayClosed(
+          giveawayId: parsed['giveawayId']?.toString() ?? '',
+          reason: parsed['reason']?.toString() ?? '',
+        );
+      }
+    });
+
+    socket!.on("giveawayPrizeClaim", (data) {
+      log("Socket Listen => giveawayPrizeClaim: $data");
+      final parsed = _parseSocketPayload(data);
+      if (parsed == null) return;
+      if (Get.isRegistered<UserGiveawayController>()) {
+        Get.find<UserGiveawayController>().onPrizeClaim(parsed);
+      }
+    });
+
+    socket!.on("giveawayError", (data) {
+      log("Socket Listen => giveawayError: $data");
+    });
+
     socket!.on("liveSessionInfo", (liveData) {
       Utils.showLog("Socket Listen => liveUserInfoResponse : $liveData");
 
@@ -145,6 +204,20 @@ class SocketServices {
     });
   }
 
+  /// Socket.IO hands us either a JSON string or a decoded map — normalise.
+  static Map<String, dynamic>? _parseSocketPayload(dynamic data) {
+    try {
+      if (data is Map) return Map<String, dynamic>.from(data);
+      if (data is String) {
+        final decoded = jsonDecode(data);
+        if (decoded is Map) return Map<String, dynamic>.from(decoded);
+      }
+    } catch (e) {
+      log('Socket payload parse error: $e');
+    }
+    return null;
+  }
+
   // Method to clear all event listeners
   static void _clearAllListeners() {
     if (socket == null) return;
@@ -164,6 +237,12 @@ class SocketServices {
     socket!.off("notifyPaymentDue");
     socket!.off("handleAuctionExpiryAndRelist");
     socket!.off("auctionExpiryHandled");
+    socket!.off("giveawayStarted");
+    socket!.off("giveawayEntryAdded");
+    socket!.off("giveawayWinnerRevealed");
+    socket!.off("giveawayClosed");
+    socket!.off("giveawayPrizeClaim");
+    socket!.off("giveawayError");
     socket!.off("liveSessionInfo");
   }
 
@@ -301,6 +380,41 @@ class SocketServices {
       Utils.showLog("Socket Emit => Get User Live Action: $liveUserData");
     } else {
       Utils.showLog("Socket Not Connected");
+    }
+  }
+
+  /// Seller-side: emit a socket event to start a giveaway. The server
+  /// also exposes an HTTP endpoint; either works.
+  static Future<void> emitStartGiveaway({
+    required String sellerId,
+    required String liveSellingHistoryId,
+    required String productId,
+    required int type,
+    required int entryWindowSeconds,
+  }) async {
+    final payload = jsonEncode({
+      "sellerId": sellerId,
+      "liveSellingHistoryId": liveSellingHistoryId,
+      "productId": productId,
+      "type": type,
+      "entryWindowSeconds": entryWindowSeconds,
+    });
+    if (socket != null && socket!.connected) {
+      socket?.emit("startGiveaway", payload);
+      log("Socket Emit => startGiveaway: $payload");
+    } else {
+      log("Socket Not Connected (startGiveaway)");
+    }
+  }
+
+  /// Seller-side: force an early draw.
+  static Future<void> emitDrawGiveaway({required String giveawayId}) async {
+    final payload = jsonEncode({"giveawayId": giveawayId});
+    if (socket != null && socket!.connected) {
+      socket?.emit("drawGiveaway", payload);
+      log("Socket Emit => drawGiveaway: $payload");
+    } else {
+      log("Socket Not Connected (drawGiveaway)");
     }
   }
 

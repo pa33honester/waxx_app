@@ -102,7 +102,28 @@ class Api {
   static const sellerUpdateOrderItemStatus = "order/modifyOrderItemStatus";
   static const getAuctionProducts = "product/getAuctionProducts";
   static const getRelatedProductsByCategory = "product/getRelatedProductsByCategory";
+  static const sendProductLikedNotification = "notification/sendProductLikedNotification";
   static const featuredProducts = "product/featuredProducts";
+
+  // Auto-bid
+  static const setAutoBid = "auctionBid/setAutoBid";
+  static const getAutoBid = "auctionBid/getAutoBid";
+  static const cancelAutoBid = "auctionBid/cancelAutoBid";
+
+  // Giveaways
+  static const startGiveaway = "giveaway/start";
+  static const enterGiveaway = "giveaway/enter";
+  static const drawGiveaway = "giveaway/draw";
+  static const giveawaysByLive = "giveaway/byLive";
+  static const sellerGiveawayHistory = "giveaway/sellerHistory";
+  static const myGiveawayWins = "giveaway/myWins";
+
+  // Live scheduling
+  static const scheduleLive = "liveSeller/schedule";
+  static const getScheduledLivesBySeller = "liveSeller/scheduledBySeller";
+  static const getUpcomingLivesForUser = "liveSeller/upcoming";
+  static const setLiveReminder = "liveSeller/setReminder";
+  static const cancelLiveReminder = "liveSeller/cancelReminder";
 
   // static String getDomainFromURL(String url) {
   //   final uri = Uri.parse(url);
