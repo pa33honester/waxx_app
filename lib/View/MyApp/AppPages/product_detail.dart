@@ -38,6 +38,7 @@ import '../../../Controller/GetxController/seller/selected_product_for_live_cont
 import '../../../Controller/GetxController/user/new_collection_controller.dart';
 import '../../../Controller/GetxController/user/remove_all_product_from_cart_controller.dart';
 import '../../../utils/shimmers.dart';
+import '../../../user_pages/auction_page/widget/auto_bid_dialog.dart';
 
 class ProductDetail extends StatefulWidget {
   const ProductDetail({super.key});
@@ -104,7 +105,7 @@ class _ProductDetailState extends State<ProductDetail> {
   @override
   void initState() {
     userProductDetailsController.userProductDetailsData();
-    // userProductDetailsController.getRelatedProducts(userProductDetailsController.userProductDetails?.product?[0].category?.id ?? '');
+    userProductDetailsController.fetchAutoBid();
     super.initState();
   }
 
@@ -752,7 +753,9 @@ class _ProductDetailState extends State<ProductDetail> {
                     ? SizedBox()
                     : userProductDetailsController.isLoading.value
                         ? SizedBox()
-                        : Padding(
+                        : userProductDetailsController.userProductDetails?.product?[0].enableAuction == true
+                            ? _buildAuctionBottomBar()
+                            : Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                             child: Row(
                               children: [
@@ -1080,6 +1083,221 @@ class _ProductDetailState extends State<ProductDetail> {
     );
   }
 
+  Widget _buildAuctionBottomBar() {
+    final product = userProductDetailsController.userProductDetails?.product?[0];
+    final currentHighestBid = product?.latestBidPrice ?? product?.minimumOfferPrice ?? 0;
+    final minBid = product?.minimumOfferPrice ?? 0;
+    final auctionEnded = hasAuctionEnded || product?.productSaleType == 3;
+    final autoBid = userProductDetailsController.currentAutoBid.value;
+    final hasAutoBid = autoBid != null && autoBid.isActive == true;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (hasAutoBid)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              margin: const EdgeInsets.only(bottom: 8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.bolt_rounded, color: AppColors.primary, size: 16),
+                  6.width,
+                  Text(
+                    'Auto-bid active: up to $currencySymbol ${autoBid.maxBidAmount}',
+                    style: AppFontStyle.styleW500(AppColors.primary, 12),
+                  ),
+                ],
+              ),
+            ),
+          Row(
+            children: [
+              GestureDetector(
+                onTap: _toggleFavoriteFromDetail,
+                child: Container(
+                  height: 38,
+                  width: 38,
+                  alignment: Alignment.center,
+                  child: Builder(builder: (_) {
+                    final isFav = product?.isFavorite == true;
+                    return Image.asset(
+                      isFav ? AppAsset.icHeartFill : AppAsset.icHeart,
+                      width: 20,
+                      color: isFav ? AppColors.red : AppColors.unselected,
+                    );
+                  }),
+                ),
+              ),
+              12.width,
+              Expanded(
+                child: MainButtonWidget(
+                  height: 42,
+                  width: Get.width,
+                  borderRadius: 12,
+                  color: AppColors.black,
+                  border: Border.all(color: auctionEnded ? AppColors.unselected : AppColors.primary),
+                  callback: auctionEnded
+                      ? null
+                      : () {
+                          if (!areAllAttributesFilled) {
+                            displayToast(message: St.pleaseFillAllAttributes.tr, isBottomToast: true);
+                            return;
+                          }
+                          _showManualBidDialog(product: product);
+                        },
+                  child: Text(
+                    auctionEnded ? 'Auction Ended' : St.placeBid.tr,
+                    style: AppFontStyle.styleW700(auctionEnded ? AppColors.unselected : AppColors.primary, 12),
+                  ),
+                ),
+              ),
+              12.width,
+              Expanded(
+                child: Obx(() => MainButtonWidget(
+                      height: 42,
+                      width: Get.width,
+                      borderRadius: 12,
+                      color: hasAutoBid ? AppColors.tabBackground : AppColors.primary,
+                      border: hasAutoBid ? Border.all(color: AppColors.primary) : null,
+                      callback: auctionEnded
+                          ? null
+                          : () {
+                              if (!areAllAttributesFilled) {
+                                displayToast(message: St.pleaseFillAllAttributes.tr, isBottomToast: true);
+                                return;
+                              }
+                              final attrs = _buildAttributesArray();
+                              showAutoBidDialog(
+                                productId: product?.id ?? productId,
+                                currentHighestBid: currentHighestBid,
+                                minimumBidPrice: minBid,
+                                attributes: attrs,
+                                existingMaxBid: userProductDetailsController.currentAutoBid.value?.maxBidAmount,
+                                onSetAutoBid: userProductDetailsController.setAutoBidData,
+                                onCancelAutoBid: userProductDetailsController.cancelAutoBidData,
+                              );
+                            },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.bolt_rounded, size: 15, color: hasAutoBid ? AppColors.primary : AppColors.black),
+                          4.width,
+                          Text(
+                            hasAutoBid ? 'Auto-Bid On' : 'Max Bid',
+                            style: AppFontStyle.styleW700(hasAutoBid ? AppColors.primary : AppColors.black, 12),
+                          ),
+                        ],
+                      ),
+                    )),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showManualBidDialog({required product}) {
+    final bidController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final currentHighestBid = product?.latestBidPrice ?? product?.minimumBidPrice ?? 0;
+
+    Get.dialog(
+      Dialog(
+        backgroundColor: AppColors.tabBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(St.placeBid.tr, style: AppFontStyle.styleW700(AppColors.white, 18)),
+                16.height,
+                Text('Current highest bid: $currencySymbol $currentHighestBid',
+                    style: AppFontStyle.styleW500(AppColors.unselected, 13)),
+                12.height,
+                TextFormField(
+                  controller: bidController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  style: TextStyle(color: AppColors.white),
+                  decoration: InputDecoration(
+                    hintText: 'Enter bid amount',
+                    hintStyle: TextStyle(color: AppColors.unselected),
+                    prefixText: '$currencySymbol ',
+                    prefixStyle: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                    filled: true,
+                    fillColor: AppColors.black.withValues(alpha: 0.4),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: AppColors.unselected.withValues(alpha: 0.3))),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: AppColors.unselected.withValues(alpha: 0.3))),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: AppColors.primary)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) return 'Enter an amount';
+                    final amount = num.tryParse(val.trim());
+                    if (amount == null) return 'Enter a valid number';
+                    if (amount <= currentHighestBid) return 'Must be higher than $currencySymbol $currentHighestBid';
+                    return null;
+                  },
+                ),
+                24.height,
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: Get.back,
+                        style: OutlinedButton.styleFrom(foregroundColor: AppColors.unselected, side: BorderSide(color: AppColors.unselected), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), padding: const EdgeInsets.symmetric(vertical: 12)),
+                        child: Text('Cancel', style: AppFontStyle.styleW700(AppColors.unselected, 13)),
+                      ),
+                    ),
+                    12.width,
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (formKey.currentState?.validate() != true) return;
+                          Get.back();
+                          await userProductDetailsController.placeBidData(
+                            userId: loginUserId,
+                            productId: product?.id ?? productId,
+                            bidAmount: bidController.text.trim(),
+                            selectedValues: selectedValues,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), padding: const EdgeInsets.symmetric(vertical: 12)),
+                        child: Text(St.placeBid.tr, style: AppFontStyle.styleW700(AppColors.black, 13)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<Map<String, dynamic>> _buildAttributesArray() {
+    final originalAttributes = userProductDetailsController.selectedCategoryValues;
+    return selectedValues.entries.map((entry) {
+      final originalAttribute = originalAttributes?.firstWhere(
+        (attr) => attr.name == entry.key,
+        orElse: () => Attribute(),
+      );
+      return {'name': entry.key, 'values': [entry.value], 'image': originalAttribute?.image};
+    }).toList();
+  }
+
   buildRelatedProductsView() {
     return SizedBox(
       height: 230,
@@ -1215,14 +1433,14 @@ class _ProductDetailState extends State<ProductDetail> {
                         ),
                         2.height,
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text(
-                              "$currencySymbol ${product?.price}",
-                              overflow: TextOverflow.ellipsis,
-                              style: AppFontStyle.styleW900(AppColors.primary, 15),
+                            Expanded(
+                              child: Text(
+                                "$currencySymbol ${product?.price}",
+                                overflow: TextOverflow.ellipsis,
+                                style: AppFontStyle.styleW900(AppColors.primary, 15),
+                              ),
                             ),
-                            Spacer(),
                             const Icon(
                               Icons.star_rounded,
                               color: Color(0xffFACC15),
@@ -1231,6 +1449,7 @@ class _ProductDetailState extends State<ProductDetail> {
                             2.width,
                             Text(
                               product!.rating!.isEmpty ? St.noReviews.tr : "${product.rating?[0].avgRating}.0",
+                              overflow: TextOverflow.ellipsis,
                               style: AppFontStyle.styleW500(AppColors.unselected, 9),
                             ),
                           ],

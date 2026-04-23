@@ -44,42 +44,82 @@ class _HomeCategoryTabBarWidgetState extends State<HomeCategoryTabBarWidget> wit
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      getAllCategoryController.selectedTabIndex = 0;
-      log("callll 1 ${getAllCategoryController.selectedTabIndex}");
-
-      await getAllCategoryController.getCategory().then((value) => _initHomeTabController()).then((value) {
-        log("getAllCategoryController.getAllCategory!.category!.length ${getAllCategoryController.getAllCategory!.category!.length}");
-        _handleTabChange();
-      });
-
-      galleryCategoryController.homeTabController!.addListener(() async {
-        galleryCategoryController.galleryProducts.clear();
-        _handleTabChange();
-      });
+      await getAllCategoryController.getCategory();
+      _initHomeTabController();
       setState(() {});
+
+      await _handleTabChange();
+
+      // If the selected category is empty, find the first one that has products
+      if (!mounted) return;
+      if (galleryCategoryController.galleryProducts.isEmpty) {
+        await _autoAdvanceToFirstNonEmptyCategory();
+      }
     });
   }
 
   void _initHomeTabController() {
-    if (getAllCategoryController.getAllCategory?.category?.isNotEmpty ?? false) {
-      final tabController = TabController(length: getAllCategoryController.getAllCategory!.category!.length, vsync: this);
-      galleryCategoryController.homeTabController = tabController;
-    }
+    final categories = getAllCategoryController.getAllCategory?.category;
+    if (categories == null || categories.isEmpty) return;
+    final savedIndex = getAllCategoryController.selectedTabIndex.clamp(0, categories.length - 1);
+    galleryCategoryController.homeTabController = TabController(
+      length: categories.length,
+      vsync: this,
+      initialIndex: savedIndex,
+    );
   }
 
   Future _handleTabChange() async {
     final tabController = galleryCategoryController.homeTabController;
-    if (tabController == null) return;
+    if (tabController == null) {
+      log("_handleTabChange: homeTabController is null, skipping");
+      return;
+    }
+
+    final categories = getAllCategoryController.getAllCategory?.category;
+    if (categories == null || categories.isEmpty) {
+      log("_handleTabChange: categories null/empty, skipping");
+      return;
+    }
 
     int selectedIndex = tabController.index;
-    String selectedCategory = getAllCategoryController.getAllCategory!.category![selectedIndex].id.toString();
-
-    if (selectedIndex == tabController.index) {
-      galleryCategoryController.isLoading(true);
-      await galleryCategoryController.getCategoryData(selectCategory: selectedCategory);
-      syncLikesWithProducts();
-      galleryCategoryController.update();
+    if (selectedIndex >= categories.length) return;
+    final selectedCategory = categories[selectedIndex].id;
+    log("_handleTabChange: index=$selectedIndex categoryId=$selectedCategory loginUserId=$loginUserId");
+    if (selectedCategory == null) {
+      log("_handleTabChange: category id is null, skipping");
+      return;
     }
+
+    galleryCategoryController.isLoading(true);
+    await galleryCategoryController.getCategoryData(selectCategory: selectedCategory);
+    syncLikesWithProducts();
+    galleryCategoryController.update();
+  }
+
+  Future _autoAdvanceToFirstNonEmptyCategory() async {
+    final tabController = galleryCategoryController.homeTabController;
+    final categories = getAllCategoryController.getAllCategory?.category;
+    if (tabController == null || categories == null || categories.isEmpty) return;
+
+    final currentIdx = tabController.index;
+    if (currentIdx + 1 >= categories.length) return;
+
+    final categoryIds = categories.map((c) => c.id).toList();
+    final targetIdx = await galleryCategoryController.findFirstNonEmptyCategoryIndex(
+      categoryIds,
+      startFrom: currentIdx + 1,
+    );
+
+    if (targetIdx == null || !mounted) return;
+
+    final catId = categories[targetIdx].id!;
+    await galleryCategoryController.getCategoryData(selectCategory: catId);
+    tabController.animateTo(targetIdx);
+    getAllCategoryController.selectedTabIndex = targetIdx;
+    getAllCategoryController.update(["onChangeTab"]);
+    syncLikesWithProducts();
+    galleryCategoryController.update();
   }
 
   void syncLikesWithProducts() {
@@ -103,6 +143,8 @@ class _HomeCategoryTabBarWidgetState extends State<HomeCategoryTabBarWidget> wit
 
   @override
   void dispose() {
+    galleryCategoryController.homeTabController?.dispose();
+    galleryCategoryController.homeTabController = null;
     scrollController.dispose();
     super.dispose();
   }
@@ -158,10 +200,11 @@ class _HomeCategoryTabBarWidgetState extends State<HomeCategoryTabBarWidget> wit
               return TabBar(
                 controller: homeTabController,
                 physics: const BouncingScrollPhysics(),
-                onTap: (value) {
+                onTap: (value) async {
                   galleryCategoryController.galleryProducts.clear();
                   galleryCategoryController.isLoading(true);
                   getAllCategoryController.onChangeTab(value);
+                  await _handleTabChange();
                 },
                 indicator: BoxDecoration(
                   color: AppColors.transparent,

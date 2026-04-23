@@ -63,6 +63,13 @@ class ListingController extends GetxController {
     super.onInit();
   }
 
+  @override
+  void onReady() {
+    super.onReady();
+    // Recover any camera photo lost due to Android activity recreation
+    recoverLostCameraData();
+  }
+
   Future<List<File>> convertURLsToFiles(List urls) async {
     var rng = Random();
     for (String url in urls) {
@@ -349,14 +356,35 @@ class ListingController extends GetxController {
 
   Future<void> takePhoto() async {
     try {
-      final XFile? image = await imagePicker.pickImage(source: ImageSource.camera);
-      if (image != null) {
-        imageFileList.add(File(image.path));
-        update(); // Notify listeners
+      final XFile? pickedImage = await imagePicker.pickImage(source: ImageSource.camera);
+      if (pickedImage == null || pickedImage.path.isEmpty) return;
+
+      final selectedFile = File(pickedImage.path);
+      if (!await selectedFile.exists()) {
+        Get.snackbar('Error', 'Unable to access the captured photo.');
+        return;
       }
+
+      image = pickedImage;
+      imageFileList.add(selectedFile);
+      update([AppConstant.idPickImage]);
     } catch (e) {
       Get.snackbar('Error', 'Failed to take photo: ${e.toString()}');
     }
+  }
+
+  Future<void> recoverLostCameraData() async {
+    try {
+      final LostDataResponse response = await imagePicker.retrieveLostData();
+      if (response.isEmpty || response.file == null) return;
+
+      final recoveredFile = File(response.file!.path);
+      if (!await recoveredFile.exists()) return;
+
+      image = response.file;
+      imageFileList.add(recoveredFile);
+      update([AppConstant.idPickImage]);
+    } catch (_) {}
   }
 
   onRemoveImage(int index) {

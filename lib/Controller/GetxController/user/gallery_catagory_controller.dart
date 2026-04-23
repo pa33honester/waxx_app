@@ -41,19 +41,22 @@ class GalleryCategoryController extends GetxController {
         start: "$start",
         limit: "$limit",
       );
-      update();
-      // galleryCategory = data;
-      if (galleryCategory!.status == true) {
+
+      if (galleryCategory?.status == true) {
         galleryProducts.clear();
         galleryProducts.addAll(galleryCategory?.product?.toList() ?? []);
-        update();
         log("galleryProducts.length ${galleryProducts.length}");
         likes = List.generate(galleryProducts.length, (_) => true);
         start++;
+      } else {
+        log("getCategoryData: status=${galleryCategory?.status}, products=${galleryCategory?.product?.length}");
       }
+    } catch (e, st) {
+      log("getCategoryData error: $e\n$st");
     } finally {
       isLoading(false);
       isRefreshLoading(false);
+      update();
     }
   }
 
@@ -61,6 +64,38 @@ class GalleryCategoryController extends GetxController {
     galleryProducts.clear();
     isLoading(true);
     update(); // Force immediate UI update
+  }
+
+  /// Returns the index (within [categoryIds]) of the first category that has
+  /// at least one product, or null if all are empty. Checks in parallel using
+  /// limit=1 to keep requests lightweight.
+  Future<int?> findFirstNonEmptyCategoryIndex(List<String?> categoryIds, {int startFrom = 0}) async {
+    final futures = <Future<int?>>[];
+    for (int i = startFrom; i < categoryIds.length; i++) {
+      final catId = categoryIds[i];
+      final idx = i;
+      if (catId == null) {
+        futures.add(Future.value(null));
+        continue;
+      }
+      futures.add(_checkCategoryHasProducts(catId, idx));
+    }
+    final results = await Future.wait(futures);
+    return results.firstWhere((r) => r != null, orElse: () => null);
+  }
+
+  Future<int?> _checkCategoryHasProducts(String catId, int idx) async {
+    try {
+      final r = await GalleryCategoryApi().showCategory(
+        userId: loginUserId,
+        categoryId: catId,
+        start: "1",
+        limit: "1",
+      );
+      return (r?.product?.isNotEmpty ?? false) ? idx : null;
+    } catch (_) {
+      return null;
+    }
   }
 
   Future loadMoreData({String? selectCategory}) async {

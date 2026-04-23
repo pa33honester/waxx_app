@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:cool_dropdown/models/cool_dropdown_item.dart';
 import 'package:waxxapp/ApiModel/user/UserProductDetailsModel.dart';
+import 'package:waxxapp/ApiModel/user/auto_bid_model.dart';
 import 'package:waxxapp/ApiModel/user/related_product_model.dart';
 import 'package:waxxapp/ApiService/user/auction_bid_service.dart';
+import 'package:waxxapp/ApiService/user/auto_bid_service.dart';
 import 'package:waxxapp/ApiService/user/user_product_details_service.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
@@ -103,6 +105,9 @@ class UserProductDetailsController extends GetxController {
 
   RxBool isAuctionLoading = true.obs;
   final Rx<num> latestBidAmount = 0.obs;
+
+  Rx<AutoBid?> currentAutoBid = Rx<AutoBid?>(null);
+  RxBool isAutoBidLoading = false.obs;
 
   // Future<void> placeBidData({
   //   required String userId,
@@ -210,6 +215,65 @@ class UserProductDetailsController extends GetxController {
   }
 
   RelatedProductModel? relatedProductModel;
+
+  Future<void> fetchAutoBid() async {
+    if (loginUserId.isEmpty) return;
+    try {
+      final result = await AutoBidService().getAutoBid(userId: loginUserId, productId: productId);
+      if (result.status == true) {
+        currentAutoBid.value = result.data;
+      }
+    } catch (e) {
+      log('FetchAutoBid error: $e');
+    }
+  }
+
+  Future<void> setAutoBidData({
+    required String userId,
+    required String productId,
+    required String maxBidAmount,
+    required List<dynamic> attributes,
+  }) async {
+    try {
+      isAutoBidLoading(true);
+      final result = await AutoBidService().setAutoBid(
+        userId: userId,
+        productId: productId,
+        maxBidAmount: maxBidAmount,
+        attributes: attributes,
+      );
+      if (result.status == true) {
+        currentAutoBid.value = result.data;
+        Utils.showToast(result.message ?? 'Auto-bid set successfully!');
+      } else {
+        Utils.showToast(result.message ?? 'Failed to set auto-bid');
+      }
+    } catch (e) {
+      Utils.showToast('Something went wrong');
+      log('SetAutoBid error: $e');
+    } finally {
+      isAutoBidLoading(false);
+    }
+  }
+
+  Future<void> cancelAutoBidData() async {
+    if (loginUserId.isEmpty) return;
+    try {
+      isAutoBidLoading(true);
+      final result = await AutoBidService().cancelAutoBid(userId: loginUserId, productId: productId);
+      if (result.status == true) {
+        currentAutoBid.value = null;
+        Utils.showToast(result.message ?? 'Auto-bid cancelled');
+      } else {
+        Utils.showToast(result.message ?? 'Failed to cancel auto-bid');
+      }
+    } catch (e) {
+      Utils.showToast('Something went wrong');
+      log('CancelAutoBid error: $e');
+    } finally {
+      isAutoBidLoading(false);
+    }
+  }
 
   @override
   void onInit() {

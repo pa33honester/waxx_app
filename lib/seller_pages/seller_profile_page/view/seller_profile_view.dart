@@ -151,6 +151,13 @@ class _SellerProfileViewState extends State<SellerProfileView> {
               ),
               15.height,
               SellerProfileItemWidget(
+                title: 'Schedule a Show',
+                icon: AppAsset.icLiveVideo,
+                iconSize: 27,
+                callback: () => Get.toNamed("/ScheduleLive"),
+              ),
+              15.height,
+              SellerProfileItemWidget(
                 title: St.uploadedShort.tr,
                 icon: AppAsset.icReelsFill,
                 iconSize: 18,

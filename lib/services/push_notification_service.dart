@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -88,7 +90,9 @@ class PushNotificationService {
 
     notificationVisit.value = !notificationVisit.value;
 
-    if (message.data['type'] == 'AUCTION_SUCCESS') {
+    final type = message.data['type'];
+
+    if (type == 'AUCTION_SUCCESS') {
       final attributes = _decodeProductAttributes(message.data['productAttributes']);
       if (Get.isDialogOpen ?? false) {
         Get.back();
@@ -106,6 +110,58 @@ class PushNotificationService {
           productAttributes: attributes,
         ),
         barrierDismissible: true,
+      );
+    } else if (type == 'OUTBID') {
+      final pId = message.data['productId'];
+      final newBid = message.data['newBidAmount'];
+      final productName = message.data['productName'] ?? 'item';
+      Get.snackbar(
+        'You\'ve been outbid!',
+        'Someone bid $newBid on $productName. Tap to bid again.',
+        backgroundColor: AppColors.tabBackground,
+        colorText: AppColors.white,
+        icon: Icon(Icons.gavel_rounded, color: AppColors.primary),
+        duration: const Duration(seconds: 5),
+        onTap: (_) {
+          if (pId != null) {
+            productId = pId;
+            Get.toNamed('/ProductDetail');
+          }
+        },
+      );
+    } else if (type == 'PRODUCT_LIKED') {
+      final userName = message.data['userName'] ?? 'Someone';
+      final productName = message.data['productName'] ?? 'your product';
+      final pId = message.data['productId'];
+      Get.snackbar(
+        '$userName liked $productName',
+        'Tap to view the product',
+        backgroundColor: AppColors.tabBackground,
+        colorText: AppColors.white,
+        icon: const Icon(Icons.favorite_rounded, color: Colors.red),
+        duration: const Duration(seconds: 5),
+        onTap: (_) {
+          if (pId != null) {
+            productId = pId;
+            Get.toNamed('/SellerProductDetails');
+          }
+        },
+      );
+    } else if (type == 'LIVE_STARTED' || type == 'LIVE') {
+      final sellerId = message.data['sellerId'];
+      final sellerName = message.data['sellerName'] ?? 'A seller';
+      Get.snackbar(
+        '$sellerName is live now!',
+        'Tap to join the show',
+        backgroundColor: AppColors.tabBackground,
+        colorText: AppColors.white,
+        icon: Icon(Icons.live_tv_rounded, color: AppColors.primary),
+        duration: const Duration(seconds: 6),
+        onTap: (_) {
+          if (sellerId != null) {
+            Get.toNamed('/LiveSellingConsumer', arguments: {'sellerId': sellerId});
+          }
+        },
       );
     }
   }

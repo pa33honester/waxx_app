@@ -119,14 +119,14 @@ class PopularProductItem extends StatelessWidget {
                   ),
                   2.height,
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Text(
-                        "$currencySymbol ${product.price}",
-                        overflow: TextOverflow.ellipsis,
-                        style: AppFontStyle.styleW900(AppColors.primary, 15),
+                      Expanded(
+                        child: Text(
+                          "$currencySymbol ${product.price}",
+                          overflow: TextOverflow.ellipsis,
+                          style: AppFontStyle.styleW900(AppColors.primary, 15),
+                        ),
                       ),
-                      Spacer(),
                       const Icon(
                         Icons.star_rounded,
                         color: Color(0xffFACC15),
@@ -135,6 +135,7 @@ class PopularProductItem extends StatelessWidget {
                       2.width,
                       Text(
                         product.rating!.isEmpty ? St.noReviews.tr : "${product.rating?[0].avgRating}.0",
+                        overflow: TextOverflow.ellipsis,
                         style: AppFontStyle.styleW500(AppColors.unselected, 9),
                       ),
                     ],

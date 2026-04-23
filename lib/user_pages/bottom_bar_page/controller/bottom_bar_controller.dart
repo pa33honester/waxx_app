@@ -3,7 +3,6 @@ import 'package:waxxapp/utils/globle_veriables.dart' hide socket;
 import 'package:waxxapp/Controller/ApiControllers/seller/api_seller_data_controller.dart';
 import 'package:waxxapp/Controller/GetxController/login/api_who_login_controller.dart';
 import 'package:waxxapp/Controller/GetxController/login/setting_api_controller.dart';
-import 'package:waxxapp/Controller/GetxController/user/gallery_catagory_controller.dart';
 import 'package:waxxapp/View/MyApp/AppPages/cart_page.dart';
 import 'package:waxxapp/View/MyApp/AppPages/my_favorite.dart';
 import 'package:waxxapp/View/MyApp/AppPages/reels_page/controller/reels_controller.dart';
@@ -115,14 +114,6 @@ class BottomBarController extends GetxController {
       if (reelsIndex != null) {
         initialReelsIndex = reelsIndex;
       }
-
-      // Use Get.find() with fallback to avoid creating new instances
-      try {
-        Get.find<GalleryCategoryController>().resetForTabChange();
-      } catch (e) {
-        Get.put(GalleryCategoryController()).resetForTabChange();
-      }
-
       pageController.jumpToPage(index);
       update(["onChangeBottomBar"]);
     }

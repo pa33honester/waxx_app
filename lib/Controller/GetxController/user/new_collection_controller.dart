@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:waxxapp/ApiModel/user/AddToFavoriteModel.dart';
 import 'package:waxxapp/ApiService/user/add_to_favorite_service.dart';
+import 'package:waxxapp/ApiService/user/send_like_notification_service.dart';
 import 'package:get/get.dart';
 import 'package:waxxapp/ApiModel/user/GetNewCollectionModel.dart';
 import 'package:waxxapp/ApiService/user/get_new_collection_service.dart';
@@ -36,6 +37,10 @@ class NewCollectionController extends GetxController {
         categoryId: categoryId,
       );
       addToFavorite = data;
+      // Only notify the seller when the action is a LIKE (not an unlike)
+      if (data?.isFavorite == true) {
+        SendLikeNotificationApi.notify(productId: productId);
+      }
     } finally {
       log('Add to Favorite finally');
     }

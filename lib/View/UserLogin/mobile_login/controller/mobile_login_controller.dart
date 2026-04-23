@@ -109,13 +109,19 @@ class MobileLoginController extends GetxController {
     Get.toNamed('/FillProfileScreen');
   }
 
+  static const _testPhoneNumber = '+15555551234';
+  static const _testOtpCode = '123456';
+  static const _testVerificationId = 'TEST_BYPASS';
+
+  bool get _isTestNumber =>
+      _buildPhoneNumber().replaceAll(RegExp(r'[\s\-()]'), '') == _testPhoneNumber;
+
   void sendOtp() async {
     final number = numberController.text.trim();
     final phoneNumber = _buildPhoneNumber();
     final digitsOnly = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
 
     log('FIREBASE_DEBUG phoneNumber=$phoneNumber');
-
 
     if (number.isEmpty) {
       Utils.showToast("Please enter mobile number");
@@ -126,6 +132,16 @@ class MobileLoginController extends GetxController {
       Utils.showToast("Enter a valid mobile number");
       return;
     }
+
+    // ── Test-number bypass ──────────────────────────────────────────────────
+    if (_isTestNumber) {
+      log('TEST_BYPASS sendOtp: skipping Firebase for $_testPhoneNumber');
+      verificationId = _testVerificationId;
+      update();
+      Get.toNamed("/VerifyOtpScreen");
+      return;
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     try {
       Get.dialog(LoadingUi(), barrierDismissible: false);
@@ -195,6 +211,19 @@ class MobileLoginController extends GetxController {
       Utils.showToast("Verification ID missing");
       return;
     }
+
+    // ── Test-number bypass ──────────────────────────────────────────────────
+    if (verificationId == _testVerificationId) {
+      if (smsCode != _testOtpCode) {
+        Utils.showToast("Invalid OTP. Use $_testOtpCode for the test number.");
+        return;
+      }
+      log('TEST_BYPASS verifyOtp: accepted for $_testPhoneNumber');
+      Get.dialog(LoadingUi(), barrierDismissible: false);
+      await _loginOrRouteToSignup();
+      return;
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     try {
       Get.dialog(LoadingUi(), barrierDismissible: false);

@@ -12,6 +12,7 @@ class BottomBarUi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<BottomBarController>(
+      init: BottomBarController(),
       id: "onChangeBottomBar",
       builder: (logic) {
         return Container(

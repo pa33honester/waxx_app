@@ -18,6 +18,7 @@ class BottomBarView extends StatelessWidget {
             child: Image.asset(AppAsset.imgColorBg, fit: BoxFit.cover),
           ),
           GetBuilder<BottomBarController>(
+            init: BottomBarController(),
             id: "onChangeBottomBar",
             builder: (logic) {
               return PageView.builder(

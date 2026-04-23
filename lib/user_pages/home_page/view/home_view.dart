@@ -25,6 +25,7 @@ import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/shimmers.dart';
 import 'package:waxxapp/utils/show_toast.dart';
 import 'package:waxxapp/utils/utils.dart';
+import 'package:waxxapp/user_pages/upcoming_lives/view/upcoming_lives_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -91,6 +92,8 @@ class _HomeViewState extends State<HomeView> {
                       const HomePageLiveSelling(),
                       20.height,
                       const HomePageShorts(),
+                      20.height,
+                      const UpcomingLivesSection(),
                       10.height,
                     ],
                   ),
@@ -126,7 +129,7 @@ class _HomeViewState extends State<HomeView> {
                               child: Stack(
                                 children: [
                                   galleryCategoryController.galleryProducts.isEmpty
-                                      ? noDataFound(image: "assets/no_data_found/basket.png", text: "No Product found !!")
+                                      ? noDataFound(image: "assets/no_data_found/basket.png", text: "No products in this category")
                                       : SizedBox(
                                           height: 230,
                                           child: ListView.builder(
@@ -246,14 +249,14 @@ class _HomeViewState extends State<HomeView> {
                                                             ),
                                                             2.height,
                                                             Row(
-                                                              mainAxisAlignment: MainAxisAlignment.start,
                                                               children: [
-                                                                Text(
-                                                                  "$currencySymbol ${product.price}",
-                                                                  overflow: TextOverflow.ellipsis,
-                                                                  style: AppFontStyle.styleW900(AppColors.primary, 15),
+                                                                Expanded(
+                                                                  child: Text(
+                                                                    "$currencySymbol ${product.price}",
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                    style: AppFontStyle.styleW900(AppColors.primary, 15),
+                                                                  ),
                                                                 ),
-                                                                Spacer(),
                                                                 const Icon(
                                                                   Icons.star_rounded,
                                                                   color: Color(0xffFACC15),
@@ -262,6 +265,7 @@ class _HomeViewState extends State<HomeView> {
                                                                 2.width,
                                                                 Text(
                                                                   product.rating!.isEmpty ? St.noReviews.tr : "${product.rating?[0].avgRating}.0",
+                                                                  overflow: TextOverflow.ellipsis,
                                                                   style: AppFontStyle.styleW500(AppColors.unselected, 9),
                                                                 ),
                                                               ],
