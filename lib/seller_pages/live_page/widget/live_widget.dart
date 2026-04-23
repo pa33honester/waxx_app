@@ -6,6 +6,8 @@ import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:waxxapp/custom/circle_icon_button_ui.dart';
 import 'package:waxxapp/custom/custom_share.dart';
+import 'package:waxxapp/custom/follow_pill.dart';
+import 'package:waxxapp/custom/live_system_message.dart';
 import 'package:waxxapp/custom/loading_ui.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
@@ -329,11 +331,22 @@ class LiveUi extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          controller.businessName.isNotEmpty ? controller.businessName : controller.name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppFontStyle.styleW600(AppColors.white, 12),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                controller.businessName.isNotEmpty ? controller.businessName : controller.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppFontStyle.styleW600(AppColors.white, 12),
+              ),
+            ),
+            if (!controller.isHost && controller.sellerId.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              FollowPill(sellerId: controller.sellerId),
+            ],
+          ],
         ),
         Stack(
           children: [
@@ -463,6 +476,13 @@ class LiveUi extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
 
+                  if ((data["type"]?.toString() ?? "") == "SYSTEM") {
+                    return LiveSystemMessage(
+                      systemType: data["systemType"]?.toString() ?? "",
+                      userName: data["userName"]?.toString() ?? "",
+                      text: data["text"]?.toString() ?? data["commentText"]?.toString() ?? "",
+                    );
+                  }
                   return CommentItemUi(
                     title: data["userName"] ?? St.unknownUser.tr,
                     subTitle: data["commentText"] ?? data["comment"] ?? St.noComment.tr,

@@ -6,6 +6,7 @@ import 'package:waxxapp/custom/loading_ui.dart';
 import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
 import 'package:waxxapp/custom/simple_app_bar_widget.dart';
+import 'package:waxxapp/custom/verified_seller_badge.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/api/fetch_seller_profile_api.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/controller/preview_seller_profile_controller.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/widget/store_product_tab_bar_widget.dart';
@@ -150,9 +151,22 @@ class _PreviewSellerProfileViewState extends State<PreviewSellerProfileView> wit
                                         children: [
                                           15.height,
                                           Center(
-                                            child: Text(
-                                              controller.fetchSellerProfileModel?.data?.businessName ?? "",
-                                              style: AppFontStyle.styleW700(AppColors.white, 14),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Flexible(
+                                                  child: Text(
+                                                    controller.fetchSellerProfileModel?.data?.businessName ?? "",
+                                                    style: AppFontStyle.styleW700(AppColors.white, 14),
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 4),
+                                                VerifiedSellerBadge(
+                                                  isVerified: (controller.fetchSellerProfileModel?.data?.businessTag ?? '').toString().trim().isNotEmpty,
+                                                  size: 14,
+                                                ),
+                                              ],
                                             ),
                                           ),
                                           5.height,

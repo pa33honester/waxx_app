@@ -15,6 +15,15 @@ class GetLiveSellerListController extends GetxController {
 
   List<LiveSeller> getSellerLiveList = [];
 
+  /// Set of sellerIds currently broadcasting. Used by [LiveAvatarRing] so any
+  /// avatar surface across the app can show the "Live" ring without the
+  /// widget knowing about the list shape.
+  Set<String> get liveSellerIds =>
+      getSellerLiveList.map((s) => s.sellerId ?? '').where((id) => id.isNotEmpty).toSet();
+
+  bool isSellerLive(String? sellerId) =>
+      sellerId != null && sellerId.isNotEmpty && liveSellerIds.contains(sellerId);
+
   Future getSellerList() async {
     try {
       isLoading(true);

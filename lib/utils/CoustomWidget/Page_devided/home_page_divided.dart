@@ -5,7 +5,7 @@ import 'package:waxxapp/Controller/GetxController/user/get_live_seller_list_cont
 import 'package:waxxapp/Controller/GetxController/user/just_for_you_prroduct_controller.dart';
 import 'package:waxxapp/Controller/GetxController/user/new_collection_controller.dart';
 import 'package:waxxapp/custom/circle_button_widget.dart';
-import 'package:waxxapp/custom/circle_dotted_border_widget.dart';
+import 'package:waxxapp/custom/live_avatar_ring.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
 import 'package:waxxapp/seller_pages/live_page/view/live_view.dart';
@@ -328,8 +328,9 @@ class _HomePageLiveSellingState extends State<HomePageLiveSelling> {
                                           await getLiveSellerListController.getSellerList();
                                         });
                                       },
-                                      child: CircleDottedBorderWidget(
-                                        size: 50,
+                                      child: LiveAvatarRing(
+                                        isLive: true,
+                                        size: 62,
                                         child: PreviewProfileImageWidget(
                                           size: 50,
                                           fit: BoxFit.cover,
