@@ -111,6 +111,7 @@ import '../seller_pages/schedule_live_page/view/schedule_live_view.dart';
 import '../user_pages/giveaway/view/my_giveaway_wins_screen.dart';
 import '../user_pages/offer/view/my_offers_screen.dart';
 import '../seller_pages/offers/view/received_offers_screen.dart';
+import '../user_pages/pending_wins/view/pending_wins_screen.dart';
 
 class AppPages {
   static final routes = [
@@ -127,6 +128,11 @@ class AppPages {
     GetPage(
       name: "/ReceivedOffers",
       page: () => const ReceivedOffersScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: "/PendingWins",
+      page: () => const PendingWinsScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

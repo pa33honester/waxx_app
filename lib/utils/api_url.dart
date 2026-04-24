@@ -106,6 +106,11 @@ class Api {
   // Unified search (products + sellers + live shows + reels)
   static const searchAll = "search/all";
 
+  // Pending wins — bundled-order view for the buyer's unpaid auction / offer
+  // wins grouped by seller. Reuses the existing order listing endpoint via
+  // the "Bundle Pending Payment" item status.
+  static const myOrdersList = "order/ordersOfUser";
+
   // Proxy / auto-bid
   static const setAutoBid = "autoBid/setAutoBid";
   static const cancelAutoBid = "autoBid/cancel";

@@ -77,7 +77,8 @@ class MyOrderController extends GetxController {
         status == "Manual Auction Pending Payment" ||
             status == "Manual Auction Cancelled" ||
             status == "Auction Pending Payment" ||
-            status == "Auction Cancelled"
+            status == "Auction Cancelled" ||
+            status == "Bundle Pending Payment"
     );
   }
 
@@ -85,7 +86,8 @@ class MyOrderController extends GetxController {
   bool isPendingPaymentStatus(String? status) {
     return status != null && (
         status == "Manual Auction Pending Payment" ||
-            status == "Auction Pending Payment"
+            status == "Auction Pending Payment" ||
+            status == "Bundle Pending Payment"
     );
   }
 

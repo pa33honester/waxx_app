@@ -193,6 +193,13 @@ class _MainProfileState extends State<MainProfile> {
                         callback: () => Get.toNamed("/MyOffers"),
                       ),
                       15.height,
+                      ProfileItemWidget(
+                        title: 'Pending Wins',
+                        icon: AppAsset.icCartFill,
+                        iconSize: 22,
+                        callback: () => Get.toNamed("/PendingWins"),
+                      ),
+                      15.height,
                       // ProfileItemWidget(
                       //   title: St.paymentMethod.tr,
                       //   icon: AppAsset.icPayment,
