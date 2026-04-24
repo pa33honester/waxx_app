@@ -7,7 +7,6 @@ import 'package:waxxapp/View/MyApp/AppPages/reels_page/api/reels_like_dislike_ap
 import 'package:waxxapp/View/MyApp/AppPages/reels_page/controller/reels_controller.dart';
 import 'package:waxxapp/custom/circle_button_widget.dart';
 import 'package:waxxapp/custom/custom_share.dart';
-import 'package:waxxapp/custom/loading_ui.dart';
 import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
@@ -16,7 +15,6 @@ import 'package:waxxapp/utils/CoustomWidget/App_theme_services/text_titles.dart'
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';
-import 'package:waxxapp/utils/branch_io_services.dart';
 import 'package:waxxapp/utils/font_style.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/shimmers.dart';
@@ -184,22 +182,11 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
 
   Future<void> onClickShare() async {
     isReelsPage.value = false;
-
-    Get.dialog(LoadingUi(), barrierDismissible: false); // Start Loading...
-
-    await BranchIoServices.onCreateBranchIoLink(
-      id: controller.mainReels[widget.index].id ?? "",
-      sellerName: controller.mainReels[widget.index].sellerId?.businessName ?? "",
-      pageRoutes: "Video",
-    );
-
-    final link = await BranchIoServices.onGenerateLink();
-
-    Get.back(); // Stop Loading...
-
-    if (link != null) {
-      CustomShare.onShareLink(link: link);
-    }
+    final sellerName = controller.mainReels[widget.index].sellerId?.businessName ?? "";
+    final context = sellerName.isNotEmpty
+        ? "Check out $sellerName's video on Waxxapp"
+        : "Check out this video on Waxxapp";
+    await CustomShare.onShareApp(context: context);
   }
 
   // Future<void> onClickShare() async {

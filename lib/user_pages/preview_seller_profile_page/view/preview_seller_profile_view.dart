@@ -2,7 +2,6 @@ import 'package:dotted_line/dotted_line.dart';
 import 'package:waxxapp/custom/circle_button_widget.dart';
 import 'package:waxxapp/custom/custom_color_bg_widget.dart';
 import 'package:waxxapp/custom/custom_share.dart';
-import 'package:waxxapp/custom/loading_ui.dart';
 import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
 import 'package:waxxapp/custom/simple_app_bar_widget.dart';
@@ -15,7 +14,6 @@ import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/Theme/theme_service.dart';
 import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';
-import 'package:waxxapp/utils/branch_io_services.dart';
 import 'package:waxxapp/utils/font_style.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/show_toast.dart';
@@ -56,21 +54,10 @@ class _PreviewSellerProfileViewState extends State<PreviewSellerProfileView> wit
     controller.sellerId = widget.sellerId;
 
     Future<void> onClickShare() async {
-      Get.dialog(LoadingUi(), barrierDismissible: false); // Start Loading...
-
-      await BranchIoServices.onCreateBranchIoLink(
-        id: controller.sellerId,
-        sellerName: widget.sellerName,
-        pageRoutes: "SellerProfile",
-      );
-
-      final link = await BranchIoServices.onGenerateLink();
-
-      Get.back(); // Stop Loading...
-
-      if (link != null) {
-        CustomShare.onShareLink(link: link);
-      }
+      final context = widget.sellerName.isNotEmpty
+          ? "Check out ${widget.sellerName}'s store on Waxxapp"
+          : "Check out this store on Waxxapp";
+      await CustomShare.onShareApp(context: context);
     }
 
     return CustomColorBgWidget(

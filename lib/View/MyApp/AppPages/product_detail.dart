@@ -11,7 +11,6 @@ import 'package:waxxapp/Controller/GetxController/user/user_product_details_cont
 import 'package:waxxapp/custom/circle_button_widget.dart';
 import 'package:waxxapp/custom/custom_color_bg_widget.dart';
 import 'package:waxxapp/custom/custom_share.dart';
-import 'package:waxxapp/custom/loading_ui.dart';
 import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
@@ -23,7 +22,6 @@ import 'package:waxxapp/utils/all_images.dart';
 import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/app_constant.dart';
-import 'package:waxxapp/utils/branch_io_services.dart';
 import 'package:waxxapp/utils/font_style.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/show_toast.dart';
@@ -151,23 +149,11 @@ class _ProductDetailState extends State<ProductDetail> {
   }
 
   Future<void> onClickShare() async {
-    Get.dialog(LoadingUi(), barrierDismissible: false); // Start Loading...
-
-    await BranchIoServices.onCreateProductBranchIoLink(
-      id: userProductDetailsController.userProductDetails?.product?[0].id ?? "",
-      images: userProductDetailsController.userProductDetails?.product?[0].images,
-      productName: userProductDetailsController.userProductDetails?.product?[0].productName ?? "",
-      description: userProductDetailsController.userProductDetails?.product?[0].description ?? "",
-      pageRoutes: "Product",
-    );
-
-    final link = await BranchIoServices.onGenerateLink();
-
-    Get.back(); // Stop Loading...
-
-    if (link != null) {
-      CustomShare.onShareLink(link: link);
-    }
+    final productName = userProductDetailsController.userProductDetails?.product?[0].productName ?? "";
+    final context = productName.isNotEmpty
+        ? "Check out $productName on Waxxapp"
+        : "Check out this product on Waxxapp";
+    await CustomShare.onShareApp(context: context);
   }
 
   String? _getAddress() {
