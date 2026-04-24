@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:waxxapp/ApiModel/giveaway/giveaway_model.dart';
 import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
 import 'package:waxxapp/user_pages/giveaway/controller/user_giveaway_controller.dart';
+import 'package:waxxapp/user_pages/live_page/controller/live_auction_controller.dart';
 import 'package:waxxapp/utils/api_url.dart';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -172,6 +173,41 @@ class SocketServices {
 
     socket!.on("giveawayError", (data) {
       log("Socket Listen => giveawayError: $data");
+    });
+
+    // ----- Live auction (buyers + hosts watch the same events) -----
+    socket!.on("initiateAuction", (data) {
+      log("Socket Listen => initiateAuction: $data");
+      final parsed = LiveAuctionController.decodeAuctionPayload(data);
+      if (parsed == null) return;
+      if (Get.isRegistered<LiveAuctionController>()) {
+        Get.find<LiveAuctionController>().onAuctionStarted(parsed);
+      }
+    });
+
+    socket!.on("announceTopBidPlaced", (data) {
+      log("Socket Listen => announceTopBidPlaced: $data");
+      final parsed = LiveAuctionController.decodeAuctionPayload(data);
+      if (parsed == null) return;
+      if (Get.isRegistered<LiveAuctionController>()) {
+        Get.find<LiveAuctionController>().onTopBidPlaced(parsed);
+      }
+    });
+
+    socket!.on("declareAuctionResult", (data) {
+      log("Socket Listen => declareAuctionResult: $data");
+      if (Get.isRegistered<LiveAuctionController>()) {
+        Get.find<LiveAuctionController>().onAuctionResult(data);
+      }
+    });
+
+    socket!.on("auctionError", (data) {
+      log("Socket Listen => auctionError: $data");
+      final parsed = _parseSocketPayload(data);
+      final msg = parsed?['message']?.toString() ?? 'Auction error';
+      if (Get.isRegistered<LiveAuctionController>()) {
+        Get.find<LiveAuctionController>().onAuctionError(msg);
+      }
     });
 
     socket!.on("liveSessionInfo", (liveData) {
@@ -350,6 +386,67 @@ class SocketServices {
       log("Socket Emit => User Add New Comment");
     } else {
       log("Socket Not Connected");
+    }
+  }
+
+  /// Host-side: kick off an auction for a product already in their selected
+  /// products list. Payload shape mirrors what the backend's `initiateAuction`
+  /// handler in waxxapp_admin/backend/socket.js expects.
+  static Future<void> onInitiateAuction({
+    required String liveStreamerId,
+    required String liveHistoryId,
+    required String productId,
+    required String productName,
+    required String mainImage,
+    required String userId,
+    required int minAuctionTime,
+    required num startingBid,
+  }) async {
+    final data = jsonEncode({
+      "liveStreamerId": liveStreamerId,
+      "liveHistoryId": liveHistoryId,
+      "productId": productId,
+      "productName": productName,
+      "mainImage": mainImage,
+      "userId": userId,
+      "minAuctionTime": minAuctionTime,
+      "startingBid": startingBid,
+      "productVendorId": productId,
+    });
+    log("Socket Emit => initiateAuction: $data");
+    if (socket != null && socket!.connected) {
+      socket!.emit("initiateAuction", data);
+    } else {
+      log("Socket Not Connected — initiateAuction dropped");
+    }
+  }
+
+  /// Viewer-side: place a bid in the active auction. The server broadcasts
+  /// `announceTopBidPlaced` back on success, which is what drives the overlay
+  /// update — we never optimistically bump the bid locally.
+  static Future<void> onPlaceBid({
+    required String liveStreamerId,
+    required String liveHistoryId,
+    required String productVendorId,
+    required String productId,
+    required String userId,
+    required num amount,
+    required int minAuctionTime,
+  }) async {
+    final data = jsonEncode({
+      "liveStreamerId": liveStreamerId,
+      "liveHistoryId": liveHistoryId,
+      "productVendorId": productVendorId,
+      "productId": productId,
+      "userId": userId,
+      "amount": amount,
+      "minAuctionTime": minAuctionTime,
+    });
+    log("Socket Emit => placeBid: $data");
+    if (socket != null && socket!.connected) {
+      socket!.emit("placeBid", data);
+    } else {
+      log("Socket Not Connected — placeBid dropped");
     }
   }
 

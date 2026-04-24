@@ -3,13 +3,13 @@ import 'dart:developer';
 import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chewie/chewie.dart';
+import 'package:waxxapp/custom/custom_share.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import '../../../Controller/GetxController/user/get_reels_controller.dart';
 
@@ -501,12 +501,10 @@ class _ShowShortsState extends State<ShowShorts> with TickerProviderStateMixin {
                       //     child: Image.asset("assets/icons/reels_messege.png", height: 33)),
                       GestureDetector(
                           onTap: () async {
-                            var url = Uri.parse("https://play.google.com/store/apps/details?id=com.erashop.live");
-                            if (await canLaunchUrl(url)) {
-                              launchUrl(url, mode: LaunchMode.externalApplication);
-                            } else {
-                              throw "Cannot load the page";
-                            }
+                            final context = widget.businessName.isNotEmpty
+                                ? "Check out ${widget.businessName}'s video on Waxxapp"
+                                : "Check out this video on Waxxapp";
+                            await CustomShare.onShareApp(context: context);
                           },
                           child: Image.asset("assets/icons/reels_share.png", height: 33)),
                       AnimatedBuilder(

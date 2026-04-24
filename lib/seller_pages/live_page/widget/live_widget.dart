@@ -12,10 +12,12 @@ import 'package:waxxapp/custom/loading_ui.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
 import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
+import 'package:waxxapp/seller_pages/select_product_for_streame/model/selected_product_model.dart';
+import 'package:waxxapp/user_pages/live_page/controller/live_auction_controller.dart';
+import 'package:waxxapp/user_pages/live_page/widget/live_auction_overlay.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';
-import 'package:waxxapp/utils/branch_io_services.dart';
 import 'package:waxxapp/utils/font_style.dart';
 import 'package:waxxapp/utils/socket_services.dart';
 import 'package:waxxapp/utils/utils.dart';
@@ -386,6 +388,11 @@ class LiveUi extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildCommentsSection(),
+          // Auction pill — shown to both viewer and host while an auction is
+          // active. No-ops to an empty SizedBox when no auction is running.
+          GetBuilder<LiveController>(
+            builder: (controller) => LiveAuctionOverlay(isHost: controller.isHost),
+          ),
           GetBuilder<LiveController>(
             builder: (controller) {
               return SizedBox(
@@ -394,6 +401,8 @@ class LiveUi extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Visibility(visible: controller.liveType == 1, child: Expanded(child: _buildBottomInput().paddingOnly(right: 10))),
+                    if (controller.isHost && controller.liveSelectedProducts.isNotEmpty)
+                      _buildStartAuctionButton(controller).paddingOnly(right: 10),
                     Visibility(
                       visible: controller.liveSelectedProducts.isNotEmpty,
                       child: _buildShopViewSection(),
@@ -406,6 +415,116 @@ class LiveUi extends StatelessWidget {
           12.height,
         ],
       ),
+    );
+  }
+
+  /// Host-only quick-start auction control. Opens a bottom sheet listing the
+  /// host's already-selected products; tapping one fires `initiateAuction`.
+  Widget _buildStartAuctionButton(LiveController controller) {
+    return GestureDetector(
+      onTap: () => _openStartAuctionSheet(controller),
+      child: Container(
+        height: 55,
+        width: 55,
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFC43A),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.white, width: 1.2),
+        ),
+        child: const Center(
+          child: Icon(Icons.gavel_rounded, color: Colors.black, size: 26),
+        ),
+      ),
+    );
+  }
+
+  void _openStartAuctionSheet(LiveController controller) {
+    final auctionCtl = Get.isRegistered<LiveAuctionController>()
+        ? Get.find<LiveAuctionController>()
+        : Get.put(LiveAuctionController(), permanent: false);
+
+    Get.bottomSheet(
+      Container(
+        color: AppColors.black,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Start auction', style: AppFontStyle.styleW700(AppColors.white, 16)),
+              8.height,
+              Text(
+                'Pick a product from your live show to start bidding.',
+                style: AppFontStyle.styleW400(AppColors.unselected, 12),
+              ),
+              16.height,
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: Get.height * 0.5),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: controller.liveSelectedProducts.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.white10),
+                  itemBuilder: (_, i) {
+                    final p = controller.liveSelectedProducts[i];
+                    final alreadyRunning = p.hasAuctionStarted == true;
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: SizedBox(
+                          width: 44,
+                          height: 44,
+                          child: PreviewImageWidget(
+                            height: 44,
+                            width: 44,
+                            fit: BoxFit.cover,
+                            image: p.mainImage ?? '',
+                            radius: 8,
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        p.productName ?? '',
+                        style: AppFontStyle.styleW600(AppColors.white, 13),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(
+                        'Min ${p.minimumBidPrice ?? p.price ?? 0} · ${p.minAuctionTime ?? 60}s',
+                        style: AppFontStyle.styleW400(AppColors.unselected, 11),
+                      ),
+                      trailing: alreadyRunning
+                          ? const Icon(Icons.circle, color: Color(0xFFFFC43A), size: 10)
+                          : const Icon(Icons.arrow_forward_rounded, color: Colors.white70),
+                      onTap: alreadyRunning
+                          ? null
+                          : () {
+                              Get.back();
+                              _startAuction(auctionCtl, controller, p);
+                            },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      backgroundColor: AppColors.black,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+    );
+  }
+
+  void _startAuction(LiveAuctionController auctionCtl, LiveController controller, SelectedProduct p) {
+    auctionCtl.startAuctionForProduct(
+      product: p,
+      liveStreamerId: controller.sellerId,
+      liveHistoryId: controller.roomId,
+      sellerUserId: controller.userId,
     );
   }
 
@@ -536,14 +655,11 @@ class LiveUi extends StatelessWidget {
   }
 
   Future<void> _handleShare(LiveController controller) async {
-    Get.dialog(const LoadingUi(), barrierDismissible: false);
-
-    final link = await BranchIoServices.onGenerateLink();
-    Get.back();
-
-    if (link != null) {
-      CustomShare.onShareLink(link: link);
-    }
+    final sellerName = controller.businessName;
+    final context = sellerName.isNotEmpty
+        ? "Watch $sellerName live on Waxxapp"
+        : "Watch this live show on Waxxapp";
+    await CustomShare.onShareApp(context: context);
   }
 }
 
