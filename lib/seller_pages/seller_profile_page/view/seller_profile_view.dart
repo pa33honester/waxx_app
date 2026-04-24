@@ -137,6 +137,13 @@ class _SellerProfileViewState extends State<SellerProfileView> {
               ),
               15.height,
               SellerProfileItemWidget(
+                title: 'Received Offers',
+                icon: AppAsset.icCartFill,
+                iconSize: 22,
+                callback: () => Get.toNamed("/ReceivedOffers"),
+              ),
+              15.height,
+              SellerProfileItemWidget(
                 title: St.myWallet.tr,
                 icon: AppAsset.icWallet,
                 iconSize: 28,
