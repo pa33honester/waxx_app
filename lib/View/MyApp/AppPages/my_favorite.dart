@@ -4,8 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:waxxapp/Controller/GetxController/user/new_collection_controller.dart';
 import 'package:waxxapp/Controller/GetxController/user/show_favorite_controller.dart';
 import 'package:waxxapp/custom/circle_button_widget.dart';
-import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
-import 'package:waxxapp/user_pages/home_page/view/home_view.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/no_data_found.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/text_titles.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
@@ -66,52 +64,24 @@ class _MyFavoriteState extends State<MyFavorite> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (bool didPop) {
-        Get.find<BottomBarController>().onChangeBottomBar(0);
-        if (didPop) {
-          return;
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          flexibleSpace: HomeAppbarWidget(),
-        ),
-        // appBar: PreferredSize(
-        //   preferredSize: const Size.fromHeight(60),
-        //   child: AppBar(
-        //     elevation: 0,
-        //     automaticallyImplyLeading: false,
-        //     actions: [
-        //       SizedBox(
-        //         width: Get.width,
-        //         height: double.maxFinite,
-        //         child: Stack(
-        //           children: [
-        //             Padding(
-        //               padding: const EdgeInsets.only(left: 15, top: 10),
-        //               child: PrimaryRoundButton(
-        //                 onTaped: () {
-        //                   Get.back();
-        //                 },
-        //                 icon: Icons.arrow_back_rounded,
-        //               ),
-        //             ),
-        //             Align(
-        //               alignment: Alignment.center,
-        //               child: Padding(
-        //                 padding: const EdgeInsets.only(top: 5),
-        //                 child: GeneralTitle(title: St.myFavorite.tr),
-        //               ),
-        //             ),
-        //           ],
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
-        body: SafeArea(
+    // Favorites/Wishlist used to be a bottom-nav root, which is why the
+    // original build wrapped everything in a PopScope(canPop: false) that
+    // routed system-back to the Home tab. Now it's pushed from the profile
+    // menu, so we just use a normal back-arrow AppBar and let Navigator
+    // handle pop as usual.
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: AppColors.black,
+        surfaceTintColor: AppColors.transparent,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text('Wishlist', style: AppFontStyle.styleW700(AppColors.white, 16)),
+      ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    return SafeArea(
             child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -518,8 +488,7 @@ class _MyFavoriteState extends State<MyFavorite> with TickerProviderStateMixin {
             ),
             ),
           ],
-        )),
-      ),
+        ),
     );
   }
 }
