@@ -568,7 +568,9 @@ class _HomePageShortsState extends State<HomePageShorts> {
               GestureDetector(
                 onTap: () {
                   final controller = Get.find<BottomBarController>();
-                  controller.onChangeBottomBar(1);
+                  // Reels tab is at index 2 in the new bottom nav order
+                  // (Home · Live · Reels · Cart · Profile).
+                  controller.onChangeBottomBar(2);
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(right: 16),

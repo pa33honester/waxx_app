@@ -50,12 +50,17 @@ class _UnifiedSearchViewState extends State<UnifiedSearchView>
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(110),
-        child: Container(
-          color: Colors.black,
-          padding: const EdgeInsets.only(top: 44, left: 12, right: 12, bottom: 0),
-          child: Column(
-            children: [
+        // IconButton is 48 tall + 46-px TabBar = 94 content. Give the header
+        // some breathing room so bigger status bars don't clip it.
+        preferredSize: const Size.fromHeight(128),
+        child: SafeArea(
+          bottom: false,
+          child: Container(
+            color: Colors.black,
+            padding: const EdgeInsets.only(left: 12, right: 12, top: 4, bottom: 0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
               Row(
                 children: [
                   IconButton(
@@ -97,6 +102,7 @@ class _UnifiedSearchViewState extends State<UnifiedSearchView>
                 tabs: _tabs.map((t) => Tab(text: t)).toList(),
               ),
             ],
+          ),
           ),
         ),
       ),

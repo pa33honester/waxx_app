@@ -18,7 +18,10 @@ class BottomBarUi extends StatelessWidget {
         return Container(
           width: Get.width,
           decoration: BoxDecoration(
-            color: logic.selectedTabIndex == 1 ? AppColors.transparent : AppColors.black,
+            // Reels sits at index 2 in the new order (Home · Live · Reels ·
+            // Cart · Profile); keep the transparent backdrop only while
+            // reels is the active full-bleed view.
+            color: logic.selectedTabIndex == 2 ? AppColors.transparent : AppColors.black,
           ),
           padding: const EdgeInsets.only(left: 15, right: 15, top: 15, bottom: 15),
           child: Container(
@@ -39,22 +42,22 @@ class BottomBarUi extends StatelessWidget {
                   size: 22,
                   isSelect: logic.selectedTabIndex == 0,
                 ),
+                // Live hub at index 1 — the big live/broadcast slot that
+                // used to hold Favorites.
                 _BottomBarIconUi(
-                  icon: logic.selectedTabIndex == 1 ? AppAsset.icReelsFill : AppAsset.icReels,
+                  icon: AppAsset.icLiveVideo,
                   callback: () => logic.onChangeBottomBar(1),
-                  size: 17,
+                  size: 22,
                   isSelect: logic.selectedTabIndex == 1,
                 ),
                 _BottomBarIconUi(
-                  icon: logic.selectedTabIndex == 2 ? AppAsset.icCartFill : AppAsset.icCart,
+                  icon: logic.selectedTabIndex == 2 ? AppAsset.icReelsFill : AppAsset.icReels,
                   callback: () => logic.onChangeBottomBar(2),
-                  size: 22,
+                  size: 17,
                   isSelect: logic.selectedTabIndex == 2,
                 ),
-                // Live hub tab (replaces the old Favorites/heart tab — that
-                // surface now lives inside the Profile menu).
                 _BottomBarIconUi(
-                  icon: AppAsset.icLiveVideo,
+                  icon: logic.selectedTabIndex == 3 ? AppAsset.icCartFill : AppAsset.icCart,
                   callback: () => logic.onChangeBottomBar(3),
                   size: 22,
                   isSelect: logic.selectedTabIndex == 3,

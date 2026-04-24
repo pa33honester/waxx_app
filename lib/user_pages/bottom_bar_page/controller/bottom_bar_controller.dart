@@ -84,7 +84,8 @@ class BottomBarController extends GetxController {
     // Handle deep link navigation
     if (BranchIoServices.eventType == "Video") {
       await Future.delayed(Duration(milliseconds: 800));
-      onChangeBottomBar(1);
+      // Reels tab moved from index 1 to index 2 after Live was inserted.
+      onChangeBottomBar(2);
     } else if (BranchIoServices.eventType == "Product") {
       await 500.milliseconds.delay();
       productId = BranchIoServices.eventId;
@@ -100,11 +101,13 @@ class BottomBarController extends GetxController {
     }
   }
 
+  // Tab order: Home, Live, Reels, Cart, Profile — promotes live shopping
+  // to the second slot so it's the first thing after Home.
   List bottomBarPages = [
     const HomeView(),
+    const LiveHubView(),
     const ReelsView(),
     const CartPage(),
-    const LiveHubView(),
     const MainProfile(),
   ];
 

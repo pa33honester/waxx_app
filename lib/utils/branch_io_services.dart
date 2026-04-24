@@ -141,7 +141,8 @@ class BranchIoServices {
     final bottomBarController = Get.isRegistered<BottomBarController>() ? Get.find<BottomBarController>() : Get.put(BottomBarController());
     if (BranchIoServices.eventType == "Video") {
       await Future.delayed(Duration(milliseconds: 800));
-      bottomBarController.onChangeBottomBar(1);
+      // Reels lives at index 2 after the Live hub was inserted at index 1.
+      bottomBarController.onChangeBottomBar(2);
     } else if (BranchIoServices.eventType == "Product") {
       await Future.delayed(Duration(milliseconds: 800));
       productId = BranchIoServices.eventId;
