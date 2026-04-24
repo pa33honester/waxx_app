@@ -7,6 +7,8 @@ import 'package:waxxapp/ApiModel/seller/SellerReelsModel.dart';
 import 'package:waxxapp/Controller/GetxController/user/follow_unfollow_controller.dart';
 import 'package:waxxapp/View/MyApp/AppPages/reels_page/api/reels_like_dislike_api.dart';
 import 'package:waxxapp/custom/circle_button_widget.dart';
+import 'package:waxxapp/custom/custom_share.dart';
+import 'package:waxxapp/custom/loading_ui.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/controller/preview_seller_profile_controller.dart';
@@ -17,12 +19,12 @@ import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/app_constant.dart';
+import 'package:waxxapp/utils/branch_io_services.dart';
 import 'package:waxxapp/utils/font_style.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
 class StoreProductWidget extends StatelessWidget {
@@ -447,10 +449,22 @@ class _FullScreenReelViewState extends State<FullScreenReelView> {
   }
 
   Future<void> onClickShare() async {
-    var url = Uri.parse("https://play.google.com/store/apps/details?id=com.erashop.live");
-    if (await canLaunchUrl(url)) {
-      launchUrl(url, mode: LaunchMode.externalApplication);
-      throw "Cannot load the page";
+    final reel = widget.reels[_currentIndex];
+
+    Get.dialog(LoadingUi(), barrierDismissible: false);
+
+    await BranchIoServices.onCreateBranchIoLink(
+      id: reel.id ?? "",
+      sellerName: reel.sellerId?.businessName ?? "",
+      pageRoutes: "Video",
+    );
+
+    final link = await BranchIoServices.onGenerateLink();
+
+    Get.back();
+
+    if (link != null) {
+      CustomShare.onShareLink(link: link);
     }
   }
 
