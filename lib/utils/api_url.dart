@@ -103,6 +103,9 @@ class Api {
   static const getAuctionProducts = "product/getAuctionProducts";
   static const getRelatedProductsByCategory = "product/getRelatedProductsByCategory";
 
+  // Unified search (products + sellers + live shows + reels)
+  static const searchAll = "search/all";
+
   // Offers (buyer↔seller negotiation on static listings)
   static const createOffer = "offer/create";
   static const withdrawOffer = "offer/withdraw";

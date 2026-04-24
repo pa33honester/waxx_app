@@ -13,7 +13,7 @@ import 'package:waxxapp/user_pages/home_page/widget/home_live_grid.dart';
 import 'package:waxxapp/user_pages/home_page/widget/home_live_products_rail.dart';
 import 'package:waxxapp/user_pages/popular_products_page/controller/popular_products_controller.dart';
 import 'package:waxxapp/user_pages/popular_products_page/view/popular_products_view.dart';
-import 'package:waxxapp/user_pages/search_page/view/search_view.dart';
+import 'package:waxxapp/user_pages/search_page/view/unified_search_view.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/no_data_found.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/text_titles.dart';
 import 'package:waxxapp/utils/CoustomWidget/Page_devided/home_page_divided.dart';
@@ -416,7 +416,7 @@ class HomeAppbarWidget extends StatelessWidget {
             const Spacer(),
             10.width,
             CircleButtonWidget(
-              callback: () => Get.to(SearchView()),
+              callback: () => Get.to(() => const UnifiedSearchView()),
               size: 42,
               color: AppColors.white.withValues(alpha: 0.2),
               child: Image.asset(AppAsset.icSearch, width: 22),
