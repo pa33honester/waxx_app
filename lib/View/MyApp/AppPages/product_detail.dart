@@ -15,6 +15,7 @@ import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
 import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
+import 'package:waxxapp/user_pages/offer/widget/make_offer_sheet.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/view/preview_seller_profile_view.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/Theme/theme_service.dart';
@@ -146,6 +147,18 @@ class _ProductDetailState extends State<ProductDetail> {
     if (await Vibration.hasVibrator()) {
       Vibration.vibrate();
     }
+  }
+
+  void _openMakeOfferSheet() {
+    final p = userProductDetailsController.userProductDetails?.product?[0];
+    if (p == null) return;
+    MakeOfferSheet.show(
+      context,
+      productId: p.id ?? productId,
+      productName: p.productName ?? '',
+      listedPrice: p.price ?? 0,
+      minimumOfferPrice: (p.minimumOfferPrice ?? 0),
+    );
   }
 
   Future<void> onClickShare() async {
@@ -741,7 +754,35 @@ class _ProductDetailState extends State<ProductDetail> {
                             ? _buildAuctionBottomBar()
                             : Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                            child: Row(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // "Make an offer" surfaces only when the
+                                // seller opted in via allowOffer on the
+                                // product. Keeps the buy-now row unchanged
+                                // for listings that don't support offers.
+                                if (userProductDetailsController.userProductDetails?.product?[0].allowOffer == true &&
+                                    userProductDetailsController.userProductDetails?.product?[0].productSaleType == 1)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: SizedBox(
+                                      width: double.infinity,
+                                      height: 36,
+                                      child: OutlinedButton.icon(
+                                        onPressed: _openMakeOfferSheet,
+                                        icon: Icon(Icons.local_offer_outlined, size: 16, color: AppColors.primary),
+                                        label: Text(
+                                          'Make an offer',
+                                          style: AppFontStyle.styleW700(AppColors.primary, 12),
+                                        ),
+                                        style: OutlinedButton.styleFrom(
+                                          side: BorderSide(color: AppColors.primary.withValues(alpha: 0.7)),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                Row(
                               children: [
                                 // GestureDetector(
                                 //   onTap: () async {
@@ -895,6 +936,8 @@ class _ProductDetailState extends State<ProductDetail> {
                                 //     ),
                                 //   ),
                                 // ),
+                              ],
+                            ),
                               ],
                             ),
                           );

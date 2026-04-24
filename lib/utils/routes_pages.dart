@@ -109,12 +109,18 @@ import '../seller_pages/seller_profile_page/view/seller_profile_view.dart';
 import '../user_pages/help_and_support_page/view/help_and_support_view.dart';
 import '../seller_pages/schedule_live_page/view/schedule_live_view.dart';
 import '../user_pages/giveaway/view/my_giveaway_wins_screen.dart';
+import '../user_pages/offer/view/my_offers_screen.dart';
 
 class AppPages {
   static final routes = [
     GetPage(
       name: "/MyGiveawayWins",
       page: () => const MyGiveawayWinsScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: "/MyOffers",
+      page: () => const MyOffersScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

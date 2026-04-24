@@ -102,6 +102,15 @@ class Api {
   static const sellerUpdateOrderItemStatus = "order/modifyOrderItemStatus";
   static const getAuctionProducts = "product/getAuctionProducts";
   static const getRelatedProductsByCategory = "product/getRelatedProductsByCategory";
+
+  // Offers (buyer↔seller negotiation on static listings)
+  static const createOffer = "offer/create";
+  static const withdrawOffer = "offer/withdraw";
+  static const acceptOffer = "offer/accept";
+  static const counterOffer = "offer/counter";
+  static const declineOffer = "offer/decline";
+  static const getReceivedOffers = "offer/received";
+  static const getSentOffers = "offer/sent";
   static const sendProductLikedNotification = "notification/sendProductLikedNotification";
   static const featuredProducts = "product/featuredProducts";
 
