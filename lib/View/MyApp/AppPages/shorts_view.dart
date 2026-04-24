@@ -86,6 +86,7 @@ class _ShortsViewState extends State<ShortsView> {
               productDescription: product?.description ?? "",
               attributeArray: jsonDecode(jsonEncode(attributesArray ?? [])),
               businessName: "${shorts.sellerId?.businessName ?? ""}",
+              sellerId: shorts.sellerId?.id ?? "",
               reelId: "${shorts.id}",
               isLikeOrNot: getReelsForUserController.likeDislikes[index],
               selectedIndex: index,

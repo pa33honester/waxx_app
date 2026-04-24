@@ -4,6 +4,7 @@ import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chewie/chewie.dart';
 import 'package:waxxapp/custom/custom_share.dart';
+import 'package:waxxapp/custom/live_now_chip.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,6 +25,7 @@ class ShowShorts extends StatefulWidget {
   final String productDescription;
   final List<dynamic> attributeArray;
   final String businessName;
+  final String sellerId;
   final int selectedIndex;
   final int likeCount;
   final int index;
@@ -38,6 +40,7 @@ class ShowShorts extends StatefulWidget {
       required this.productDescription,
       required this.attributeArray,
       required this.businessName,
+      required this.sellerId,
       required this.productId,
       required this.reelId,
       required this.isLikeOrNot,
@@ -394,7 +397,9 @@ class _ShowShortsState extends State<ShowShorts> with TickerProviderStateMixin {
                               Image.asset(
                                 "assets/profile_icons/seller done.png",
                                 height: 18,
-                              )
+                              ),
+                              if (widget.sellerId.isNotEmpty) const SizedBox(width: 8),
+                              if (widget.sellerId.isNotEmpty) LiveNowChip(sellerId: widget.sellerId),
                             ],
                           ),
                           Obx(
