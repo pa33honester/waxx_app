@@ -106,6 +106,12 @@ class Api {
   // Unified search (products + sellers + live shows + reels)
   static const searchAll = "search/all";
 
+  // Proxy / auto-bid
+  static const setAutoBid = "autoBid/setAutoBid";
+  static const cancelAutoBid = "autoBid/cancel";
+  static const getAutoBid = "autoBid/getAutoBid";
+  static const myActiveAutoBids = "autoBid/myActive";
+
   // Offers (buyer↔seller negotiation on static listings)
   static const createOffer = "offer/create";
   static const withdrawOffer = "offer/withdraw";
@@ -116,11 +122,6 @@ class Api {
   static const getSentOffers = "offer/sent";
   static const sendProductLikedNotification = "notification/sendProductLikedNotification";
   static const featuredProducts = "product/featuredProducts";
-
-  // Auto-bid
-  static const setAutoBid = "auctionBid/setAutoBid";
-  static const getAutoBid = "auctionBid/getAutoBid";
-  static const cancelAutoBid = "auctionBid/cancelAutoBid";
 
   // Giveaways
   static const startGiveaway = "giveaway/start";

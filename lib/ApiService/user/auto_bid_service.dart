@@ -16,6 +16,7 @@ class AutoBidService {
     required String productId,
     required String maxBidAmount,
     required List<dynamic> attributes,
+    String? liveHistoryId,
   }) async {
     final url = Uri.parse(Api.baseUrl + Api.setAutoBid);
     final body = jsonEncode({
@@ -23,6 +24,7 @@ class AutoBidService {
       'productId': productId,
       'maxBidAmount': maxBidAmount,
       'attributes': attributes,
+      if (liveHistoryId != null && liveHistoryId.isNotEmpty) 'liveHistoryId': liveHistoryId,
     });
     log('SetAutoBid URL :: $url\nBody :: $body');
     try {
@@ -54,6 +56,27 @@ class AutoBidService {
     } catch (e) {
       log('GetAutoBid error: $e');
       throw Exception('Network error: $e');
+    }
+  }
+
+  /// Returns the user's currently-active auto-bids, optionally scoped to a
+  /// live show. Used to paint "Max $X" badges on the live overlay.
+  Future<List<AutoBid>> myActive({required String userId, String? liveHistoryId}) async {
+    final query = {
+      'userId': userId,
+      if (liveHistoryId != null && liveHistoryId.isNotEmpty) 'liveHistoryId': liveHistoryId,
+    };
+    final url = Uri.parse('${Api.baseUrl}${Api.myActiveAutoBids}').replace(queryParameters: query);
+    try {
+      final resp = await http.get(url, headers: _headers);
+      if (resp.statusCode != 200) return const [];
+      final parsed = json.decode(resp.body);
+      if (parsed['status'] != true) return const [];
+      final list = (parsed['data'] as List?) ?? const [];
+      return list.map((e) => AutoBid.fromJson(Map<String, dynamic>.from(e))).toList();
+    } catch (e) {
+      log('myActive autoBid error: $e');
+      return const [];
     }
   }
 

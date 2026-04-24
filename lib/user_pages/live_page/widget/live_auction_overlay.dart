@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waxxapp/user_pages/live_page/controller/live_auction_controller.dart';
+import 'package:waxxapp/user_pages/live_page/widget/set_max_bid_sheet.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 
 /// In-stream auction pill. Visible to both the host and viewers when an
@@ -100,33 +101,70 @@ class LiveAuctionOverlay extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Text(
-                    'Current bid: $currencySymbol${auction.currentBid}',
-                    style: const TextStyle(color: Colors.white70, fontSize: 11),
+                  Row(
+                    children: [
+                      Text(
+                        'Current bid: $currencySymbol${auction.currentBid}',
+                        style: const TextStyle(color: Colors.white70, fontSize: 11),
+                      ),
+                      if (ctl.myMaxBid.value != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFC43A).withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(color: const Color(0xFFFFC43A), width: 1),
+                          ),
+                          child: Text(
+                            'Max $currencySymbol${ctl.myMaxBid.value}',
+                            style: const TextStyle(
+                              color: Color(0xFFFFC43A),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 10),
             if (!isHost)
-              ElevatedButton(
-                onPressed: ctl.isSubmitting.value ? null : () => ctl.placeBid(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFC43A),
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+              GestureDetector(
+                onLongPress: () => SetMaxBidSheet.show(context),
+                child: ElevatedButton(
+                  onPressed: ctl.isSubmitting.value ? null : () => ctl.placeBid(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFC43A),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                  ),
+                  child: ctl.isSubmitting.value
+                      ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                        )
+                      : Text(
+                          'BID $currencySymbol$nextBid',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                        ),
                 ),
-                child: ctl.isSubmitting.value
-                    ? const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
-                      )
-                    : Text(
-                        'BID $currencySymbol$nextBid',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
-                      ),
+              ),
+            if (!isHost && ctl.myMaxBid.value == null)
+              Padding(
+                padding: const EdgeInsets.only(left: 6),
+                child: IconButton(
+                  onPressed: () => SetMaxBidSheet.show(context),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                  tooltip: 'Set max bid',
+                  icon: const Icon(Icons.auto_awesome, size: 18, color: Color(0xFFFFC43A)),
+                ),
               ),
           ],
         ),

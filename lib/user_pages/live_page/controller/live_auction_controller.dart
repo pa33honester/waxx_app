@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:get/get.dart';
+import 'package:waxxapp/ApiModel/user/auto_bid_model.dart';
+import 'package:waxxapp/ApiService/user/auto_bid_service.dart';
 import 'package:waxxapp/seller_pages/select_product_for_streame/model/selected_product_model.dart';
 import 'package:waxxapp/utils/database.dart';
 import 'package:waxxapp/utils/socket_services.dart';
@@ -20,6 +22,7 @@ class ActiveLiveAuction {
   final int minAuctionTime;
   final num startingBid;
   final num currentBid;
+  final int bidIncrement;
   final DateTime endsAt;
   final String? lastBidderId;
 
@@ -34,6 +37,7 @@ class ActiveLiveAuction {
     required this.startingBid,
     required this.currentBid,
     required this.endsAt,
+    this.bidIncrement = 5,
     this.lastBidderId,
   });
 
@@ -52,6 +56,7 @@ class ActiveLiveAuction {
       minAuctionTime: minAuctionTime,
       startingBid: startingBid,
       currentBid: currentBid ?? this.currentBid,
+      bidIncrement: bidIncrement,
       endsAt: endsAt ?? this.endsAt,
       lastBidderId: lastBidderId ?? this.lastBidderId,
     );
@@ -95,10 +100,13 @@ class LiveAuctionController extends GetxController {
   final Rxn<LiveAuctionWinnerEvent> lastWinner = Rxn<LiveAuctionWinnerEvent>();
   final RxnString lastError = RxnString();
 
-  /// Bid increment for the quick "BID $next" button. 10 currency units keeps
-  /// the UI simple for MVP; can be driven off seller-configured minimum bid
-  /// later if we want smarter increments.
-  static const int defaultIncrement = 10;
+  /// User's active max-bid (auto-bid cap) for the current product, if any.
+  /// Null means the user isn't running a proxy bid on this auction.
+  final RxnNum myMaxBid = RxnNum();
+
+  /// Safety fallback increment in case the server didn't send one. Kept to
+  /// match the previous hardcoded behaviour.
+  static const int defaultIncrement = 5;
 
   Timer? _countdownTimer;
 
@@ -106,6 +114,7 @@ class LiveAuctionController extends GetxController {
     try {
       final starting = (data['startingBid'] as num?) ?? 0;
       final minAuctionTime = (data['minAuctionTime'] as num?)?.toInt() ?? 60;
+      final bidIncrement = (data['bidIncrement'] as num?)?.toInt() ?? defaultIncrement;
       final auction = ActiveLiveAuction(
         productId: data['productId']?.toString() ?? '',
         productName: data['productName']?.toString() ?? '',
@@ -116,15 +125,30 @@ class LiveAuctionController extends GetxController {
         minAuctionTime: minAuctionTime,
         startingBid: starting,
         currentBid: starting,
+        bidIncrement: bidIncrement,
         endsAt: DateTime.now().add(Duration(seconds: minAuctionTime)),
       );
       activeAuction.value = auction;
       lastWinner.value = null;
       lastError.value = null;
+      myMaxBid.value = null;
       _startTimer();
+      _refreshMyMaxBid(auction.productId, auction.liveHistoryId);
     } catch (e) {
       log('onAuctionStarted parse error: $e');
     }
+  }
+
+  /// Pulls the current user's max-bid cap (if any) so the overlay can paint
+  /// a "Max $X" badge when the viewer already has an auto-bid running.
+  Future<void> _refreshMyMaxBid(String productId, String liveHistoryId) async {
+    if (productId.isEmpty || Database.loginUserId.isEmpty) return;
+    final list = await AutoBidService().myActive(
+      userId: Database.loginUserId,
+      liveHistoryId: liveHistoryId,
+    );
+    final match = list.firstWhereOrNull((a) => a.productId == productId && (a.isActive ?? false));
+    myMaxBid.value = match?.maxBidAmount;
   }
 
   void onTopBidPlaced(Map<String, dynamic> data) {
@@ -183,7 +207,7 @@ class LiveAuctionController extends GetxController {
   Future<void> placeBid({int? customAmount}) async {
     final auction = activeAuction.value;
     if (auction == null || isSubmitting.value) return;
-    final nextAmount = customAmount ?? (auction.currentBid.toInt() + defaultIncrement);
+    final nextAmount = customAmount ?? (auction.currentBid.toInt() + auction.bidIncrement);
     isSubmitting.value = true;
     try {
       await SocketServices.onPlaceBid(
@@ -204,6 +228,46 @@ class LiveAuctionController extends GetxController {
     Future.delayed(const Duration(seconds: 4), () {
       if (isSubmitting.value) isSubmitting.value = false;
     });
+  }
+
+  /// Viewer sets a max-bid cap for the current auction. Server will
+  /// auto-counter other bidders up to this amount. Returns the server's
+  /// response so the UI can surface validation errors (e.g. "max must be
+  /// at least X").
+  Future<AutoBidModel?> setMaxBid(num maxAmount) async {
+    final auction = activeAuction.value;
+    if (auction == null) return null;
+    try {
+      final resp = await AutoBidService().setAutoBid(
+        userId: Database.loginUserId,
+        productId: auction.productId,
+        maxBidAmount: maxAmount.toString(),
+        attributes: const [],
+        liveHistoryId: auction.liveHistoryId,
+      );
+      if (resp.status == true) {
+        myMaxBid.value = maxAmount;
+      }
+      return resp;
+    } catch (e) {
+      log('setMaxBid error: $e');
+      lastError.value = 'Could not set max bid';
+      return null;
+    }
+  }
+
+  Future<void> cancelMaxBid() async {
+    final auction = activeAuction.value;
+    if (auction == null) return;
+    try {
+      await AutoBidService().cancelAutoBid(
+        userId: Database.loginUserId,
+        productId: auction.productId,
+      );
+      myMaxBid.value = null;
+    } catch (e) {
+      log('cancelMaxBid error: $e');
+    }
   }
 
   /// Host-side: fire `initiateAuction` for the selected product.
