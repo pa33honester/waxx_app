@@ -200,6 +200,15 @@ class _MainProfileState extends State<MainProfile> {
                         callback: () => Get.toNamed("/PendingWins"),
                       ),
                       15.height,
+                      // Favorites moved off the bottom bar into the profile
+                      // menu; Live shopping now owns that slot instead.
+                      ProfileItemWidget(
+                        title: 'Favorites',
+                        icon: AppAsset.icHeartFill,
+                        iconSize: 22,
+                        callback: () => Get.toNamed("/MyFavorite"),
+                      ),
+                      15.height,
                       // ProfileItemWidget(
                       //   title: St.paymentMethod.tr,
                       //   icon: AppAsset.icPayment,

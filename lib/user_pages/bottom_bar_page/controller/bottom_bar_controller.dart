@@ -4,8 +4,8 @@ import 'package:waxxapp/Controller/ApiControllers/seller/api_seller_data_control
 import 'package:waxxapp/Controller/GetxController/login/api_who_login_controller.dart';
 import 'package:waxxapp/Controller/GetxController/login/setting_api_controller.dart';
 import 'package:waxxapp/View/MyApp/AppPages/cart_page.dart';
-import 'package:waxxapp/View/MyApp/AppPages/my_favorite.dart';
 import 'package:waxxapp/View/MyApp/AppPages/reels_page/controller/reels_controller.dart';
+import 'package:waxxapp/user_pages/live_hub/view/live_hub_view.dart';
 import 'package:waxxapp/View/MyApp/AppPages/reels_page/view/reels_view.dart';
 import 'package:waxxapp/View/MyApp/Profile/main_profile.dart';
 import 'package:waxxapp/user_pages/home_page/view/home_view.dart';
@@ -104,7 +104,7 @@ class BottomBarController extends GetxController {
     const HomeView(),
     const ReelsView(),
     const CartPage(),
-    const MyFavorite(),
+    const LiveHubView(),
     const MainProfile(),
   ];
 

@@ -51,8 +51,10 @@ class BottomBarUi extends StatelessWidget {
                   size: 22,
                   isSelect: logic.selectedTabIndex == 2,
                 ),
+                // Live hub tab (replaces the old Favorites/heart tab — that
+                // surface now lives inside the Profile menu).
                 _BottomBarIconUi(
-                  icon: logic.selectedTabIndex == 3 ? AppAsset.icHeartFill : AppAsset.icHeart,
+                  icon: AppAsset.icLiveVideo,
                   callback: () => logic.onChangeBottomBar(3),
                   size: 22,
                   isSelect: logic.selectedTabIndex == 3,
