@@ -376,7 +376,7 @@ final Map<String, String> zhCN = {
   "deleteAccount": "您确定要永久删除您的帐户吗？",
   "removeAccount": "删除帐户",
   "accountDeleteSuccessfully": "帐户删除成功完全",
-  "newCategories": "新类别",
+  "newCategories": "按类别购物",
   "addToCartThisProduct": "将该产品添加到购物车 >>",
   "enterYourPromoCode": "输入您的促销代码",
   "add": "添加",

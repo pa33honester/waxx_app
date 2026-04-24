@@ -376,7 +376,7 @@ final Map<String, String> itIT = {
   "deleteAccount": "Sei sicuro di voler eliminare definitivamente il tuo account?",
   "removeAccount": "Eliminare l'account",
   "accountDeleteSuccessfully": "Eliminazione dell'account riuscita",
-  "newCategories": "Nuove categorie",
+  "newCategories": "Acquista per categoria",
   "addToCartThisProduct": "Aggiungi al carrello questo prodotto >>",
   "enterYourPromoCode": "Inserisci il tuo codice promozionale",
   "add": "aggiungere",

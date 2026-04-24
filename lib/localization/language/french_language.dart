@@ -376,7 +376,7 @@ final Map<String, String> frCH = {
   "deleteAccount": "Êtes-vous sûr de vouloir supprimer définitivement votre compte ?",
   "removeAccount": "Supprimer le compte",
   "accountDeleteSuccessfully": "Bonjour, bienvenue sur RUMA Live ! 👋",
-  "newCategories": "Nouvelles catégories",
+  "newCategories": "Acheter par catégorie",
   "addToCartThisProduct": "Ajouter au panier ce produit >>",
   "enterYourPromoCode": "Entrez votre code promotionnel",
   "add": "ajouter",

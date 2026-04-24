@@ -376,7 +376,7 @@ final Map<String, String> teIN = {
   "deleteAccount": "మీరు ఖచ్చితంగా మీ ఖాతాను శాశ్వతంగా తొలగించాలనుకుంటున్నారా?",
   "removeAccount": "ఖాతాను తొలగించండి",
   "accountDeleteSuccessfully": "ఖాతా తొలగింపు విజయవంతం",
-  "newCategories": "కొత్త వర్గాలు",
+  "newCategories": "కేటగిరీ వారీగా షాపింగ్",
   "addToCartThisProduct": "ఈ ఉత్పత్తిని కార్ట్‌కు జోడించండి >>",
   "enterYourPromoCode": "మీ ప్రోమో కోడ్‌ని నమోదు చేయండి",
   "add": "జోడించు",

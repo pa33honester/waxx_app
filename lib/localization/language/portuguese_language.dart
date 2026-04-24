@@ -376,7 +376,7 @@ final Map<String, String> ptPT = {
   "deleteAccount": "Tem certeza de que deseja excluir permanentemente sua conta?",
   "removeAccount": "Deletar conta",
   "accountDeleteSuccessfully": "Conta excluída com sucesso",
-  "newCategories": "Novas categorias",
+  "newCategories": "Comprar por categoria",
   "addToCartThisProduct": "Adicionar este produto ao carrinho >>",
   "enterYourPromoCode": "Insira seu código promocional",
   "add": "adicionar",

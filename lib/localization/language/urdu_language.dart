@@ -376,7 +376,7 @@ final Map<String, String> urPK = {
   "deleteAccount": "کیا آپ واقعی اپنا اکاؤنٹ مستقل طور پر حذف کرنا چاہتے ہیں؟",
   "removeAccount": "کھاتہ مٹا دو",
   "accountDeleteSuccessfully": "اکاؤنٹ کو مکمل طور پر حذف کرنا",
-  "newCategories": "نئے زمرے",
+  "newCategories": "زمرہ کے مطابق خریداری",
   "addToCartThisProduct": "اس پروڈکٹ کو ٹوکری میں شامل کریں >>",
   "enterYourPromoCode": "اپنا پرومو کوڈ درج کریں۔",
   "add": "شامل کریں",

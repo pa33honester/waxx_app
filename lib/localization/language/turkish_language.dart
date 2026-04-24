@@ -376,7 +376,7 @@ final Map<String, String> trTR = {
   "deleteAccount": "Hesabınızı kalıcı olarak silmek istediğinizden emin misiniz?",
   "removeAccount": "Hesabı sil",
   "accountDeleteSuccessfully": "Hesap Silme Başarıyla Tamamlandı",
-  "newCategories": "Yeni Kategoriler",
+  "newCategories": "Kategoriye göre alışveriş",
   "addToCartThisProduct": "Bu Ürünü Sepete Ekle >>",
   "enterYourPromoCode": "Promosyon Kodunuzu Girin",
   "add": "eklemek",

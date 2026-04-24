@@ -376,7 +376,7 @@ final Map<String, String> hiIN = {
   "deleteAccount": "क्या आप वाकई अपना खाता स्थायी रूप से हटाना चाहते हैं?",
   "removeAccount": "खाता हटा दो",
   "accountDeleteSuccessfully": "खाता सफलतापूर्वक हटाएँ",
-  "newCategories": "नई श्रेणियाँ",
+  "newCategories": "श्रेणी के अनुसार खरीदें",
   "addToCartThisProduct": "इस उत्पाद को कार्ट में जोड़ें >>",
   "enterYourPromoCode": "अपना प्रोमो कोड दर्ज करें",
   "add": "जोड़ना",

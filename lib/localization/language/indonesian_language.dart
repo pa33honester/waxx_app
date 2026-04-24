@@ -376,7 +376,7 @@ final Map<String, String> idID = {
   "deleteAccount": "Apakah Anda yakin ingin menghapus akun Anda secara permanen?",
   "removeAccount": "Hapus akun",
   "accountDeleteSuccessfully": "Penghapusan Akun Berhasil",
-  "newCategories": "Kategori Baru",
+  "newCategories": "Belanja berdasarkan Kategori",
   "addToCartThisProduct": "Tambahkan Ke Keranjang Produk Ini >>",
   "enterYourPromoCode": "Masukkan Kode Promo Anda",
   "add": "menambahkan",

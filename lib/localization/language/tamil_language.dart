@@ -376,7 +376,7 @@ final Map<String, String> taIN = {
   "deleteAccount": "உங்கள் கணக்கை நிரந்தரமாக நீக்க விரும்புகிறீர்களா?",
   "removeAccount": "கணக்கை நீக்குக",
   "accountDeleteSuccessfully": "கணக்கை நீக்குவது வெற்றிகரமாக",
-  "newCategories": "புதிய வகைகள்",
+  "newCategories": "வகை வாரியாக வாங்குங்கள்",
   "addToCartThisProduct": "இந்த தயாரிப்பை வண்டியில் சேர் >>",
   "enterYourPromoCode": "உங்கள் விளம்பரக் குறியீட்டை உள்ளிடவும்",
   "add": "சேர்க்க",

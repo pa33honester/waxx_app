@@ -377,7 +377,7 @@ final Map<String, String> deat = {
   "deleteAccount": "Sind Sie sicher, dass Sie Ihr Konto dauerhaft löschen möchten?",
   "removeAccount": "Konto löschen",
   "accountDeleteSuccessfully": "Konto erfolgreich gelöscht",
-  "newCategories": "Neue Kategorien",
+  "newCategories": "Nach Kategorie einkaufen",
   "addToCartThisProduct": "Dieses Produkt in den Warenkorb legen >>",
   "enterYourPromoCode": "Geben Sie Ihren Promo-Code ein",
   "add": "hinzufügen",

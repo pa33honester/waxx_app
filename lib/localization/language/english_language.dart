@@ -378,7 +378,7 @@ final Map<String, String> enUS = {
   "deleteAccount": "Are you sure you want to permanently delete your account?",
   "removeAccount": "Delete Account",
   "accountDeleteSuccessfully": "Account Delete SuccessFully",
-  "newCategories": "New Categories",
+  "newCategories": "Shop by Category",
   "addToCartThisProduct": "Add To Cart This Product >>",
   "enterYourPromoCode": "Enter Your Promo Code",
   "add": "add",

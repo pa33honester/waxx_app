@@ -376,7 +376,7 @@ final Map<String, String> swKE = {
   "deleteAccount": "Je, una uhakika unataka kufuta akaunti yako kabisa?",
   "removeAccount": "Futa Akaunti",
   "accountDeleteSuccessfully": "Kufuta Akaunti kwa Mafanikio",
-  "newCategories": "Kategoria Mpya",
+  "newCategories": "Nunua kwa Kategoria",
   "addToCartThisProduct": "Ongeza kwenye Mkokoteni Bidhaa Hii >>",
   "enterYourPromoCode": "Weka Nambari yako ya Matangazo",
   "add": "ongeza",

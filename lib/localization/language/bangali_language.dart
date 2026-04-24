@@ -376,7 +376,7 @@ final Map<String, String> bnIN = {
   "deleteAccount": "আপনি কি আপনার অ্যাকাউন্ট স্থায়ীভাবে মুছে ফেলার বিষয়ে নিশ্চিত?",
   "removeAccount": "হিসাব মুছে ফেলা",
   "accountDeleteSuccessfully": "অ্যাকাউন্ট সফলভাবে মুছে ফেলুন",
-  "newCategories": "নতুন বিভাগ",
+  "newCategories": "বিভাগ অনুযায়ী কিনুন",
   "addToCartThisProduct": "কার্ট যোগ করুন এই পণ্য >>",
   "enterYourPromoCode": "আপনার প্রচার কোড লিখুন",
   "add": "যোগ করুন",

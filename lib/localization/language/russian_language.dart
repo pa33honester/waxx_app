@@ -377,7 +377,7 @@ final Map<String, String> ruRU = {
   "deleteAccount": "Вы уверены, что хотите навсегда удалить свою учетную запись?",
   "removeAccount": "Удалить аккаунт",
   "accountDeleteSuccessfully": "Учетная запись удалена успешно.",
-  "newCategories": "Новые категории",
+  "newCategories": "Покупки по категориям",
   "addToCartThisProduct": "Добавить в корзину этот товар >>",
   "enterYourPromoCode": "Введите ваш промокод",
   "add": "добавлять",

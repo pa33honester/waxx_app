@@ -376,7 +376,7 @@ final Map<String, String> koKR = {
   "deleteAccount": "계정을 영구적으로 삭제하시겠습니까?",
   "removeAccount": "계정 삭제",
   "accountDeleteSuccessfully": "계정삭제 성공완료",
-  "newCategories": "새로운 카테고리",
+  "newCategories": "카테고리별 쇼핑",
   "addToCartThisProduct": "장바구니에 이 상품 추가 >>",
   "enterYourPromoCode": "프로모션 코드를 입력하세요",
   "add": "추가하다",

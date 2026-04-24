@@ -376,7 +376,7 @@ final Map<String, String> ardz = {
   "deleteAccount": "هل أنت متأكد أنك تريد حذف حسابك نهائيًا؟",
   "removeAccount": "حذف الحساب",
   "accountDeleteSuccessfully": "تم حذف الحساب بنجاح",
-  "newCategories": "فئات جديدة",
+  "newCategories": "تسوق حسب الفئة",
   "addToCartThisProduct": "أضف هذا المنتج إلى السلة >>",
   "enterYourPromoCode": "أدخل رمز الخصم الخاص بك",
   "add": "إضافة",

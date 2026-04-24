@@ -376,7 +376,7 @@ final Map<String, String> esES = {
   "deleteAccount": "¿Estás seguro de que deseas eliminar permanentemente tu cuenta?",
   "removeAccount": "Borrar cuenta",
   "accountDeleteSuccessfully": "Eliminación de cuenta exitosa",
-  "newCategories": "Nuevas categorías",
+  "newCategories": "Comprar por categoría",
   "addToCartThisProduct": "Añadir este producto al carrito >>",
   "enterYourPromoCode": "Ingrese su código promocional",
   "add": "agregar",
