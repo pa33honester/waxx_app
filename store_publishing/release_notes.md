@@ -1,6 +1,191 @@
 # Release Notes — Waxx App
 
 ---
+## 🚀 Version 1.0.4 — Whatnot-Parity Feature Drop
+*(Play Store: What's New)*
+
+**Version:** 1.0.4
+**Build Number:** 7
+**Release Date:** April 2026
+**Type:** Major feature release
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🎉 Big feature update — v1.0.4
+
+🎥 New Live tab — one tap to all on-air shows
+🔍 Unified search: products, sellers, live shows, reels
+💰 Max-bid auto-bidding on live auctions
+📦 Combined shipping — one fee for multiple wins per seller
+🤝 Make an Offer on Buy-Now listings (accept, counter, decline)
+📡 LIVE NOW chips on reels + Live Right Now rail on home
+❤️ Wishlist pinned to the home top bar
+🐛 Stability and dark-theme fixes throughout
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🆕 New Features in v1.0.4
+
+**Live shopping prominence**
+- New `Live` tab in the bottom nav at index 1 — order is now Home · Live · Reels · Cart · Profile.
+- New `LiveHubView` aggregates `HomeLiveGrid`, `HomeLiveProductsRail`, and `UpcomingLivesSection` with a friendly empty state when nobody is broadcasting.
+- New `LIVE NOW` pulsing pink chip on every reel whose seller is currently broadcasting → tap deep-links into the live viewer.
+- New `Live Right Now` product rail on the home page — one card per show with an active auction.
+
+**In-show auctions (real, not demo)**
+- Live auction overlay with current bid, mm:ss countdown, quick `BID $next` button, and a green `SOLD` reveal banner. Host gets a gavel button to start auctions on selected products.
+- New socket listeners (`initiateAuction`, `announceTopBidPlaced`, `declareAuctionResult`, `auctionError`) and emitters (`onPlaceBid`, `onInitiateAuction`).
+- Configurable `bidIncrement` per product (default 5) replaces the hardcoded `+1`/`+10`.
+
+**Proxy / auto-bid (max bid)**
+- Long-press the `BID` button to set a max-bid cap. Server places counter-bids on your behalf up to the cap.
+- Backend `triggerAutoBid` now wired into the live socket handler (previously manual auctions only).
+- Race-safe: per-product async lock + re-read under lock + cascade so multiple auto-bidders resolve cleanly.
+- Live auto-counters broadcast a synthetic `announceTopBidPlaced` so every viewer's overlay updates and the soft-close timer resets.
+
+**Combined shipping (bundles)**
+- New `util/orderAggregator.js` finds an existing unpaid Order from the same buyer to the same seller and appends new wins instead of creating a fresh Order each time.
+- Wired into manual auction worker, live `declareWinner`, and (opt-in) offer-accept paths.
+- Per-seller `shippingMode`: `max` (Whatnot default — pay the heaviest fee once), `sum` (legacy), `flat`.
+- New `Bundle Pending Payment` Order item status.
+- New `Pending Wins` screen under Profile lists each unpaid bundle with combined totals and a `Settle up` CTA.
+
+**Buyer ↔ seller offers on static listings**
+- New `Offer` collection + 7 endpoints: `create / withdraw / accept / counter / decline / received / sent / adminList`.
+- Order auto-created at agreed price on accept; FCM + in-app notifications on every state change.
+- Buyer sees `Make an Offer` on product detail when seller has `allowOffer = true`; new `My Offers` screen on profile shows lifecycle (pending / countered / accepted / declined / withdrawn).
+- New seller `Received Offers` inbox with tabs and accept / counter / decline actions.
+
+**Unified search**
+- New `GET /search/all?q=&scope=&limit=` with MongoDB `$text` indexes on Product, Seller, Reel + regex fallback for cold indexes.
+- New `UnifiedSearchView` replaces the old product-only screen — tabs for Products / Sellers / Live / Reels backed by a single API call with 350 ms debounce.
+
+**Offer / approval emails (Resend)**
+- New `util/emailSender.js` sends branded transactional emails for seller request approve/reject and product request approve/reject.
+- Seller request rejection flow added (was previously a silent no-op).
+- All decision endpoints now return `deliveries: { push, email }` with per-channel status (`sent | failed | no_token | no_email | not_configured`).
+
+**Activity notifications**
+- FCM + in-app `Notification` row when a viewer likes a seller's reel.
+
+**UI polish**
+- Pinned `Wishlist` heart icon in the home top bar (Search · Wishlist · Notifications).
+- `Verified seller` badge, pulsing live avatar rings, follow pill in live view, system messages in chat (`SOLD`, `BID`, `GIVEAWAY_WIN`, `FOLLOW`).
+- Home category section renamed `Shop by Category` (was `New Categories`) across all 18 languages — the carousel never showed "new" anything.
+- Bottom-nav order swap: Live promoted ahead of Reels.
+
+#### 🐛 Bug Fixes in v1.0.4
+
+| Issue | Fix |
+|---|---|
+| Share button generated `bnc.lt/Enter your branch io key/...` URLs | Replaced Branch.io deep linking with plain Play Store share via `CustomShare.onShareApp`; reels page hardcoded `com.erashop.live` URL also fixed |
+| Wishlist had no back arrow and system back was hijacked | Replaced bottom-nav-root header with a standard back-arrow AppBar and dropped the `PopScope(canPop: false)` override |
+| Giveaway Wins screen rendered black-on-near-black text | Re-themed to match dark scaffold convention used by MyOffers / PendingWins |
+| Unified Search header overflowed by 6 px on devices with bigger status bars | Wrapped header in `SafeArea(bottom: false)` and bumped `PreferredSize` to 128 |
+| Home page didn't load Popular / Category products on first visit | Consolidated controller registration into `HomeView.initState` via a `_putOnce<T>` helper |
+| Buy Now triggered `Please fill all attributes` for products without variants | Replaced bool field with computed getter that returns `true` when no required attributes exist |
+| Buy Now crash from `Get.put(BottomBarController())` replacing the live instance | Guarded with `Get.isRegistered<T>()` checks at every replace site |
+| `Seller` row not removed when admin deleted a seller-user | `adminDeleteUser` now resolves seller via both `Seller.userId` and `User.seller`, plus a `Seller.deleteMany({ userId })` safety sweep |
+
+#### 📁 Files Changed
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.0.3+6` → `1.0.4+7`) |
+| Bottom nav | `lib/user_pages/bottom_bar_page/{controller,widget}/*` , `lib/utils/branch_io_services.dart`, `lib/utils/CoustomWidget/Page_devided/home_page_divided.dart` |
+| Live hub | `lib/user_pages/live_hub/view/live_hub_view.dart` (new) |
+| Live auction | `lib/user_pages/live_page/{controller/live_auction_controller,widget/live_auction_overlay,widget/set_max_bid_sheet}.dart`, `backend/socket.js`, `backend/server/autoBid/*` |
+| Combined shipping | `backend/util/orderAggregator.js` (new), `backend/server/order/order.model.js`, `backend/server/seller/seller.model.js`, `backend/workers/manualAuctionWorker.js`, `backend/server/offer/offer.controller.js`, `lib/user_pages/pending_wins/view/pending_wins_screen.dart` (new) |
+| Offers | `backend/server/offer/*` (new), `lib/{ApiModel,ApiService}/offer/*` (new), `lib/user_pages/offer/*` (new), `lib/seller_pages/offers/view/received_offers_screen.dart` (new) |
+| Unified search | `backend/server/search/*` (new), `lib/{ApiModel,ApiService}/search/*` (new), `lib/user_pages/search_page/{controller/unified_search_controller,view/unified_search_view}.dart` (new), text indexes on Product/Seller/Reel models |
+| Email | `backend/util/emailSender.js` (new), seller-request and product-request controllers |
+| Wishlist top bar | `lib/user_pages/home_page/view/home_view.dart` |
+| Wishlist back button | `lib/View/MyApp/AppPages/my_favorite.dart` |
+| Giveaway theme | `lib/user_pages/giveaway/view/my_giveaway_wins_screen.dart` |
+| Localization | 18 language files (`newCategories` → "Shop by Category") |
+
+#### ✅ Testing Verification (v1.0.4)
+
+| Target | Method | Status |
+|---|---|---|
+| Closed Testing (Play Store) | App Signing Key + Play Integrity | ⏳ pending upload |
+| Real device debug (`flutter run`) | reCAPTCHA + debug SHA | ✅ Verified |
+| `flutter analyze` | All slice files clean | ✅ No new errors |
+| Bundle size | `app-release.aab` | 125.8 MB |
+
+---
+
+### 🌍 Localized "What's New" Text (v1.0.4)
+
+**Spanish:**
+```
+🎉 Gran actualización — v1.0.4
+
+🎥 Nueva pestaña En Vivo — toca para ver shows en directo
+🔍 Búsqueda unificada: productos, vendedores, shows en vivo, reels
+💰 Puja máxima automática en subastas en directo
+📦 Envío combinado — una sola tarifa para varias ganancias del mismo vendedor
+🤝 Haz una oferta en productos Buy-Now (aceptar, contraofertar, rechazar)
+📡 Chip LIVE NOW en reels y carrusel En Directo en el inicio
+❤️ Lista de deseos fijada en la parte superior
+```
+
+**French:**
+```
+🎉 Grande mise à jour — v1.0.4
+
+🎥 Nouvel onglet En Direct — un appui pour voir les shows
+🔍 Recherche unifiée : produits, vendeurs, shows en direct, reels
+💰 Enchère maximale automatique sur les ventes en direct
+📦 Livraison groupée — un seul frais pour plusieurs gains chez le même vendeur
+🤝 Faites une offre sur les produits Buy-Now (accepter, contre-offre, refuser)
+📡 Badge LIVE NOW sur les reels + carrousel En Direct sur l'accueil
+❤️ Liste de souhaits épinglée en haut
+```
+
+**Arabic:**
+```
+🎉 تحديث ميزات كبير — v1.0.4
+
+🎥 تبويب البث المباشر الجديد — انقر للوصول إلى العروض الحية
+🔍 بحث موحّد: المنتجات، البائعين، البث المباشر، الريلز
+💰 المزايدة التلقائية بحد أقصى في المزادات الحية
+📦 شحن مجمّع — رسوم شحن واحدة لعدة فوزات من البائع نفسه
+🤝 قدّم عرض سعر على منتجات الشراء الفوري (قبول، مقابلة، رفض)
+📡 شارة LIVE NOW على الريلز + سلسلة البث المباشر الآن
+❤️ قائمة الرغبات مثبتة في أعلى الصفحة الرئيسية
+```
+
+**German:**
+```
+🎉 Großes Funktions-Update — v1.0.4
+
+🎥 Neuer Live-Tab — auf einen Tap zu allen On-Air-Shows
+🔍 Vereinheitlichte Suche: Produkte, Verkäufer, Live-Shows, Reels
+💰 Maximalgebot mit Auto-Bieten in Live-Auktionen
+📦 Kombinierter Versand — eine Gebühr für mehrere Gewinne pro Verkäufer
+🤝 Mach ein Angebot auf Buy-Now-Artikel (annehmen, kontern, ablehnen)
+📡 LIVE-NOW-Chip auf Reels + "Jetzt live"-Leiste auf der Startseite
+❤️ Wunschliste oben in der Top-Leiste verankert
+```
+
+**Turkish:**
+```
+🎉 Büyük özellik güncellemesi — v1.0.4
+
+🎥 Yeni Canlı sekmesi — yayındaki tüm gösterilere tek dokunuşla erişim
+🔍 Birleşik arama: ürünler, satıcılar, canlı gösteriler, reels
+💰 Canlı açık artırmalarda otomatik maksimum teklif
+📦 Birleştirilmiş kargo — aynı satıcıdan birden fazla kazanca tek ücret
+🤝 Buy-Now ürünlerinde Teklif Ver (kabul, karşı teklif, reddet)
+📡 Reels'lerde LIVE NOW rozeti + ana sayfada Şu Anda Canlı şeridi
+❤️ İstek listesi ana sayfanın üstüne sabitlendi
+```
+
+---
 ## Version 1.0.3 - Hotfix: Crash Stability Improvements
 *(Play Store: What's New)*
 
