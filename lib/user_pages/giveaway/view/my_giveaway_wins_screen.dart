@@ -1,11 +1,17 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waxxapp/ApiModel/giveaway/giveaway_model.dart';
 import 'package:waxxapp/ApiService/user/giveaway_service.dart';
 import 'package:waxxapp/utils/api_url.dart';
+import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/database.dart';
+import 'package:waxxapp/utils/font_style.dart';
 
-/// Buyer-side list of giveaways this user has won.
+/// Buyer-side list of giveaways this user has won. Themed to match the rest
+/// of the app's dark surfaces (MyOffers, PendingWins) — earlier revision
+/// inherited a light Material theme that made text invisible on the dark
+/// background.
 class MyGiveawayWinsScreen extends StatefulWidget {
   const MyGiveawayWinsScreen({super.key});
 
@@ -33,7 +39,13 @@ class _MyGiveawayWinsScreenState extends State<MyGiveawayWinsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Giveaway Wins')),
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        surfaceTintColor: AppColors.transparent,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text('Giveaway Wins', style: AppFontStyle.styleW700(AppColors.white, 16)),
+      ),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: FutureBuilder<List<GiveawayModel>>(
@@ -45,11 +57,22 @@ class _MyGiveawayWinsScreenState extends State<MyGiveawayWinsScreen> {
             final wins = snapshot.data ?? [];
             if (wins.isEmpty) {
               return ListView(
-                children: const [
-                  SizedBox(height: 120),
-                  Icon(Icons.card_giftcard, size: 64, color: Colors.grey),
-                  SizedBox(height: 12),
-                  Center(child: Text('No giveaway wins yet')),
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 64),
+                children: [
+                  Icon(Icons.card_giftcard, size: 64, color: AppColors.unselected),
+                  const SizedBox(height: 12),
+                  Text(
+                    'No giveaway wins yet',
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.styleW700(AppColors.white, 15),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Enter live giveaways to land here.',
+                    textAlign: TextAlign.center,
+                    style: AppFontStyle.styleW500(AppColors.unselected, 12),
+                  ),
                 ],
               );
             }
@@ -78,45 +101,67 @@ class _GiveawayWinTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Row(
-          children: [
-            if (_imageUrl != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  _imageUrl!,
-                  width: 56,
-                  height: 56,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const SizedBox(width: 56, height: 56),
-                ),
-              ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(model.productName, style: const TextStyle(fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 4),
-                  Text(
-                    model.winnerDrawnAt != null
-                        ? 'Won ${model.winnerDrawnAt!.toLocal().toString().split('.').first}'
-                        : 'Won',
-                    style: const TextStyle(fontSize: 12, color: Colors.black54),
-                  ),
-                ],
-              ),
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColors.tabBackground,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: SizedBox(
+              width: 56,
+              height: 56,
+              child: _imageUrl != null
+                  ? CachedNetworkImage(
+                      imageUrl: _imageUrl!,
+                      fit: BoxFit.cover,
+                      errorWidget: (_, __, ___) => Container(color: Colors.white12),
+                    )
+                  : Container(color: Colors.white12),
             ),
-            if (model.orderId != null)
-              TextButton(
-                onPressed: () => Get.toNamed('/MyOrder'),
-                child: const Text('View'),
-              ),
-          ],
-        ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  model.productName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppFontStyle.styleW700(AppColors.white, 13),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.emoji_events_rounded, size: 14, color: Color(0xFF4ADE80)),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        model.winnerDrawnAt != null
+                            ? 'Won ${model.winnerDrawnAt!.toLocal().toString().split('.').first}'
+                            : 'Won',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppFontStyle.styleW500(AppColors.unselected, 11),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          if (model.orderId != null)
+            TextButton(
+              onPressed: () => Get.toNamed('/MyOrder'),
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+              child: Text('View', style: AppFontStyle.styleW700(AppColors.primary, 12)),
+            ),
+        ],
       ),
     );
   }

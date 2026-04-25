@@ -422,6 +422,15 @@ class HomeAppbarWidget extends StatelessWidget {
               child: Image.asset(AppAsset.icSearch, width: 22),
             ),
             10.width,
+            // Pinned Wishlist — promoted out of the profile menu so favoriting
+            // a product is one tap from anywhere on home.
+            CircleButtonWidget(
+              callback: () => Get.toNamed("/MyFavorite"),
+              size: 42,
+              color: AppColors.white.withValues(alpha: 0.2),
+              child: Image.asset(AppAsset.icHeart, width: 20),
+            ),
+            10.width,
             CircleButtonWidget(
               callback: () => Get.toNamed("/Notifications"),
               size: 42,
