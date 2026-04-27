@@ -13,6 +13,7 @@ import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
 import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
 import 'package:waxxapp/seller_pages/select_product_for_streame/model/selected_product_model.dart';
+import 'package:waxxapp/user_pages/offer/widget/make_offer_sheet.dart';
 import 'package:waxxapp/user_pages/live_page/controller/live_auction_controller.dart';
 import 'package:waxxapp/user_pages/live_page/widget/live_auction_overlay.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
@@ -97,10 +98,139 @@ class LiveUi extends StatelessWidget {
           // Top bar
           _buildTopBar(context),
 
+          // Right-side action column (Share, Offer) — Whatnot-style.
+          _buildRightActionColumn(),
+
           // // Comments text field and products
           _buildCommentsTextFieldAndProducts(),
         ],
       ),
+    );
+  }
+
+  /// Vertical column of round action buttons floating along the right edge,
+  /// above the bottom comment-input row. Mirrors the Whatnot pattern. Hosts
+  /// see Share + Offers Inbox; viewers see Share + Make Offer.
+  Widget _buildRightActionColumn() {
+    return Positioned(
+      right: 12,
+      // Sit above the comments + input block at the bottom.
+      bottom: 280,
+      child: GetBuilder<LiveController>(
+        builder: (controller) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _LiveActionButton(
+                icon: Icons.ios_share_rounded,
+                label: 'Share',
+                onTap: () => _handleShare(controller),
+              ),
+              const SizedBox(height: 16),
+              if (controller.liveSelectedProducts.isNotEmpty)
+                _LiveActionButton(
+                  icon: Icons.local_offer_rounded,
+                  label: 'Offer',
+                  onTap: () => _handleOffer(controller),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// Buyer flow: pick which live product to offer on, then open MakeOfferSheet.
+  /// Host flow: open the received-offers screen.
+  void _handleOffer(LiveController controller) {
+    if (controller.isHost) {
+      Get.toNamed("/ReceivedOffers");
+      return;
+    }
+
+    // Single-product live → skip the picker.
+    final products = controller.liveSelectedProducts;
+    if (products.length == 1) {
+      _openMakeOfferSheet(products.first);
+      return;
+    }
+
+    Get.bottomSheet(
+      Container(
+        color: AppColors.black,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Pick a product to offer on', style: AppFontStyle.styleW700(AppColors.white, 16)),
+              8.height,
+              Text(
+                'Send the seller a price you\'d like to pay. They can accept, counter, or decline.',
+                style: AppFontStyle.styleW400(AppColors.unselected, 12),
+              ),
+              16.height,
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: Get.height * 0.5),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: products.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.white10),
+                  itemBuilder: (_, i) {
+                    final p = products[i];
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: SizedBox(
+                          width: 44,
+                          height: 44,
+                          child: PreviewImageWidget(
+                            height: 44,
+                            width: 44,
+                            fit: BoxFit.cover,
+                            image: p.mainImage ?? '',
+                            radius: 8,
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        p.productName ?? '',
+                        style: AppFontStyle.styleW600(AppColors.white, 13),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(
+                        '${p.price ?? 0}',
+                        style: AppFontStyle.styleW400(AppColors.unselected, 11),
+                      ),
+                      onTap: () {
+                        Get.back();
+                        _openMakeOfferSheet(p);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      backgroundColor: AppColors.black,
+    );
+  }
+
+  void _openMakeOfferSheet(SelectedProduct product) {
+    final ctx = Get.context;
+    if (ctx == null) return;
+    MakeOfferSheet.show(
+      ctx,
+      productId: product.productId ?? '',
+      productName: product.productName ?? '',
+      listedPrice: product.price ?? 0,
+      minimumOfferPrice: product.minimumBidPrice ?? 0,
     );
   }
 
@@ -400,13 +530,15 @@ class LiveUi extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Visibility(visible: controller.liveType == 1, child: Expanded(child: _buildBottomInput().paddingOnly(right: 10))),
+                    // Comment input is always available — auction-mode lives
+                    // (liveType == 2) used to hide it, which produced the
+                    // "blank comments pad" the seller saw because the
+                    // input would render as empty whitespace inside the
+                    // Visibility wrapper.
+                    Expanded(child: _buildBottomInput().paddingOnly(right: 10)),
                     if (controller.isHost && controller.liveSelectedProducts.isNotEmpty)
                       _buildStartAuctionButton(controller).paddingOnly(right: 10),
-                    Visibility(
-                      visible: controller.liveSelectedProducts.isNotEmpty,
-                      child: _buildShopViewSection(),
-                    )
+                    if (controller.liveSelectedProducts.isNotEmpty) _buildShopViewSection(),
                   ],
                 ),
               );
@@ -659,7 +791,9 @@ class LiveUi extends StatelessWidget {
     final context = sellerName.isNotEmpty
         ? "Watch $sellerName live on Waxxapp"
         : "Watch this live show on Waxxapp";
-    await CustomShare.onShareApp(context: context);
+    final liveId = controller.roomId;
+    final link = liveId.isNotEmpty ? "https://www.waxxapp.com/live/$liveId" : null;
+    await CustomShare.onShareApp(context: context, link: link);
   }
 }
 
@@ -921,6 +1055,46 @@ class ScrollFadeEffectWidget extends StatelessWidget {
       },
       blendMode: BlendMode.dstIn,
       child: child,
+    );
+  }
+}
+
+/// Round translucent action button used in the live page's right-side
+/// column (Share, Offer). Mirrors the Whatnot button style: dark blurry
+/// circle with an icon centred and a small label underneath.
+class _LiveActionButton extends StatelessWidget {
+  const _LiveActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 44,
+            width: 44,
+            decoration: BoxDecoration(
+              color: AppColors.black.withValues(alpha: 0.45),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white24, width: 0.6),
+            ),
+            child: Icon(icon, color: AppColors.white, size: 22),
+          ),
+          const SizedBox(height: 4),
+          Text(label, style: AppFontStyle.styleW600(AppColors.white, 11)),
+        ],
+      ),
     );
   }
 }

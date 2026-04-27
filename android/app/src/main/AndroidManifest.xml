@@ -59,6 +59,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="www.waxxapp.com" android:pathPrefix="/short/" />
                 <data android:scheme="https" android:host="waxxapp.com" android:pathPrefix="/short/" />
+                <data android:scheme="https" android:host="www.waxxapp.com" android:pathPrefix="/live/" />
+                <data android:scheme="https" android:host="waxxapp.com" android:pathPrefix="/live/" />
             </intent-filter>
 
             <!--

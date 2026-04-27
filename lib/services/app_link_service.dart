@@ -80,10 +80,12 @@ class AppLinkService {
       case 'short':
         if (remainingSegments.isNotEmpty) _openShort(remainingSegments.first);
         break;
+      case 'live':
+        if (remainingSegments.isNotEmpty) _openLive(remainingSegments.first);
+        break;
       // Future:
       // case 'seller': _openSeller(remainingSegments.first); break;
       // case 'product': _openProduct(remainingSegments.first); break;
-      // case 'live': _openLive(remainingSegments.first); break;
     }
   }
 
@@ -99,5 +101,16 @@ class AppLinkService {
       Get.to(() => const ReelsView(), routeName: '/Reels');
     }
     log('AppLinkService → opened Reels tab for short $reelId');
+  }
+
+  void _openLive(String liveSellingHistoryId) {
+    // Land the user on the Live tab. Direct-jumping into the specific
+    // broadcast room would need a "fetch single LiveSeller by id" endpoint
+    // and routing into LivePageView with the right model — left for a
+    // follow-up. The Live tab refreshes on entry so the live the user
+    // tapped will be at the top of the grid if it's still on air.
+    final ctl = Get.isRegistered<BottomBarController>() ? Get.find<BottomBarController>() : Get.put(BottomBarController());
+    ctl.onChangeBottomBar(1);
+    log('AppLinkService → opened Live tab for live $liveSellingHistoryId');
   }
 }
