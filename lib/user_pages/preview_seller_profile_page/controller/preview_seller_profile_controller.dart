@@ -40,10 +40,26 @@ class PreviewSellerProfileController extends GetxController with GetTickerProvid
   @override
   void onInit() {
     scrollController.addListener(onScrolling);
+    // Don't fetch here — setSellerId, which the view calls on every build,
+    // is the single entry point for kicking off the profile/reels/followers
+    // requests once we know which seller to query.
+    super.onInit();
+  }
+
+  /// Called by the view on every build with the seller currently being
+  /// viewed. On a fresh instance this kicks off the initial fetches; on a
+  /// re-entry where Get.put returned a controller still holding the previous
+  /// seller's data, this clears state and re-fetches for the new seller.
+  void setSellerId(String id) {
+    if (id.isEmpty || id == sellerId) return;
+    sellerId = id;
+    products.clear();
+    productsByCategory.clear();
+    reels.clear();
+    followersList.clear();
     onGetSellerProfile();
     onGetSellerReels();
     onGetSellerFollowers();
-    super.onInit();
   }
 
   void onScrolling() {

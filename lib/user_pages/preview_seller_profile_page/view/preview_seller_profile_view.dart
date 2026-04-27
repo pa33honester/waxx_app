@@ -51,7 +51,11 @@ class _PreviewSellerProfileViewState extends State<PreviewSellerProfileView> wit
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(PreviewSellerProfileController());
-    controller.sellerId = widget.sellerId;
+    // setSellerId both assigns the id and re-fetches if it changed, which
+    // handles the "Get.put returned an existing controller for a different
+    // seller" case. Plain `controller.sellerId = ...` was racing with the
+    // controller's own onInit fetches.
+    controller.setSellerId(widget.sellerId);
 
     Future<void> onClickShare() async {
       final context = widget.sellerName.isNotEmpty
@@ -73,7 +77,7 @@ class _PreviewSellerProfileViewState extends State<PreviewSellerProfileView> wit
               flexibleSpace: SimpleAppBarWidget(
                 title: widget.sellerName,
                 onBackTap: () {
-                  FetchSellerProfileApi.startPagination = 0;
+                  FetchSellerProfileApi.startPagination = 1;
                   Get.back();
                 },
               ),
