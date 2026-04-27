@@ -1,6 +1,159 @@
 # Release Notes — Waxx App
 
 ---
+## 🔧 Version 1.0.5 — Live reliability + Deep Links + Reels polish
+*(Play Store: What's New)*
+
+**Version:** 1.0.5
+**Build Number:** 8
+**Release Date:** April 2026
+**Type:** Stability + small features
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🔧 Update — v1.0.5
+
+🔗 Share a short → real link to the video, not just the install page
+🛰️ Live shows that ended now disappear within ~90s (no zombies)
+📅 Scheduled Shows: empty state on the Live tab + correct timezone
+📱 Live tab: clearer placeholders when nothing is live or scheduled
+🎬 Seller profile Reels: fixed "0 reels" bug + smoother like updates
+🛡️ Auto-pop with a clear message when a stream isn't broadcasting
+🐛 Many small fixes throughout
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🆕 New Features in v1.0.5
+
+**Deep links for shorts (Android App Links + iOS Universal Links)**
+- New backend page `GET /short/:reelId` serves an OG-tagged HTML preview (thumbnail, video, seller, "Open in app" / "Install" buttons) so shared links unfurl nicely in WhatsApp / iMessage / Slack and recipients without the app see a real preview instead of a generic Play Store page.
+- Backend serves `/.well-known/assetlinks.json` (Android) and `/.well-known/apple-app-site-association` (iOS) with the correct content-type. Verifies the `com.waxxapp` package on Android and `W5T948BC35.com.erashop.live` on iOS, scoped to `/short/*`.
+- Flutter share message replaced with `https://www.waxxapp.com/short/<reelId>`. With the app installed and the domain verified, taps open the app directly at the Reels tab; without the app, taps land on the web preview.
+- New `AppLinkService` (built on the `app_links` package) listens for inbound links and routes `/short/<id>` to the Reels tab. Designed to extend to `/seller/<id>`, `/product/<id>`, `/live/<id>` later.
+- Android manifest: replaced placeholder Branch intent filter with a verified `<intent-filter android:autoVerify="true">` for `https://www.waxxapp.com/short/`. iOS entitlements: replaced placeholder `*.app.link` associated domains with `applinks:www.waxxapp.com`.
+
+**Live session reliability — heartbeat-based zombie sweep**
+- Seller's app now pings `POST /liveSeller/heartbeat` every 30s while broadcasting; backend bumps `LiveSeller.lastHeartbeatAt`.
+- New 90-second TTL sweep on `getliveSellerList` evicts any `LiveSeller` row whose last heartbeat is stale, plus any `Seller.isLive=true` whose `LiveSeller` row is missing entirely. Falls back to `createdAt` for legacy rows.
+- The socket disconnect handler now also flips `Seller.isLive=false` and clears `liveSellingHistoryId` (previously deleted only the `LiveSeller` row, leaving the `isLive` flag stuck on forever — the actual root cause of zombie cards on the home page).
+- Net effect: when a broadcaster crashes / force-quits / loses connectivity, the live card disappears within ~90 seconds instead of lingering for hours.
+
+**Live tab empty states**
+- "No upcoming shows. Follow sellers to see their scheduled streams here." now renders under the Upcoming Shows header on the Live hub when there's nothing to show. The home page keeps the silent-collapse behaviour because home has plenty of other content.
+- "No sellers are live right now" is now actually reactive — previously it lived inside a `GetBuilder` keyed `'onChangeTab'` that the controller never broadcast to, so the placeholder never rendered no matter the data state. Wrapped in `Obx` keyed off `isLoading` and `getSellerLiveList`.
+
+**Live viewer timeout UX**
+- When a buyer joins a Zego room and no remote stream arrives within 8 seconds (typical of a stale "live" row), instead of silently popping back the page now shows a clear snackbar "This live stream isn't broadcasting right now. Please try again later." and pops 1.5 seconds later.
+
+#### 🐛 Bug Fixes in v1.0.5
+
+| Issue | Fix |
+|---|---|
+| Tapping a short on the home shorts rail opened the **Live** tab instead of Reels | After the tab order was reshuffled in v1.0.4 (`Home · Live · Reels · Cart · Profile`), `home_page_divided.dart` was still passing index `1` (Live) to `BottomBarController.onChangeBottomBar(...)`. Changed to index `2` (Reels) and added a comment to keep the next renumber honest. |
+| Scheduled Show created at a local time was stored at the wrong wall-clock instant on the server | `schedule_live_service.dart` was sending `selectedDateTime.toIso8601String()` on a local `DateTime` (no offset, no `Z`); Node parsed it as **server-local** time. Now sends `selectedDateTime.toUtc().toIso8601String()`. |
+| Reels card overflowed by 21 px → black-and-yellow stripes on top of the price/Buy Now row | Wrapped the price `Text` in `Expanded` so its `TextOverflow.ellipsis` actually clips. Removed redundant `5.width` + `Spacer()`. |
+| Seller profile showed "0 Reels / No Data Found" even when the seller had uploaded shorts | Two issues: (1) back-button reset `FetchSellerProfileApi.startPagination = 0`, which made the next visit call `?start=0` → backend computed `.skip(-10)` → 500. Reset to `1`. (2) `SellerReelsModel` parsed `productId` as a single object but the Reel schema declares it as an array; deserialization threw `List<dynamic> is not a subtype of Map<String, dynamic>` and the whole reels payload was dropped. Factory now accepts both shapes. |
+| Re-entering the seller profile for a different seller showed the previous seller's reels | `Get.put` returned the existing controller without re-firing `onInit`. New `setSellerId(id)` method detects the change, clears state, and re-fetches. |
+| Followers tab on the seller profile crashed with `RangeError (length): Not in inclusive range 0..3: 4` | The `ListView.builder` had no `itemCount` so it built past the list end. Added `itemCount: controller.followersList.length`. |
+| Reel "comment" count rendered as the literal string "null" | The Reel schema has no comment field on the backend (no model, route, or controller). The Dart model has a nullable `comment` field that's always `null` in API responses. Hid the comment icon and count entirely until the feature ships; defensively coalesced `like` to 0 in the same place. |
+| Like count on the seller-profile reels grid didn't update after the user toggled a like in the full-screen viewer | `onGetSellerReels` was using `addAll`, so calling it again would duplicate. Made it idempotent (`reels.clear()` first + reset pagination). The seller profile now re-fetches when popping back from the full-screen viewer. |
+| Backend `reelsOfSeller` 500'd on `?start=0` requests | Clamped `start` and `limit` to `Math.max(1, …)` so a stale or buggy client can't take the endpoint down. |
+
+#### 📁 Files Changed
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.0.4+7` → `1.0.5+8`) |
+| Backend version | `waxxapp_admin/backend/package.json` (`1.1.0` → `1.2.0`) |
+| Deep-link infra (backend) | `backend/server/shortPreview/{shortPreview.controller.js,shortPreview.route.js}` (new), `backend/well-known/{assetlinks.json,apple-app-site-association}` (new), `backend/index.js`, `backend/route.js` |
+| Deep-link infra (Flutter) | `lib/services/app_link_service.dart` (new), `lib/main.dart`, `lib/custom/custom_share.dart`, `lib/utils/api_url.dart`, `pubspec.yaml` (added `app_links: ^6.4.1`) |
+| Native config | `android/app/src/main/AndroidManifest.xml` (App Link intent filter), `ios/Runner/Runner.entitlements` (associated domains) |
+| Live heartbeat | `backend/server/liveSeller/{liveSeller.model.js,liveSeller.controller.js,liveSeller.route.js}`, `backend/socket.js`, `lib/ApiService/seller/live_seller_for_selling_service.dart`, `lib/seller_pages/live_page/view/live_view.dart` |
+| Live tab empty states | `lib/user_pages/live_hub/view/live_hub_view.dart`, `lib/user_pages/upcoming_lives/view/upcoming_lives_widget.dart` |
+| Bug fixes | `lib/utils/CoustomWidget/Page_devided/home_page_divided.dart` (shorts → Reels), `lib/ApiService/seller/schedule_live_service.dart` (UTC), `lib/View/MyApp/AppPages/reels_page/widget/reels_widget.dart` (Row overflow), `lib/seller_pages/live_page/view/live_view.dart` (timeout snackbar), `lib/user_pages/preview_seller_profile_page/{view/preview_seller_profile_view.dart,controller/preview_seller_profile_controller.dart,widget/store_product_widget.dart}` (reels visibility, followers `itemCount`, like refresh, comment icon hidden), `lib/ApiModel/seller/SellerReelsModel.dart` (productId list parse), `backend/server/reel/reel.controller.js` (pagination clamp) |
+| Reel share call sites | `lib/View/MyApp/AppPages/reels_page/widget/reels_widget.dart`, `lib/utils/CoustomWidget/Page_devided/show_reels.dart`, `lib/user_pages/preview_seller_profile_page/widget/store_product_widget.dart` (now pass `https://www.waxxapp.com/short/<id>`) |
+
+#### ✅ Testing Verification (v1.0.5)
+
+| Target | Method | Status |
+|---|---|---|
+| `.well-known/assetlinks.json` reachable | `curl -i https://www.waxxapp.com/.well-known/assetlinks.json` | ✅ 200 application/json |
+| `.well-known/apple-app-site-association` reachable | `curl -i https://www.waxxapp.com/.well-known/apple-app-site-association` | ✅ 200 application/json |
+| `/short/:reelId` HTML preview | `curl -I https://www.waxxapp.com/short/<id>` | ✅ 200 text/html |
+| Seller heartbeat | New `POST /liveSeller/heartbeat` | ✅ wired in `live_view.dart` |
+| App Link verification (Android) | `adb shell pm verify-app-links --re-verify com.waxxapp` | ⏳ requires release-build install |
+| Universal Link (iOS) | Long-press link in Notes → "Open in Waxxapp" | ⏳ requires real device with new build |
+
+> **Reminder before publishing:** if Play App Signing is enabled, add the Play-managed App Signing Key SHA-256 (visible in Play Console → App integrity) to `backend/well-known/assetlinks.json`. Currently that file holds the upload key + debug key, which covers direct-APK installs but not Play Store deliveries until the App Signing key is added.
+
+---
+
+### 🌍 Localized "What's New" Text (v1.0.5)
+
+**Spanish:**
+```
+🔧 Actualización — v1.0.5
+
+🔗 Compartir un short → enlace directo al video, no solo la tienda
+🛰️ Los shows en directo terminados desaparecen en ~90 s
+📅 Próximos shows: estado vacío en la pestaña En Vivo + zona horaria correcta
+📱 Pestaña En Vivo: mensajes claros cuando no hay nada en directo
+🎬 Reels en perfil del vendedor: corrección de "0 reels" y likes más fluidos
+🐛 Múltiples mejoras y correcciones
+```
+
+**French:**
+```
+🔧 Mise à jour — v1.0.5
+
+🔗 Partager un short → vrai lien vers la vidéo, plus seulement vers le store
+🛰️ Les lives terminés disparaissent en ~90 s
+📅 Prochains shows : état vide sur l'onglet En Direct + bon fuseau horaire
+📱 Onglet En Direct : messages clairs quand rien n'est en direct
+🎬 Reels du profil vendeur : correctif "0 reels" + likes plus fluides
+🐛 Nombreuses petites corrections
+```
+
+**Arabic:**
+```
+🔧 تحديث — v1.0.5
+
+🔗 مشاركة الفيديو القصير → رابط مباشر للفيديو، وليس لصفحة التثبيت فقط
+🛰️ تختفي عروض البث المنتهية خلال نحو 90 ثانية
+📅 العروض القادمة: حالة فارغة في تبويب البث + منطقة زمنية صحيحة
+📱 تبويب البث: رسائل أوضح عند عدم وجود بث
+🎬 ريلز الملف الشخصي للبائع: إصلاح "0 ريلز" وتحسين تحديث الإعجابات
+🐛 إصلاحات صغيرة عديدة
+```
+
+**German:**
+```
+🔧 Update — v1.0.5
+
+🔗 Short teilen → echter Link zum Video, nicht nur zur Installationsseite
+🛰️ Beendete Live-Shows verschwinden in ca. 90 s
+📅 Geplante Shows: leerer Zustand im Live-Tab + korrekte Zeitzone
+📱 Live-Tab: klare Hinweise, wenn gerade nichts läuft
+🎬 Verkäuferprofil-Reels: "0 Reels"-Bug behoben, flüssigere Like-Updates
+🐛 Viele kleine Korrekturen
+```
+
+**Turkish:**
+```
+🔧 Güncelleme — v1.0.5
+
+🔗 Short paylaş → mağaza yerine doğrudan videoya gerçek bağlantı
+🛰️ Sona eren canlı yayınlar yaklaşık 90 sn içinde kaybolur
+📅 Yaklaşan yayınlar: Canlı sekmesinde boş durum + doğru saat dilimi
+📱 Canlı sekmesi: hiçbir yayın yokken net bilgilendirme
+🎬 Satıcı profili Reels: "0 reels" düzeltildi + akıcı beğeni güncelleme
+🐛 Birçok küçük iyileştirme
+```
+
+---
 ## 🚀 Version 1.0.4 — Whatnot-Parity Feature Drop
 *(Play Store: What's New)*
 
