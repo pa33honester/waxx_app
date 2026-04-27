@@ -31,16 +31,18 @@ class ScheduledLive {
   String? sellerId;
   String? title;
   String? description;
+  String? image;
   DateTime? scheduledAt;
   String? status;
 
-  ScheduledLive({this.id, this.sellerId, this.title, this.description, this.scheduledAt, this.status});
+  ScheduledLive({this.id, this.sellerId, this.title, this.description, this.image, this.scheduledAt, this.status});
 
   factory ScheduledLive.fromJson(Map<String, dynamic> json) => ScheduledLive(
         id: json['_id']?.toString(),
         sellerId: json['sellerId']?.toString(),
         title: json['title'],
         description: json['description'],
+        image: json['image']?.toString(),
         scheduledAt: json['scheduledAt'] != null ? DateTime.tryParse(json['scheduledAt'].toString()) : null,
         status: json['status'],
       );

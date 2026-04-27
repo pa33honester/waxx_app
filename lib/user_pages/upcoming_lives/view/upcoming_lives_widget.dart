@@ -32,7 +32,7 @@ class UpcomingLivesSection extends StatelessWidget {
     final controller = Get.put(UpcomingLivesController());
     return Obx(() {
       if (controller.isLoading.value) {
-        return const SizedBox(height: 130, child: Center(child: CircularProgressIndicator()));
+        return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
       }
       if (controller.upcomingLives.isEmpty) {
         if (!showEmptyState) return const SizedBox.shrink();
@@ -61,7 +61,7 @@ class UpcomingLivesSection extends StatelessWidget {
           _header(),
           const SizedBox(height: 12),
           SizedBox(
-            height: 130,
+            height: 200,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.only(left: 16),
@@ -92,93 +92,123 @@ class _UpcomingLiveCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasReminder = live.hasReminder == true;
+    final coverUrl = (live.image ?? '').trim();
     return Container(
       width: 200,
       margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(12),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.tabBackground,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: CachedNetworkImage(
-                  imageUrl: live.sellerImage ?? '',
-                  width: 32,
-                  height: 32,
-                  fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => CircleAvatar(
-                    radius: 16,
-                    backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-                    child: Icon(Icons.person, size: 18, color: AppColors.primary),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  live.sellerName ?? '',
-                  overflow: TextOverflow.ellipsis,
-                  style: AppFontStyle.styleW700(AppColors.white, 12),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            live.title ?? '',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppFontStyle.styleW700(AppColors.white, 13),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(Icons.access_time_rounded, size: 12, color: AppColors.unselected),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  _formatTime(live.scheduledAt),
-                  style: AppFontStyle.styleW500(AppColors.unselected, 11),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const Spacer(),
-          GestureDetector(
-            onTap: () => controller.toggleReminder(live),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          // Hero cover image (when the seller uploaded one). Falls back to
+          // a tinted background when missing so older shows still look fine.
+          if (coverUrl.isNotEmpty)
+            CachedNetworkImage(
+              imageUrl: coverUrl,
+              fit: BoxFit.cover,
+              errorWidget: (_, __, ___) => Container(color: AppColors.tabBackground),
+            ),
+          // Dark gradient so the overlaid white text remains legible regardless
+          // of the cover image's brightness.
+          if (coverUrl.isNotEmpty)
+            const DecoratedBox(
               decoration: BoxDecoration(
-                color: hasReminder ? AppColors.primary.withValues(alpha: 0.15) : AppColors.primary,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.primary),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.black26, Colors.black87],
+                  stops: [0.35, 1.0],
+                ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    hasReminder ? Icons.notifications_active_rounded : Icons.notifications_none_rounded,
-                    size: 13,
-                    color: hasReminder ? AppColors.primary : AppColors.black,
-                  ),
-                  const SizedBox(width: 4),
-                  Flexible(
-                    child: Text(
-                      hasReminder ? 'Reminded' : 'Remind Me',
-                      overflow: TextOverflow.ellipsis,
-                      style: AppFontStyle.styleW700(hasReminder ? AppColors.primary : AppColors.black, 11),
+            ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: CachedNetworkImage(
+                        imageUrl: live.sellerImage ?? '',
+                        width: 28,
+                        height: 28,
+                        fit: BoxFit.cover,
+                        errorWidget: (_, __, ___) => CircleAvatar(
+                          radius: 14,
+                          backgroundColor: AppColors.primary.withValues(alpha: 0.2),
+                          child: Icon(Icons.person, size: 16, color: AppColors.primary),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        live.sellerName ?? '',
+                        overflow: TextOverflow.ellipsis,
+                        style: AppFontStyle.styleW700(AppColors.white, 12),
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Text(
+                  live.title ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppFontStyle.styleW700(AppColors.white, 13),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.access_time_rounded, size: 12, color: AppColors.white.withValues(alpha: 0.85)),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        _formatTime(live.scheduledAt),
+                        style: AppFontStyle.styleW500(AppColors.white.withValues(alpha: 0.85), 11),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () => controller.toggleReminder(live),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: hasReminder ? AppColors.primary.withValues(alpha: 0.15) : AppColors.primary,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.primary),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          hasReminder ? Icons.notifications_active_rounded : Icons.notifications_none_rounded,
+                          size: 13,
+                          color: hasReminder ? AppColors.primary : AppColors.black,
+                        ),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            hasReminder ? 'Reminded' : 'Remind Me',
+                            overflow: TextOverflow.ellipsis,
+                            style: AppFontStyle.styleW700(hasReminder ? AppColors.primary : AppColors.black, 11),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],

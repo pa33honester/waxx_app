@@ -1,5 +1,7 @@
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:image_picker/image_picker.dart';
 import 'package:waxxapp/ApiModel/seller/scheduled_live_model.dart';
 import 'package:waxxapp/ApiService/seller/schedule_live_service.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
@@ -13,6 +15,10 @@ class ScheduleLiveController extends GetxController {
 
   RxBool isLoading = false.obs;
   Rx<DateTime?> selectedDateTime = Rx<DateTime?>(null);
+  // Optional cover image picked by the seller. Multipart-uploaded by the
+  // service when present; the backend stores the URL on the ScheduledLive
+  // doc and returns it in the upcoming-shows feed.
+  Rx<File?> selectedImage = Rx<File?>(null);
   RxList<ScheduledLive> scheduledLives = <ScheduledLive>[].obs;
   RxBool isListLoading = false.obs;
 
@@ -43,6 +49,26 @@ class ScheduleLiveController extends GetxController {
     }
   }
 
+  Future<void> pickCoverImage({required bool fromGallery}) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: fromGallery ? ImageSource.gallery : ImageSource.camera,
+        imageQuality: 85,
+        maxWidth: 1280,
+      );
+      if (picked == null) return;
+      selectedImage.value = File(picked.path);
+    } catch (e) {
+      log('pickCoverImage error: $e');
+      Utils.showToast('Could not pick image');
+    }
+  }
+
+  void clearCoverImage() {
+    selectedImage.value = null;
+  }
+
   Future<void> scheduleShow() async {
     if (titleController.text.trim().isEmpty) {
       Utils.showToast('Please enter a title');
@@ -64,12 +90,14 @@ class ScheduleLiveController extends GetxController {
         title: titleController.text.trim(),
         description: descriptionController.text.trim(),
         scheduledAt: selectedDateTime.value!,
+        coverImage: selectedImage.value,
       );
       if (result.status == true) {
         Utils.showToast('Show scheduled successfully!');
         titleController.clear();
         descriptionController.clear();
         selectedDateTime.value = null;
+        selectedImage.value = null;
         await fetchScheduledLives();
         Get.back();
       } else {

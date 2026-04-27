@@ -17,6 +17,9 @@ class UpcomingLive {
   String? sellerId;
   String? sellerName;
   String? sellerImage;
+  /// Cover image the seller uploaded when scheduling this specific show.
+  /// Distinct from [sellerImage], which is the seller's avatar.
+  String? image;
   String? title;
   String? description;
   DateTime? scheduledAt;
@@ -27,6 +30,7 @@ class UpcomingLive {
     this.sellerId,
     this.sellerName,
     this.sellerImage,
+    this.image,
     this.title,
     this.description,
     this.scheduledAt,
@@ -38,6 +42,7 @@ class UpcomingLive {
         sellerId: json['sellerId']?.toString(),
         sellerName: json['sellerName'],
         sellerImage: json['sellerImage'],
+        image: json['image']?.toString(),
         title: json['title'],
         description: json['description'],
         scheduledAt: json['scheduledAt'] != null ? DateTime.tryParse(json['scheduledAt'].toString()) : null,

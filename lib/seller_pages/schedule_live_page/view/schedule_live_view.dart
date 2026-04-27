@@ -1,9 +1,10 @@
-import 'package:waxxapp/seller_pages/schedule_live_page/controller/schedule_live_controller.dart';
-import 'package:waxxapp/utils/app_colors.dart';
-import 'package:waxxapp/utils/font_style.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:waxxapp/seller_pages/schedule_live_page/controller/schedule_live_controller.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/font_style.dart';
 
 class ScheduleLiveView extends StatelessWidget {
   const ScheduleLiveView({super.key});
@@ -43,6 +44,10 @@ class ScheduleLiveView extends StatelessWidget {
               hint: 'Tell buyers what to expect...',
               maxLines: 3,
             ),
+            const SizedBox(height: 20),
+            _SectionLabel('Cover Image (optional)'),
+            const SizedBox(height: 8),
+            _CoverImagePicker(controller: controller),
             const SizedBox(height: 20),
             _SectionLabel('Date & Time'),
             const SizedBox(height: 8),
@@ -209,6 +214,7 @@ class _ScheduledLiveItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dt = live.scheduledAt as DateTime?;
+    final coverUrl = (live.image as String?)?.trim() ?? '';
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
@@ -219,7 +225,21 @@ class _ScheduledLiveItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.live_tv_rounded, color: AppColors.primary, size: 22),
+          // Cover thumbnail when the seller uploaded one; falls back to
+          // the live-tv icon for older shows scheduled before this feature.
+          if (coverUrl.isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: CachedNetworkImage(
+                imageUrl: coverUrl,
+                width: 56,
+                height: 56,
+                fit: BoxFit.cover,
+                errorWidget: (_, __, ___) => Icon(Icons.live_tv_rounded, color: AppColors.primary, size: 22),
+              ),
+            )
+          else
+            Icon(Icons.live_tv_rounded, color: AppColors.primary, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -240,6 +260,144 @@ class _ScheduledLiveItem extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Square-ish cover image picker. Tap to choose from gallery; small overlay
+/// "Change" / "Remove" buttons appear once an image is selected.
+class _CoverImagePicker extends StatelessWidget {
+  final ScheduleLiveController controller;
+  const _CoverImagePicker({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final file = controller.selectedImage.value;
+      if (file == null) {
+        return GestureDetector(
+          onTap: () => _showSourceSheet(context),
+          child: Container(
+            height: 140,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: AppColors.tabBackground,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.unselected.withValues(alpha: 0.3)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add_photo_alternate_rounded, size: 32, color: AppColors.primary),
+                const SizedBox(height: 8),
+                Text('Add a cover image', style: AppFontStyle.styleW600(AppColors.white, 13)),
+                const SizedBox(height: 2),
+                Text(
+                  'Buyers see this on the upcoming-shows card.',
+                  style: AppFontStyle.styleW500(AppColors.unselected, 11),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+      return Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.file(
+              file,
+              height: 180,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Row(
+              children: [
+                _PickerOverlayButton(
+                  icon: Icons.refresh_rounded,
+                  label: 'Change',
+                  onTap: () => _showSourceSheet(context),
+                ),
+                const SizedBox(width: 6),
+                _PickerOverlayButton(
+                  icon: Icons.close_rounded,
+                  label: 'Remove',
+                  onTap: controller.clearCoverImage,
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  void _showSourceSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.black,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (_) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.photo_library_rounded, color: AppColors.primary),
+                title: Text('Choose from gallery', style: AppFontStyle.styleW600(AppColors.white, 14)),
+                onTap: () {
+                  Navigator.pop(context);
+                  controller.pickCoverImage(fromGallery: true);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_camera_rounded, color: AppColors.primary),
+                title: Text('Take a photo', style: AppFontStyle.styleW600(AppColors.white, 14)),
+                onTap: () {
+                  Navigator.pop(context);
+                  controller.pickCoverImage(fromGallery: false);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PickerOverlayButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _PickerOverlayButton({required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppColors.black.withValues(alpha: 0.65),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: AppColors.white, size: 14),
+            const SizedBox(width: 4),
+            Text(label, style: AppFontStyle.styleW700(AppColors.white, 11)),
+          ],
+        ),
       ),
     );
   }
