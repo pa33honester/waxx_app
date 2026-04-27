@@ -182,11 +182,14 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
 
   Future<void> onClickShare() async {
     isReelsPage.value = false;
-    final sellerName = controller.mainReels[widget.index].sellerId?.businessName ?? "";
+    final reel = controller.mainReels[widget.index];
+    final sellerName = reel.sellerId?.businessName ?? "";
     final context = sellerName.isNotEmpty
         ? "Check out $sellerName's video on Waxxapp"
         : "Check out this video on Waxxapp";
-    await CustomShare.onShareApp(context: context);
+    final reelId = reel.id ?? "";
+    final link = reelId.isNotEmpty ? "https://www.waxxapp.com/short/$reelId" : null;
+    await CustomShare.onShareApp(context: context, link: link);
   }
 
   // Future<void> onClickShare() async {

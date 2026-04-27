@@ -255,13 +255,16 @@ GetBuilder<PreviewSellerProfileController> sellerReelsView() {
             itemBuilder: (context, index) {
               final indexData = controller.reels[index];
               return GestureDetector(
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => FullScreenReelView(reels: controller.reels, initialIndex: index, profile: controller.fetchSellerProfileModel?.data?.image ?? ''),
                     ),
                   );
+                  // Re-fetch so the like count reflects any like the user
+                  // just toggled inside the full-screen viewer.
+                  controller.onGetSellerReels();
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -302,20 +305,13 @@ GetBuilder<PreviewSellerProfileController> sellerReelsView() {
                                   children: [
                                     Image.asset(AppAsset.icHeartFill, width: 16, color: AppColors.white).paddingOnly(right: 5),
                                     Text(
-                                      controller.reels[index].like.toString(),
+                                      (controller.reels[index].like ?? 0).toString(),
                                       style: AppFontStyle.styleW700(AppColors.white, 14),
                                     ),
-                                    12.width,
-                                    Image.asset(
-                                      AppAsset.commentIcon,
-                                      // "assets/icons/commentIcon.png",
-                                      width: 18,
-                                      color: Colors.white,
-                                    ).paddingOnly(right: 5),
-                                    Text(
-                                      controller.reels[index].comment.toString(),
-                                      style: AppFontStyle.styleW700(AppColors.white, 14),
-                                    )
+                                    // Comment icon + count intentionally hidden:
+                                    // there is no reel-comment system on the backend
+                                    // (no model, route, or controller). Restore when
+                                    // the feature ships.
                                   ],
                                 ),
                               ),
@@ -341,6 +337,7 @@ GetBuilder<PreviewSellerProfileController> sellerFollowersList() {
               image: "assets/no_data_found/basket.png",
             )
           : ListView.builder(
+              itemCount: controller.followersList.length,
               itemBuilder: (context, index) {
                 return Column(
                   children: [
@@ -452,7 +449,9 @@ class _FullScreenReelViewState extends State<FullScreenReelView> {
     final context = sellerName.isNotEmpty
         ? "Check out $sellerName's video on Waxxapp"
         : "Check out this video on Waxxapp";
-    await CustomShare.onShareApp(context: context);
+    final reelId = reel.id ?? "";
+    final link = reelId.isNotEmpty ? "https://www.waxxapp.com/short/$reelId" : null;
+    await CustomShare.onShareApp(context: context, link: link);
   }
 
   Future<void> onClickLike() async {

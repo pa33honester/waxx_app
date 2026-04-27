@@ -35,15 +35,19 @@ class CustomShare {
     }
   }
 
-  // Share a contextual message plus the app store link. `context` is a one-line
-  // description ("Sarah's store on Waxxapp", "Check out this auction"); the
-  // Play Store URL is always appended so the recipient can install the app.
-  static Future onShareApp({String? context, String? subject}) async {
+  // Share a contextual message. `context` is a one-line description
+  // ("Sarah's store on Waxxapp", "Check out this auction"). When `link` is
+  // supplied (e.g. https://www.waxxapp.com/short/<id>) it is used as the
+  // primary URL — recipients with the app installed land directly on the
+  // content via App Links / Universal Links, others see the web preview.
+  // When `link` is null we fall back to the Play Store install page.
+  static Future onShareApp({String? context, String? subject, String? link}) async {
     try {
       final header = (context == null || context.trim().isEmpty)
           ? "Check this out on Waxxapp"
           : context.trim();
-      final message = "$header\n$_appStoreUrl";
+      final url = (link == null || link.trim().isEmpty) ? _appStoreUrl : link.trim();
+      final message = "$header\n$url";
       await Share.share(message, subject: subject);
     } catch (e) {
       Utils.showLog("Share App Method Error => $e");

@@ -509,7 +509,8 @@ class _ShowShortsState extends State<ShowShorts> with TickerProviderStateMixin {
                             final context = widget.businessName.isNotEmpty
                                 ? "Check out ${widget.businessName}'s video on Waxxapp"
                                 : "Check out this video on Waxxapp";
-                            await CustomShare.onShareApp(context: context);
+                            final link = widget.reelId.isNotEmpty ? "https://www.waxxapp.com/short/${widget.reelId}" : null;
+                            await CustomShare.onShareApp(context: context, link: link);
                           },
                           child: Image.asset("assets/icons/reels_share.png", height: 33)),
                       AnimatedBuilder(

@@ -46,22 +46,19 @@
                 <data android:scheme="com.waxxapp"/>
             </intent-filter>
 
-            <intent-filter>
-                <!-- If utilizing $deeplink_path please explicitly declare your hosts, or utilize a wildcard(*) -->
-                <!-- REPLACE `android:scheme` with your Android URI scheme -->
-                <data android:scheme="Enter your branch io link" android:host="open" />
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-
+            <!--
+                Waxxapp App Links — opens https://www.waxxapp.com/short/<id>
+                directly in the app once the domain is verified via
+                /.well-known/assetlinks.json. Until the SHA-256 fingerprint
+                in that file matches the signing cert, the link still works
+                as a regular HTTPS URL (falls back to the web preview).
+            -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="Enter your branch io link" />
-                <!-- REPLACE `android:host` with your `-alternate` domain (required for proper functioning of App Links and Deepviews) -->
-                <data android:scheme="https" android:host="Enter your branch io link" />
+                <data android:scheme="https" android:host="www.waxxapp.com" android:pathPrefix="/short/" />
+                <data android:scheme="https" android:host="waxxapp.com" android:pathPrefix="/short/" />
             </intent-filter>
 
         </activity>

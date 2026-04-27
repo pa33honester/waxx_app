@@ -6,9 +6,8 @@
 	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>eea7ui:ex5hn.app.link</string>
-		<string>eea7ui:ex5hn-alternate.app.link</string>
-		<string>eea7ui:ex5hn.test.app.link</string>
+		<string>applinks:www.waxxapp.com</string>
+		<string>applinks:waxxapp.com</string>
 	</array>
 </dict>
 </plist>

@@ -28,6 +28,7 @@ import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mobile_device_identifier/mobile_device_identifier.dart';
+import 'package:waxxapp/services/app_link_service.dart';
 import 'package:waxxapp/services/push_notification_service.dart';
 // import 'package:platform_device_id/platform_device_id.dart';
 
@@ -136,6 +137,10 @@ Future<void> main() async {
     }
   }
   Get.put(LivePageRouteObserver());
+
+  // Listen for inbound App Links / Universal Links (e.g.
+  // https://www.waxxapp.com/short/<id>) and route to the right surface.
+  AppLinkService.instance.init();
 
   return runApp(const MyApp());
 }
