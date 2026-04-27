@@ -4,7 +4,6 @@ import 'package:waxxapp/Controller/GetxController/user/get_live_seller_list_cont
 import 'package:waxxapp/user_pages/home_page/widget/home_live_grid.dart';
 import 'package:waxxapp/user_pages/home_page/widget/home_live_products_rail.dart';
 import 'package:waxxapp/user_pages/upcoming_lives/view/upcoming_lives_widget.dart';
-import 'package:waxxapp/utils/CoustomWidget/App_theme_services/text_titles.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/font_style.dart';
 
@@ -60,8 +59,11 @@ class _LiveHubViewState extends State<LiveHubView> {
       ),
       body: RefreshIndicator(
         onRefresh: _refresh,
+        // Plain GetBuilder (no id) so the controller's `update()` calls when
+        // the live list finishes loading actually rebuild this body. The
+        // previous `id: 'onChangeTab'` was never broadcast by the controller,
+        // so the empty state never rendered after a load completed.
         child: GetBuilder<GetLiveSellerListController>(
-          id: 'onChangeTab',
           builder: (_) {
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -75,20 +77,17 @@ class _LiveHubViewState extends State<LiveHubView> {
 
                 const SizedBox(height: 16),
 
-                // Scheduled upcoming broadcasts
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: GeneralTitle(title: 'Upcoming shows'),
-                ),
-                const SizedBox(height: 10),
-                const UpcomingLivesSection(),
+                // Scheduled upcoming broadcasts. The widget owns its own title
+                // and renders a "No upcoming shows" placeholder when empty.
+                const UpcomingLivesSection(showEmptyState: true),
 
-                // Empty state when nothing is live *and* nothing is scheduled.
-                // The child widgets silently collapse when their data is
-                // empty, so this shows up naturally only when the whole hub
-                // has no content to render.
-                if (_liveCtl.getSellerLiveList.isEmpty && !_liveCtl.isLoading.value)
-                  Padding(
+                // Empty state when no sellers are live. Wrapped in Obx so it
+                // reacts to isLoading flipping false even if no GetX update()
+                // happens to fire afterwards.
+                Obx(() {
+                  if (_liveCtl.isLoading.value) return const SizedBox.shrink();
+                  if (_liveCtl.getSellerLiveList.isNotEmpty) return const SizedBox.shrink();
+                  return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
                     child: Column(
                       children: [
@@ -106,7 +105,8 @@ class _LiveHubViewState extends State<LiveHubView> {
                         ),
                       ],
                     ),
-                  ),
+                  );
+                }),
               ],
             );
           },

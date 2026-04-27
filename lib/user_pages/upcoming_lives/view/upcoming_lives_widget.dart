@@ -8,7 +8,24 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class UpcomingLivesSection extends StatelessWidget {
-  const UpcomingLivesSection({super.key});
+  /// When true, renders a "No upcoming shows" placeholder instead of
+  /// collapsing silently. Used on the Live hub where this section is a
+  /// primary feature; the home page leaves it false so the rail simply
+  /// disappears when empty (the home feed already has plenty of content).
+  final bool showEmptyState;
+
+  const UpcomingLivesSection({super.key, this.showEmptyState = false});
+
+  Widget _header() => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            Icon(Icons.live_tv_rounded, color: AppColors.primary, size: 18),
+            const SizedBox(width: 8),
+            Text('Upcoming Shows', style: AppFontStyle.styleW700(AppColors.white, 16)),
+          ],
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -17,21 +34,31 @@ class UpcomingLivesSection extends StatelessWidget {
       if (controller.isLoading.value) {
         return const SizedBox(height: 130, child: Center(child: CircularProgressIndicator()));
       }
-      if (controller.upcomingLives.isEmpty) return const SizedBox.shrink();
+      if (controller.upcomingLives.isEmpty) {
+        if (!showEmptyState) return const SizedBox.shrink();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _header(),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: Center(
+                child: Text(
+                  'No upcoming shows. Follow sellers to see their scheduled streams here.',
+                  textAlign: TextAlign.center,
+                  style: AppFontStyle.styleW500(AppColors.unselected, 12),
+                ),
+              ),
+            ),
+          ],
+        );
+      }
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Icon(Icons.live_tv_rounded, color: AppColors.primary, size: 18),
-                const SizedBox(width: 8),
-                Text('Upcoming Shows', style: AppFontStyle.styleW700(AppColors.white, 16)),
-              ],
-            ),
-          ),
+          _header(),
           const SizedBox(height: 12),
           SizedBox(
             height: 130,
