@@ -36,6 +36,27 @@ import '../../ApiModel/seller/LiveSellerForSellingModel.dart';
   }
 }*/
 
+// Pinged by the broadcasting seller's app every 30s while live.
+// Returns true while the session is alive on the server, false once swept.
+class LiveHeartbeatApi {
+  static Future<bool> ping({required String sellerId}) async {
+    final uri = Uri.parse(Api.baseUrl + Api.liveHeartbeat);
+    final headers = {
+      "key": Api.secretKey,
+      "Content-Type": "application/json",
+    };
+    try {
+      final response = await http.post(uri, headers: headers, body: jsonEncode({"sellerId": sellerId}));
+      if (response.statusCode != 200) return false;
+      final json = jsonDecode(response.body);
+      return json["status"] == true;
+    } catch (e) {
+      log("Live heartbeat error: $e");
+      return false;
+    }
+  }
+}
+
 class CreateLiveSellerWithProductApi {
   static Future<LiveSellerForSellingModel?> callApi({
     required String sellerId,

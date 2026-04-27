@@ -36,6 +36,7 @@ class Api {
   static const searchProduct = "product/search";
   static const previousSearchProducts = "product/searchProduct";
   static const liveSeller = "liveSeller";
+  static const liveHeartbeat = "liveSeller/heartbeat";
   static const uploadShort = "reel/uploadReel";
 
   /// **************** QUERY(params) URL ********************

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:waxxapp/ApiModel/user/GetLiveSellerListModel.dart';
+import 'package:waxxapp/ApiService/seller/live_seller_for_selling_service.dart';
 import 'package:waxxapp/custom/loading_ui.dart';
 import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
 import 'package:waxxapp/seller_pages/live_page/widget/live_widget.dart';
@@ -45,6 +46,7 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
   String currentPageUserId = "";
   RxBool isLoading = false.obs;
   Timer? _initTimer;
+  Timer? _heartbeatTimer;
   bool _isInitialized = false;
 
   // Zego variables
@@ -169,6 +171,7 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
       log("Live Page Init${widget.liveUserList.sellerId}");
       if (widget.isHost) {
         liveController.onChangeTime();
+        _startHeartbeat();
       } else {
         liveController.onChangeTime();
         // Set timeout for remote view
@@ -201,6 +204,18 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
     }
   }
 
+  void _startHeartbeat() {
+    _heartbeatTimer?.cancel();
+    final sellerId = widget.liveUserList.sellerId ?? liveController.sellerId;
+    if (sellerId.isEmpty) return;
+    // Fire once immediately so the row's lastHeartbeatAt is fresh, then every 30s.
+    LiveHeartbeatApi.ping(sellerId: sellerId);
+    _heartbeatTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (!mounted) return;
+      LiveHeartbeatApi.ping(sellerId: sellerId);
+    });
+  }
+
   void _pauseStream() {
     // Pause the stream when not active to save resources
     if (remoteViewID != null) {
@@ -221,6 +236,7 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
   void dispose() {
     log("Live Page Dispose${widget.liveUserList.sellerId}");
     _initTimer?.cancel();
+    _heartbeatTimer?.cancel();
 
     if (_isInitialized) {
       _cleanupZego();
