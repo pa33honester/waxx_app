@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:waxxapp/Controller/GetxController/user/edit_profile_controller.dart';
 import 'package:waxxapp/custom/simple_app_bar_widget.dart';
+import 'package:waxxapp/user_pages/account_settings/change_email/view/change_email_view.dart';
+import 'package:waxxapp/user_pages/account_settings/change_phone/view/change_phone_view.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/textfields.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
@@ -19,7 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 
 import '../../../utils/Zego/ZegoUtils/device_orientation.dart';
 import '../../../utils/app_circular.dart';
@@ -274,73 +275,41 @@ class EditProfileState extends State<EditProfile> {
                             //   ),
                             // ),
                             20.height,
-                            Text(
-                              St.contactNumber.tr,
-                              style: AppFontStyle.styleW500(AppColors.unselected, 12),
-                            ),
-                            7.height,
-                            IntlPhoneField(
-                              enabled: false,
-                              onCountryChanged: (value) {},
-                              flagsButtonPadding: const EdgeInsets.all(8),
-                              dropdownIconPosition: IconPosition.trailing,
-                              controller: editProfileController.eNumberController,
-                              obscureText: false,
-                              cursorColor: AppColors.unselected,
-                              dropdownTextStyle: AppFontStyle.styleW700(AppColors.unselected, 15),
-                              keyboardType: TextInputType.number,
-                              showCountryFlag: true,
-                              style: AppFontStyle.styleW600(AppColors.unselected, 16),
-                              dropdownIcon: Icon(
-                                Icons.arrow_drop_down,
-                                color: AppColors.unselected,
-                              ),
-                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                              decoration: InputDecoration(
-                                hintText: St.enterContactNumber.tr,
-                                hintStyle: AppFontStyle.styleW600(AppColors.unselected, 12),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(color: AppColors.transparent),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: AppColors.transparent,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: AppColors.transparent,
-                                  ),
-                                ),
-                                filled: true,
-                                fillColor: AppColors.tabBackground,
-                                errorStyle: AppFontStyle.styleW700(AppColors.red, 10),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: AppColors.red,
-                                  ),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: AppColors.transparent,
-                                  ),
-                                ),
-                                counterStyle: AppFontStyle.styleW700(Colors.red, 12),
-                              ),
-                              initialCountryCode: countryCode,
+                            // Phone number — read-only with a "Change" button.
+                            // Editing it inline here was always disabled; the
+                            // dedicated flow below adds Firebase OTP verification.
+                            _readOnlyFieldRow(
+                              title: St.contactNumber.tr,
+                              value: () {
+                                final cc = Database.fetchLoginUserProfileModel?.user?.countryCode ?? '';
+                                final num = editProfileController.eNumberController.text.trim();
+                                if (num.isEmpty) return 'Add phone number';
+                                return cc.isEmpty ? num : '$cc $num';
+                              }(),
+                              isPlaceholder: editProfileController.eNumberController.text.trim().isEmpty,
+                              actionLabel: 'Change',
+                              onAction: () async {
+                                final ok = await Get.to(() => ChangePhoneView());
+                                if (ok == true && mounted) setState(() {});
+                              },
                             ),
                             20.height,
-                            if (Database.fetchLoginUserProfileModel?.user?.loginType != 5)
-                              ProfileTextField(
-                                titleText: St.emailTextFieldTitle.tr,
-                                controllerType: "Email",
-                                hintText: St.enterEmail.tr,
-                              ),
+                            // Email — show for everyone (was hidden for
+                            // phone-signup users), with a "Change" / "Add"
+                            // button that routes through email-OTP verify.
+                            _readOnlyFieldRow(
+                              title: St.emailTextFieldTitle.tr,
+                              value: () {
+                                final email = editProfileController.eMailController.text.trim();
+                                return email.isEmpty ? 'Add your email' : email;
+                              }(),
+                              isPlaceholder: editProfileController.eMailController.text.trim().isEmpty,
+                              actionLabel: editProfileController.eMailController.text.trim().isEmpty ? 'Add' : 'Change',
+                              onAction: () async {
+                                final ok = await Get.to(() => ChangeEmailView());
+                                if (ok == true && mounted) setState(() {});
+                              },
+                            ),
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 20),
                               child: SizedBox(
@@ -502,6 +471,59 @@ class EditProfileState extends State<EditProfile> {
           ),
         ),
         Obx(() => editProfileController.isLoading.value ? ScreenCircular.blackScreenCircular() : const SizedBox.shrink())
+      ],
+    );
+  }
+
+  /// Read-only "value + Change/Add" row used for fields that can't be
+  /// edited inline — phone (needs Firebase OTP) and email (needs an
+  /// email-OTP round-trip). [isPlaceholder] dims the value text when it's
+  /// a "Add your email" / "Add phone number" prompt rather than real data.
+  Widget _readOnlyFieldRow({
+    required String title,
+    required String value,
+    required bool isPlaceholder,
+    required String actionLabel,
+    required VoidCallback onAction,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: AppFontStyle.styleW500(AppColors.unselected, 12)),
+        const SizedBox(height: 7),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: AppColors.tabBackground,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  value,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppFontStyle.styleW600(
+                    isPlaceholder ? AppColors.unselected : AppColors.white,
+                    14,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: onAction,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  actionLabel,
+                  style: AppFontStyle.styleW700(AppColors.primary, 13),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

@@ -10,6 +10,9 @@ class Api {
 
   static const editProfile = "user/update";
   static const userLogin = "user/login";
+  static const changeEmailRequest = "user/changeEmail/request";
+  static const changeEmailVerify = "user/changeEmail/verify";
+  static const changePhone = "user/changePhone";
   static const otpCreate = "OTP/create";
   static const userLoginVerifyOtp = "OTP/otplogin";
   static const otpVerify = "OTP/verify";

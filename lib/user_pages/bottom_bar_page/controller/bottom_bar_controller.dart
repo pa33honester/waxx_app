@@ -8,6 +8,7 @@ import 'package:waxxapp/View/MyApp/AppPages/reels_page/controller/reels_controll
 import 'package:waxxapp/user_pages/live_hub/view/live_hub_view.dart';
 import 'package:waxxapp/View/MyApp/AppPages/reels_page/view/reels_view.dart';
 import 'package:waxxapp/View/MyApp/Profile/main_profile.dart';
+import 'package:waxxapp/user_pages/account_settings/change_email/view/email_backfill_dialog.dart';
 import 'package:waxxapp/user_pages/home_page/view/home_view.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/api/fetch_seller_profile_api.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/view/preview_seller_profile_view.dart';
@@ -99,6 +100,11 @@ class BottomBarController extends GetxController {
         ),
       );
     }
+
+    // Phone-signup users from before the "email required" change have an
+    // empty email. Prompt them once per session to add one. The dialog
+    // exits early when the user already has an email or has been prompted.
+    EmailBackfillDialog.showIfNeeded();
   }
 
   // Tab order: Home, Live, Reels, Cart, Profile — promotes live shopping

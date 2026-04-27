@@ -20,6 +20,9 @@ class MobileLoginController extends GetxController {
   TextEditingController otpController = TextEditingController();
   TextEditingController fullNameController = TextEditingController();
   TextEditingController otController = TextEditingController();
+  // Captured on the fill-profile screen so phone-signup users have a real
+  // email on their account (previously the screen sent email: "").
+  TextEditingController emailController = TextEditingController();
 
   String verificationId = '';
   String? dialCode;

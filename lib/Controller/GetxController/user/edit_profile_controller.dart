@@ -26,15 +26,21 @@ class EditProfileController extends GetxController {
   editDataStorage() async {
     try {
       isLoading(true);
+      // Email and mobile number are NOT saved here — they go through the
+      // dedicated Change Email / Change Phone flows that round-trip via OTP.
+      // Sending empty strings keeps the backend's existing-value fallback
+      // (`user.email = body.email.trim() ? trim : user.email`) so we don't
+      // accidentally overwrite a freshly-changed email with a stale text
+      // controller value.
       await profileEditController.profileEditData(
         userId: loginUserId,
         firstName: firstNameController.text,
         lastName: lastNameController.text,
-        email: eMailController.text,
+        email: "",
         dob: editDateOfBirth,
         gender: genderSelect,
         location: locationController.text,
-        mobileNumber: mobileNumberController.text,
+        mobileNumber: "",
         countryCode: dialCode,
         fcmToken: fcmToken,
       );
@@ -43,11 +49,9 @@ class EditProfileController extends GetxController {
       getStorage.write("editImage", editImage);
       getStorage.write("editFirstName", firstNameController.text);
       getStorage.write("editLastName", lastNameController.text);
-      getStorage.write("editEmail", eMailController.text);
       getStorage.write("dob", dateOfBirth.text);
       getStorage.write("genderSelect", genderSelect);
       getStorage.write("location", locationController.text);
-      getStorage.write("mobileNumber", mobileNumberController.text);
       getStorage.write("dialCode", dialCode);
 
       editImage = getStorage.read("imageXFile");

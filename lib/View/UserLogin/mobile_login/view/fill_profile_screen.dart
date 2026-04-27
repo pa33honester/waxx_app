@@ -52,13 +52,14 @@ class FillProfileScreen extends StatelessWidget {
                 final lastName = nameParts.$2;
                 final selectedDialCode = mobileController.dialCode ?? dialCode ?? '+91';
                 final selectedNumber = mobileController.numberController.text.trim();
+                final enteredEmail = mobileController.emailController.text.trim();
 
                 Get.dialog(LoadingUi(), barrierDismissible: false);
 
                 await loginController.getLoginData(
                   firstName: firstName,
                   lastName: lastName,
-                  email: "",
+                  email: enteredEmail,
                   password: "",
                   loginType: 5,
                   fcmToken: fcmToken,
@@ -73,7 +74,7 @@ class FillProfileScreen extends StatelessWidget {
                     userId: userId,
                     firstName: firstName,
                     lastName: lastName,
-                    email: loginController.userLogin?.user?.email?.toString() ?? "",
+                    email: enteredEmail,
                     dob: loginController.userLogin?.user?.dob?.toString() ?? "",
                     gender: loginController.userLogin?.user?.gender?.toString() ?? "",
                     location: loginController.userLogin?.user?.location?.toString() ?? "",
@@ -207,6 +208,42 @@ class FillProfileScreen extends StatelessWidget {
                         borderSide: BorderSide(
                           color: AppColors.transparent,
                         ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.transparent),
+                      ),
+                    ),
+                  ),
+                  20.height,
+
+                  // Email Field — required for phone signups so the account
+                  // has a usable contact channel for receipts, password
+                  // recovery, etc.
+                  Text(
+                    St.emailTextFieldTitle.tr,
+                    style: AppFontStyle.styleW500(AppColors.unselected, 12),
+                  ),
+                  7.height,
+                  TextFormField(
+                    controller: mobileController.emailController,
+                    style: AppFontStyle.styleW700(AppColors.white, 14),
+                    cursorColor: Colors.white,
+                    keyboardType: TextInputType.emailAddress,
+                    autocorrect: false,
+                    textCapitalization: TextCapitalization.none,
+                    decoration: InputDecoration(
+                      hintText: "you@example.com",
+                      hintStyle: AppFontStyle.styleW500(AppColors.unselected, 13),
+                      filled: true,
+                      fillColor: AppColors.tabBackground,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.transparent),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.transparent),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -399,6 +436,17 @@ class FillProfileScreen extends StatelessWidget {
   bool _validateForm(MobileLoginController controller) {
     if (controller.fullNameController.text.trim().isEmpty) {
       displayToast(message: St.pleaseEnterYourFullName.tr);
+      return false;
+    }
+
+    final email = controller.emailController.text.trim();
+    if (email.isEmpty) {
+      displayToast(message: "Please enter your email");
+      return false;
+    }
+    final emailRegex = RegExp(r'^[\w.+-]+@[\w-]+\.[\w.-]+$');
+    if (!emailRegex.hasMatch(email)) {
+      displayToast(message: "Please enter a valid email");
       return false;
     }
 
