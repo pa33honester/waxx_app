@@ -175,8 +175,19 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
         Timer(Duration(seconds: 8), () {
           if (mounted && remoteView == null && widget.isActive) {
             log('Remote view timeout for room: $roomID');
-            Get.back();
-            // You might want to show an error state here instead of going back
+            Get.snackbar(
+              'Stream unavailable',
+              'This live stream isn\'t broadcasting right now. Please try again later.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: AppColors.black.withValues(alpha: 0.85),
+              colorText: AppColors.white,
+              margin: const EdgeInsets.all(16),
+              duration: const Duration(seconds: 3),
+            );
+            // Give the snackbar a moment to render before popping the page.
+            Future.delayed(const Duration(milliseconds: 1500), () {
+              if (mounted && remoteView == null) Get.back();
+            });
           }
         });
       }

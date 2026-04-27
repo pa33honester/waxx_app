@@ -603,7 +603,9 @@ class _HomePageShortsState extends State<HomePageShorts> {
                                 // final controller = Get.put(BottomBarController());
                                 // controller.onChangeBottomBar(1);
                                 final controller = Get.find<BottomBarController>();
-                                controller.onChangeBottomBar(1, reelsIndex: index);
+                                // Reels tab is at index 2 in the new bottom nav order
+                                // (Home · Live · Reels · Cart · Profile).
+                                controller.onChangeBottomBar(2, reelsIndex: index);
                               },
                               child: Stack(
                                 alignment: Alignment.center,

@@ -22,7 +22,7 @@ class ScheduleLiveService {
       'sellerId': sellerId,
       'title': title,
       'description': description,
-      'scheduledAt': scheduledAt.toIso8601String(),
+      'scheduledAt': scheduledAt.toUtc().toIso8601String(),
     });
     log('ScheduleLive URL :: $url\nBody :: $body');
     try {

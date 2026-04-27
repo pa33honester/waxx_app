@@ -817,15 +817,16 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
                                                       ),
                                                     ),
                                                     Row(
-                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                       children: [
-                                                        Text(
-                                                          "$currencySymbol ${products?.price ?? ""}",
-                                                          overflow: TextOverflow.ellipsis,
-                                                          style: AppFontStyle.styleW600(AppColors.primary, 15),
+                                                        Expanded(
+                                                          child: Text(
+                                                            "$currencySymbol ${products?.price ?? ""}",
+                                                            overflow: TextOverflow.ellipsis,
+                                                            style: AppFontStyle.styleW600(AppColors.primary, 15),
+                                                          ),
                                                         ),
-                                                        5.width,
-                                                        const Spacer(),
+                                                        8.width,
                                                         products?.seller == sellerId
                                                             ? SizedBox()
                                                             : GestureDetector(
