@@ -2,9 +2,15 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:app_links/app_links.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:waxxapp/ApiService/user/fetch_live_by_history_id_service.dart';
 import 'package:waxxapp/View/MyApp/AppPages/reels_page/view/reels_view.dart';
+import 'package:waxxapp/custom/loading_ui.dart';
+import 'package:waxxapp/seller_pages/live_page/view/live_view.dart';
 import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
+import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 
 /// Listens for inbound App Links / Universal Links pointing at
 /// `https://www.waxxapp.com/...` and routes the user to the right place
@@ -103,14 +109,74 @@ class AppLinkService {
     log('AppLinkService → opened Reels tab for short $reelId');
   }
 
-  void _openLive(String liveSellingHistoryId) {
-    // Land the user on the Live tab. Direct-jumping into the specific
-    // broadcast room would need a "fetch single LiveSeller by id" endpoint
-    // and routing into LivePageView with the right model — left for a
-    // follow-up. The Live tab refreshes on entry so the live the user
-    // tapped will be at the top of the grid if it's still on air.
+  Future<void> _openLive(String liveSellingHistoryId) async {
+    log('AppLinkService → opening live $liveSellingHistoryId');
+
+    // Show a brief loading dialog so the user gets immediate feedback
+    // while we fetch the LiveSeller doc.
+    Get.dialog(LoadingUi(), barrierDismissible: false);
+
+    final result = await FetchLiveByHistoryIdService.fetch(liveSellingHistoryId: liveSellingHistoryId);
+
+    if (Get.isDialogOpen ?? false) Get.back();
+
+    if (!result.ok || result.live == null) {
+      // Live ended OR network/parse error — both fall back to the Live
+      // tab so the user still lands somewhere useful.
+      _showSnack(
+        title: result.ended ? 'This live show has ended' : 'Couldn\'t open this live',
+        message: result.ended
+            ? 'The seller is no longer broadcasting.'
+            : 'Check your connection and try again.',
+      );
+      _gotoLiveTab();
+      return;
+    }
+
+    final live = result.live!;
+
+    // If the user IS the seller of this live (i.e. they tapped a link to
+    // their own broadcast), pushing a viewer-side LivePageView would
+    // collide with their host-side Zego session. Just route them to the
+    // Live tab with a small explanation.
+    final mySellerId = sellerId;
+    if (mySellerId.isNotEmpty && live.sellerId == mySellerId) {
+      _showSnack(
+        title: 'You\'re broadcasting this live',
+        message: 'Open your seller dashboard to manage the show.',
+      );
+      _gotoLiveTab();
+      return;
+    }
+
+    // Make sure BottomBar is up so the back-button stack is sane.
+    if (!Get.isRegistered<BottomBarController>()) Get.put(BottomBarController());
+
+    Get.to(
+      () => LivePageView(
+        key: ValueKey('live_${live.liveSellingHistoryId}'),
+        liveUserList: live,
+        isHost: false,
+        isActive: true,
+      ),
+      routeName: '/LivePage',
+    );
+  }
+
+  void _gotoLiveTab() {
     final ctl = Get.isRegistered<BottomBarController>() ? Get.find<BottomBarController>() : Get.put(BottomBarController());
     ctl.onChangeBottomBar(1);
-    log('AppLinkService → opened Live tab for live $liveSellingHistoryId');
+  }
+
+  void _showSnack({required String title, required String message}) {
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.black.withValues(alpha: 0.85),
+      colorText: AppColors.white,
+      margin: const EdgeInsets.all(16),
+      duration: const Duration(seconds: 3),
+    );
   }
 }
