@@ -35,6 +35,20 @@
 				<string>Enter your branch io link</string>
 			</array>
 		</dict>
+		<dict>
+			<!--
+				Custom waxxapp:// scheme used by the /short/<id> web
+				preview's "Open in app" button as a same-domain-Safari
+				escape hatch (Universal Links don't fire when tapping a
+				link to the same domain you're already on).
+			-->
+			<key>CFBundleURLName</key>
+			<string>com.waxxapp.deeplink</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>waxxapp</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>

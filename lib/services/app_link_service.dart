@@ -55,21 +55,35 @@ class AppLinkService {
   void _handleUri(Uri uri) {
     log('AppLinkService received: $uri');
 
-    // Only honour our own host. Other schemes (Firebase reCAPTCHA, etc.)
-    // are routed elsewhere.
-    if (uri.host != 'www.waxxapp.com' && uri.host != 'waxxapp.com') return;
+    // Accept both forms:
+    //   https://www.waxxapp.com/short/<id>   (App Links / Universal Links)
+    //   waxxapp://short/<id>                  (custom scheme — used by the
+    //                                          web preview's "Open in app"
+    //                                          button when same-domain
+    //                                          handoff would otherwise fail)
+    final isHttps = uri.scheme == 'https' && (uri.host == 'www.waxxapp.com' || uri.host == 'waxxapp.com');
+    final isCustom = uri.scheme == 'waxxapp';
+    if (!isHttps && !isCustom) return;
 
-    final segments = uri.pathSegments;
-    if (segments.isEmpty) return;
+    // For custom-scheme URLs, the "host" component is what looks like the
+    // path's first segment (waxxapp://short/<id> → host=short, path=/<id>).
+    // Normalise so the routing switch below is the same for both shapes.
+    final firstSegment = isCustom ? (uri.host.isNotEmpty ? uri.host : (uri.pathSegments.isNotEmpty ? uri.pathSegments.first : ''))
+                                  : (uri.pathSegments.isNotEmpty ? uri.pathSegments.first : '');
+    final remainingSegments = isCustom
+        ? (uri.host.isNotEmpty ? uri.pathSegments : (uri.pathSegments.length > 1 ? uri.pathSegments.sublist(1) : const <String>[]))
+        : (uri.pathSegments.length > 1 ? uri.pathSegments.sublist(1) : const <String>[]);
 
-    switch (segments.first) {
+    if (firstSegment.isEmpty) return;
+
+    switch (firstSegment) {
       case 'short':
-        if (segments.length >= 2) _openShort(segments[1]);
+        if (remainingSegments.isNotEmpty) _openShort(remainingSegments.first);
         break;
       // Future:
-      // case 'seller': _openSeller(segments[1]); break;
-      // case 'product': _openProduct(segments[1]); break;
-      // case 'live': _openLive(segments[1]); break;
+      // case 'seller': _openSeller(remainingSegments.first); break;
+      // case 'product': _openProduct(remainingSegments.first); break;
+      // case 'live': _openLive(remainingSegments.first); break;
     }
   }
 
