@@ -79,9 +79,18 @@ class Reel {
         video: json["video"],
         videoType: json["videoType"],
         thumbnailType: json["thumbnailType"],
+        // The backend stores productId as an array (Reel.productId is
+        // [{ ref: "Product" }]) so the response is always a list. Older
+        // versions of this model assumed a single object, which crashed
+        // the whole reels parse. Accept both shapes — pull the first
+        // element when it's a list.
         productId: json["productId"] == null
             ? null
-            : ProductId.fromJson(json["productId"]),
+            : json["productId"] is List
+                ? (json["productId"] as List).isEmpty
+                    ? null
+                    : ProductId.fromJson((json["productId"] as List).first as Map<String, dynamic>)
+                : ProductId.fromJson(json["productId"] as Map<String, dynamic>),
         sellerId: json["sellerId"] == null
             ? null
             : SellerId.fromJson(json["sellerId"]),

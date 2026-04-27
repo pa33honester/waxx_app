@@ -135,7 +135,12 @@ class PreviewSellerProfileController extends GetxController with GetTickerProvid
   void onGetSellerReels() async {
     isLoading = true;
     await 100.milliseconds.delay();
+    // Reset pagination + clear so this method is idempotent. Without this,
+    // calling it again (e.g. to refresh after the user likes a reel in the
+    // full-screen viewer) would duplicate the existing entries via addAll.
+    FetchSellerProfileApi.startPagination = 1;
     fetchSellerReels = await FetchSellerProfileApi.sellerReelsApi(sellerId: sellerId);
+    reels.clear();
     reels.addAll(fetchSellerReels?.reels ?? []);
     print('reels: ${reels.length}');
     isLoading = false;
