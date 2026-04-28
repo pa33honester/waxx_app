@@ -27,6 +27,16 @@ class ReelsController extends GetxController {
 
   int currentPageIndex = 0;
 
+  /// App-wide reels audio mute preference. Mirrors the TikTok / IG Reels
+  /// pattern: once a viewer mutes, every subsequent reel stays muted until
+  /// they explicitly unmute. Each reel widget reads this on init and on
+  /// every change, calling `videoPlayerController.setVolume(...)` accordingly.
+  RxBool isMuted = false.obs;
+
+  void toggleReelsMute() {
+    isMuted.value = !isMuted.value;
+  }
+
   bool isInitAlreadyCall = false;
 
   // Future<void> init() async {

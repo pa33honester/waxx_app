@@ -42,6 +42,7 @@ class Reel {
   List<ProductId>? productId;
   SellerId? sellerId;
   int? like;
+  int? view;
   bool? isFake;
   DateTime? createdAt;
   bool? isLike;
@@ -58,6 +59,7 @@ class Reel {
     this.productId,
     this.sellerId,
     this.like,
+    this.view,
     this.isFake,
     this.createdAt,
     this.isLike,
@@ -75,6 +77,7 @@ class Reel {
         productId: json["productId"] == null ? [] : List<ProductId>.from(json["productId"]!.map((x) => ProductId.fromJson(x))),
         sellerId: json["sellerId"] == null ? null : SellerId.fromJson(json["sellerId"]),
         like: json["like"],
+        view: json["view"],
         isFake: json["isFake"],
         createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
         isLike: json["isLike"],
@@ -92,6 +95,7 @@ class Reel {
         "productId": productId == null ? [] : List<dynamic>.from(productId!.map((x) => x.toJson())),
         "sellerId": sellerId?.toJson(),
         "like": like,
+        "view": view,
         "isFake": isFake,
         "createdAt": createdAt?.toIso8601String(),
         "isLike": isLike,

@@ -640,7 +640,32 @@ class _HomePageShortsState extends State<HomePageShorts> {
                                         color: AppColors.white,
                                       ),
                                     ),
-                                  )
+                                  ),
+                                  // 👁 view-count badge — bottom-left of the
+                                  // tile thumbnail, mirrors the Live top-bar
+                                  // viewer badge format (`1.2K`).
+                                  Positioned(
+                                    left: 8,
+                                    bottom: 8,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.black.withValues(alpha: 0.55),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.remove_red_eye_rounded, size: 12, color: AppColors.white),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            CustomFormatNumber.convert(getReelsForUserController.allReels[index].view ?? 0),
+                                            style: AppFontStyle.styleW700(AppColors.white, 10),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             );

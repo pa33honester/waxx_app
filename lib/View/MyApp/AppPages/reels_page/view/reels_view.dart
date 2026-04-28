@@ -58,7 +58,10 @@ class ReelsView extends GetView<ReelsController> {
                   : PreloadPageView.builder(
                       controller: controller.preloadPageController,
                       itemCount: controller.mainReels.length,
-                      preloadPagesCount: 4,
+                      // 1 neighbor preload — was 4, which spawned 5 concurrent
+                      // VideoPlayerController.networkUrl downloads on cold open.
+                      // The user reported a long load before any reel rendered.
+                      preloadPagesCount: 1,
                       scrollDirection: Axis.vertical,
                       onPageChanged: (value) async {
                         controller.onPagination(value);

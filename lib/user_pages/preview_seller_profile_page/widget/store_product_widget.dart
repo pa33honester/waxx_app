@@ -543,7 +543,7 @@ class _FullScreenReelViewState extends State<FullScreenReelView> {
                             callback: onClickLike,
                             size: 42,
                             color: AppColors.black.withValues(alpha: 0.3),
-                            child: isLike.value ? Image.asset(AppAsset.icHeart, color: AppColors.white, width: 22) : Image.asset(AppAsset.icLiked, width: 22),
+                            child: isLike.value ? Image.asset(AppAsset.icLiked, width: 22) : Image.asset(AppAsset.icHeart, color: AppColors.white, width: 22),
                           )),
                       20.height,
                       CircleButtonWidget(

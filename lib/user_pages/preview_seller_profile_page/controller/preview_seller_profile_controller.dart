@@ -168,6 +168,9 @@ class PreviewSellerProfileController extends GetxController with GetTickerProvid
     isLoading = true;
     await 100.milliseconds.delay();
     fetchSellerFollowers = await FetchSellerProfileApi.sellerFollowersApi(sellerId: sellerId);
+    // Clear before populating so a re-fetch (after follow/unfollow toggle)
+    // replaces rather than duplicates the previous list.
+    followersList.clear();
     followersList.addAll(fetchSellerFollowers?.followerList ?? []);
     isLoading = false;
     // isFollowing = fetchSellerReels?.data?.isFollow ?? false;
@@ -175,9 +178,13 @@ class PreviewSellerProfileController extends GetxController with GetTickerProvid
   }
 
   void onChangeFollowButton() async {
+    // Optimistic local flip so the button label updates instantly.
     isFollowing = !isFollowing;
     update(["onChangeFollowButton"]);
-    followUnFollowController.followUnfollowData(sellerId: sellerId);
+    // Round-trip the toggle, then re-pull the followers list so the count in
+    // the stats row + the Followers tab list reflect the new relationship.
+    await followUnFollowController.followUnfollowData(sellerId: sellerId);
+    onGetSellerFollowers();
   }
 
   void onClickFavoriteProduct(int index) {

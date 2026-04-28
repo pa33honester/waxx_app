@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:chewie/chewie.dart';
 import 'package:waxxapp/Controller/GetxController/user/follow_unfollow_controller.dart';
+import 'package:waxxapp/ApiService/user/reel_view_service.dart';
+import 'package:waxxapp/Controller/GetxController/user/get_reels_controller.dart';
 import 'package:waxxapp/View/MyApp/AppPages/reels_page/api/reels_like_dislike_api.dart';
 import 'package:waxxapp/View/MyApp/AppPages/reels_page/controller/reels_controller.dart';
 import 'package:waxxapp/custom/circle_button_widget.dart';
@@ -60,6 +62,10 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
   AnimationController? _controller;
   late Animation<double> _animation;
   late AnimationController _likeAnimationController;
+  Worker? _muteWorker;
+  // Whether we've already counted a view for this reel during this widget's
+  // lifetime. Stops repeated rebuilds from spamming the backend bump.
+  bool _viewBumped = false;
 
   @override
   void initState() {
@@ -77,11 +83,19 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
     }
     initializeVideoPlayer();
     customSetting();
+    // React to app-wide reels mute toggles so preloaded reel pages (above
+    // and below the visible one) update their volume too — without this,
+    // muting on page A then swiping to a preloaded page B would still
+    // play sound until B was rebuilt from scratch.
+    _muteWorker = ever<bool>(controller.isMuted, (muted) {
+      videoPlayerController?.setVolume(muted ? 0.0 : 1.0);
+    });
     super.initState();
   }
 
   @override
   void dispose() {
+    _muteWorker?.dispose();
     _controller?.dispose();
     onDisposeVideoPlayer();
     log("Dispose Method Called Success");
@@ -95,6 +109,9 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
       videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(videoPath));
 
       await videoPlayerController?.initialize();
+      // Honour the app-wide reels mute preference so a freshly-built reel
+      // page doesn't blast audio if the viewer already muted earlier.
+      await videoPlayerController?.setVolume(controller.isMuted.value ? 0.0 : 1.0);
 
       if (videoPlayerController != null && (videoPlayerController?.value.isInitialized ?? false)) {
         chewieController = ChewieController(
@@ -247,6 +264,33 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
     if (widget.index == widget.currentPageIndex) {
       // Use => Play Current Video On Scrolling...
       (isVideoLoading.value == false && isReelsPage.value) ? onPlayVideo() : null;
+      // Bump the view counter once per reel-becomes-visible event. Fire-
+      // and-forget; errors are swallowed in the service so a flaky network
+      // never blocks playback.
+      if (!_viewBumped) {
+        _viewBumped = true;
+        final reelId = controller.mainReels[widget.index].id ?? "";
+        if (reelId.isNotEmpty) {
+          ReelViewService.incrementView(reelId: reelId);
+          // Optimistic local bump on the reels-page list…
+          final current = controller.mainReels[widget.index].view ?? 0;
+          controller.mainReels[widget.index].view = current + 1;
+          // …and also on the home Shorts rail's separate list, so the
+          // viewer count reflects immediately on the home page without
+          // waiting for a refetch. The two controllers hold distinct
+          // Reel instances populated from the same backend response, so
+          // mutating one doesn't propagate to the other.
+          if (Get.isRegistered<GetReelsForUserController>()) {
+            final homeReels = Get.find<GetReelsForUserController>().allReels;
+            final idx = homeReels.indexWhere((r) => r.id == reelId);
+            if (idx >= 0) {
+              final cur = homeReels[idx].view ?? 0;
+              homeReels[idx].view = cur + 1;
+              Get.find<GetReelsForUserController>().update();
+            }
+          }
+        }
+      }
     } else {
       // Restart Previous Video On Scrolling...
       isVideoLoading.value == false ? videoPlayerController?.seekTo(Duration.zero) : null;
@@ -363,7 +407,7 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
                               callback: onClickLike,
                               size: 42,
                               color: AppColors.black.withValues(alpha: 0.3),
-                              child: isLike.value ? Image.asset(AppAsset.icHeart, color: AppColors.white, width: 22) : Image.asset(AppAsset.icLiked, width: 22),
+                              child: isLike.value ? Image.asset(AppAsset.icLiked, width: 22) : Image.asset(AppAsset.icHeart, color: AppColors.white, width: 22),
                             ),
                             20.height,
                             CircleButtonWidget(
@@ -586,12 +630,14 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
                                                               clipBehavior: Clip.antiAlias,
                                                               decoration: BoxDecoration(
                                                                 borderRadius: BorderRadius.circular(30),
-                                                                color: AppColors.black.withValues(alpha: 0.7),
+                                                                // Following = filled primary (active relationship);
+                                                                // Follow = translucent dark CTA against the video.
+                                                                color: following ? AppColors.primary : AppColors.black.withValues(alpha: 0.7),
                                                               ),
                                                               child: Text(
                                                                 following ? St.following.tr : St.follow.tr,
                                                                 style: AppFontStyle.styleW700(
-                                                                  AppColors.white,
+                                                                  following ? AppColors.black : AppColors.white,
                                                                   10,
                                                                 ),
                                                               ),
@@ -640,7 +686,7 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
                                                 callback: onClickLike,
                                                 size: 42,
                                                 color: AppColors.black.withValues(alpha: 0.3),
-                                                child: isLike.value ? Image.asset(AppAsset.icHeart, color: AppColors.white, width: 22) : Image.asset(AppAsset.icLiked, width: 22),
+                                                child: isLike.value ? Image.asset(AppAsset.icLiked, width: 22) : Image.asset(AppAsset.icHeart, color: AppColors.white, width: 22),
                                               ),
                                               4.height,
                                               Text(
@@ -648,6 +694,17 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
                                                 style: AppFontStyle.styleW700(AppColors.white, 11),
                                               ),
                                             ],
+                                          )),
+                                      20.height,
+                                      Obx(() => CircleButtonWidget(
+                                            callback: controller.toggleReelsMute,
+                                            size: 42,
+                                            color: AppColors.black.withValues(alpha: 0.3),
+                                            child: Icon(
+                                              controller.isMuted.value ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+                                              color: controller.isMuted.value ? AppColors.red : AppColors.white,
+                                              size: 22,
+                                            ),
                                           )),
                                       20.height,
                                       CircleButtonWidget(

@@ -6,7 +6,11 @@ import 'package:http/http.dart' as http;
 
 class FetchReelsApi {
   static int startPagination = 1;
-  static int limitPagination = 20;
+  // Smaller initial page so cold-start completes faster — previous 20 made
+  // the user wait on a full HTTP+aggregation round-trip before any reel
+  // could render. `onPagination` keeps refilling 5-at-a-time as the user
+  // approaches the end of the in-memory list.
+  static int limitPagination = 5;
 
   static Future<GetReelsForUserModel?> callApi({required String loginUserId, required String reelId}) async {
     log("Get Reels Api Calling... ");

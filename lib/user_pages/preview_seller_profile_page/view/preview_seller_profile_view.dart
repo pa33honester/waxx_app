@@ -258,8 +258,12 @@ class _PreviewSellerProfileViewState extends State<PreviewSellerProfileView> wit
                                                   id: "onChangeFollowButton",
                                                   builder: (controller) => MainButtonWidget(
                                                     height: 50,
-                                                    border: controller.isFollowing ? Border.all(color: AppColors.primary) : null,
-                                                    color: controller.isFollowing ? AppColors.transparent : AppColors.primary,
+                                                    // Following = filled primary (active relationship);
+                                                    // Follow = outline (inactive). Mirrors the user's
+                                                    // preferred convention where the filled button signals
+                                                    // "I am currently following" rather than "tap to follow".
+                                                    border: controller.isFollowing ? null : Border.all(color: AppColors.primary),
+                                                    color: controller.isFollowing ? AppColors.primary : AppColors.transparent,
                                                     callback: () {
                                                       if (getStorage.read("isDemoLogin") ?? false || isDemoSeller) {
                                                         displayToast(message: St.thisIsDemoUser.tr);
@@ -269,7 +273,7 @@ class _PreviewSellerProfileViewState extends State<PreviewSellerProfileView> wit
                                                     },
                                                     child: Text(
                                                       controller.isFollowing ? St.following.tr : St.follow.tr,
-                                                      style: AppFontStyle.styleW700(controller.isFollowing ? AppColors.primary : AppColors.black, 14),
+                                                      style: AppFontStyle.styleW700(controller.isFollowing ? AppColors.black : AppColors.primary, 14),
                                                     ),
                                                   ),
                                                 ),
@@ -294,7 +298,15 @@ class _PreviewSellerProfileViewState extends State<PreviewSellerProfileView> wit
                                 ),
                               ),
                               bottom: PreferredSize(
-                                preferredSize: Size.fromHeight(_currentTabIndex == 0 ? 114 : 56),
+                                // Heights track the natural size of the children inside
+                                // [StoreProductTabBarWidget]: a Material TabBar with both
+                                // icon + text is `kTextAndIconTabHeight` (72) + the 1px
+                                // divider = 73 — that's the base height. When the
+                                // Products tab is active, the [CategoryTabsWidget]
+                                // chip rail adds ~62 more (8 + ~46 Tab + 8 padding).
+                                // The previous 114 / 56 budgets were too tight and the
+                                // Column inside overflowed by ~25px on the products tab.
+                                preferredSize: Size.fromHeight(_currentTabIndex == 0 ? 140 : 78),
                                 child: StoreProductTabBarWidget(
                                   onTabChanged: _onTabChanged,
                                 ),

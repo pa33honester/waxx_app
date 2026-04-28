@@ -77,7 +77,10 @@ class LiveController extends GetxController {
   Future<void> onSwitchMic() async {
     isMicOn = !isMicOn;
     ZegoExpressEngine.instance.enableAudioCaptureDevice(isMicOn);
-    update(["onSwitchMic"]);
+    // Bare update() — the right action column's GetBuilder<LiveController>
+    // is unkeyed, so an id-tagged update never reached it and the icon
+    // appeared frozen.
+    update();
   }
 
   Future<void> onSwitchCamera() async {
@@ -94,7 +97,7 @@ class LiveController extends GetxController {
       ZegoExpressEngine.instance.useFrontCamera(isFrontCamera);
     }
     Get.back(); // Stop Loading...
-    update(["onSwitchCamera"]);
+    update();
   }
 
   /// Buyer-side toggle: mutes / unmutes the incoming live audio for *this*

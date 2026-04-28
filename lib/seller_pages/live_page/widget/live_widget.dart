@@ -134,6 +134,9 @@ class LiveUi extends StatelessWidget {
                 ),
                 14.height,
               ],
+              // Like + Sound Mute — buyer-only. A seller can't like or
+              // report their own broadcast, and the buyer-only Sound Mute
+              // mutes the incoming Zego audio (no analogue on the host).
               if (!isHost) ...[
                 Obx(() => _LiveActionButton(
                       icon: controller.isLiveLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
