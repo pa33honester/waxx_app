@@ -135,13 +135,7 @@ class _SellerProfileViewState extends State<SellerProfileView> {
                 iconSize: 23,
                 callback: () => Get.toNamed("/MyOrders"),
               ),
-              15.height,
-              SellerProfileItemWidget(
-                title: 'Received Offers',
-                icon: AppAsset.icCartFill,
-                iconSize: 22,
-                callback: () => Get.toNamed("/ReceivedOffers"),
-              ),
+              // "Received Offers" entry removed when the offer feature was retired.
               15.height,
               SellerProfileItemWidget(
                 title: St.myWallet.tr,

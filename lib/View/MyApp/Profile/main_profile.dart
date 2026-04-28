@@ -185,20 +185,8 @@ class _MainProfileState extends State<MainProfile> {
                         iconSize: 22,
                         callback: () => Get.toNamed("/MyGiveawayWins"),
                       ),
-                      15.height,
-                      ProfileItemWidget(
-                        title: 'My Offers',
-                        icon: AppAsset.icCartFill,
-                        iconSize: 22,
-                        callback: () => Get.toNamed("/MyOffers"),
-                      ),
-                      15.height,
-                      ProfileItemWidget(
-                        title: 'Pending Wins',
-                        icon: AppAsset.icCartFill,
-                        iconSize: 22,
-                        callback: () => Get.toNamed("/PendingWins"),
-                      ),
+                      // "My Offers" and "Pending Wins" entries removed when
+                      // the offer + auction features were retired.
                       15.height,
                       // Favorites/Wishlist now lives as a pinned heart icon
                       // in the home top bar — no longer needed in this menu.

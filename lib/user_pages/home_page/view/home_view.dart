@@ -10,7 +10,8 @@ import 'package:waxxapp/custom/exit_app_dialog.dart';
 import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
 import 'package:waxxapp/user_pages/home_page/widget/home_category_widget.dart';
 import 'package:waxxapp/user_pages/home_page/widget/home_live_grid.dart';
-import 'package:waxxapp/user_pages/home_page/widget/home_live_products_rail.dart';
+// HomeLiveProductsRail (auction-only) removed — auction feature retired.
+// import 'package:waxxapp/user_pages/home_page/widget/home_live_products_rail.dart';
 import 'package:waxxapp/user_pages/popular_products_page/controller/popular_products_controller.dart';
 import 'package:waxxapp/user_pages/popular_products_page/view/popular_products_view.dart';
 import 'package:waxxapp/user_pages/search_page/view/unified_search_view.dart';
@@ -109,8 +110,7 @@ class _HomeViewState extends State<HomeView> {
                       15.height,
                       const HomeLiveGrid(),
                       20.height,
-                      const HomeLiveProductsRail(),
-                      20.height,
+                      // HomeLiveProductsRail removed — auction feature retired.
                       const HomePageShorts(),
                       20.height,
                       const UpcomingLivesSection(),

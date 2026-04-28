@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waxxapp/Controller/GetxController/user/get_live_seller_list_controller.dart';
 import 'package:waxxapp/user_pages/home_page/widget/home_live_grid.dart';
-import 'package:waxxapp/user_pages/home_page/widget/home_live_products_rail.dart';
+// HomeLiveProductsRail (auction-only) removed — auction feature retired.
+// import 'package:waxxapp/user_pages/home_page/widget/home_live_products_rail.dart';
 import 'package:waxxapp/user_pages/upcoming_lives/view/upcoming_lives_widget.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/font_style.dart';
@@ -72,8 +73,7 @@ class _LiveHubViewState extends State<LiveHubView> {
                 // "On air now" grid of live sellers
                 const HomeLiveGrid(),
 
-                // Whatnot-style "Live Right Now" product rail
-                const HomeLiveProductsRail(),
+                // "Live Right Now" auction rail removed — feature retired.
 
                 const SizedBox(height: 16),
 

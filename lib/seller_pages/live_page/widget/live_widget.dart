@@ -12,10 +12,6 @@ import 'package:waxxapp/custom/loading_ui.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
 import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
-import 'package:waxxapp/seller_pages/select_product_for_streame/model/selected_product_model.dart';
-import 'package:waxxapp/user_pages/offer/widget/make_offer_sheet.dart';
-import 'package:waxxapp/user_pages/live_page/controller/live_auction_controller.dart';
-import 'package:waxxapp/user_pages/live_page/widget/live_auction_overlay.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';
@@ -109,8 +105,9 @@ class LiveUi extends StatelessWidget {
   }
 
   /// Vertical column of round action buttons floating along the right edge,
-  /// above the bottom comment-input row. Mirrors the Whatnot pattern. Hosts
-  /// see Share + Offers Inbox; viewers see Share + Make Offer.
+  /// above the bottom comment-input row. Mirrors the Whatnot pattern.
+  /// Currently just Share — the Offer button was removed when the offer
+  /// feature was retired, and Boost/Clip/Wallet are not yet implemented.
   Widget _buildRightActionColumn() {
     return Positioned(
       right: 12,
@@ -126,111 +123,10 @@ class LiveUi extends StatelessWidget {
                 label: 'Share',
                 onTap: () => _handleShare(controller),
               ),
-              const SizedBox(height: 16),
-              if (controller.liveSelectedProducts.isNotEmpty)
-                _LiveActionButton(
-                  icon: Icons.local_offer_rounded,
-                  label: 'Offer',
-                  onTap: () => _handleOffer(controller),
-                ),
             ],
           );
         },
       ),
-    );
-  }
-
-  /// Buyer flow: pick which live product to offer on, then open MakeOfferSheet.
-  /// Host flow: open the received-offers screen.
-  void _handleOffer(LiveController controller) {
-    if (controller.isHost) {
-      Get.toNamed("/ReceivedOffers");
-      return;
-    }
-
-    // Single-product live → skip the picker.
-    final products = controller.liveSelectedProducts;
-    if (products.length == 1) {
-      _openMakeOfferSheet(products.first);
-      return;
-    }
-
-    Get.bottomSheet(
-      Container(
-        color: AppColors.black,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: SafeArea(
-          top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Pick a product to offer on', style: AppFontStyle.styleW700(AppColors.white, 16)),
-              8.height,
-              Text(
-                'Send the seller a price you\'d like to pay. They can accept, counter, or decline.',
-                style: AppFontStyle.styleW400(AppColors.unselected, 12),
-              ),
-              16.height,
-              ConstrainedBox(
-                constraints: BoxConstraints(maxHeight: Get.height * 0.5),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: products.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.white10),
-                  itemBuilder: (_, i) {
-                    final p = products[i];
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: SizedBox(
-                          width: 44,
-                          height: 44,
-                          child: PreviewImageWidget(
-                            height: 44,
-                            width: 44,
-                            fit: BoxFit.cover,
-                            image: p.mainImage ?? '',
-                            radius: 8,
-                          ),
-                        ),
-                      ),
-                      title: Text(
-                        p.productName ?? '',
-                        style: AppFontStyle.styleW600(AppColors.white, 13),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Text(
-                        '${p.price ?? 0}',
-                        style: AppFontStyle.styleW400(AppColors.unselected, 11),
-                      ),
-                      onTap: () {
-                        Get.back();
-                        _openMakeOfferSheet(p);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      backgroundColor: AppColors.black,
-    );
-  }
-
-  void _openMakeOfferSheet(SelectedProduct product) {
-    final ctx = Get.context;
-    if (ctx == null) return;
-    MakeOfferSheet.show(
-      ctx,
-      productId: product.productId ?? '',
-      productName: product.productName ?? '',
-      listedPrice: product.price ?? 0,
-      minimumOfferPrice: product.minimumBidPrice ?? 0,
     );
   }
 
@@ -530,11 +426,9 @@ class LiveUi extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildCommentsSection(),
-          // Auction pill — shown to both viewer and host while an auction is
-          // active. No-ops to an empty SizedBox when no auction is running.
-          GetBuilder<LiveController>(
-            builder: (controller) => LiveAuctionOverlay(isHost: controller.isHost),
-          ),
+          // Auction overlay was here — removed when the auction feature
+          // was retired. The host-side gavel button + Start Auction sheet
+          // were also removed from the bottom Row below.
           GetBuilder<LiveController>(
             builder: (controller) {
               return SizedBox(
@@ -542,14 +436,7 @@ class LiveUi extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Comment input is always available — auction-mode lives
-                    // (liveType == 2) used to hide it, which produced the
-                    // "blank comments pad" the seller saw because the
-                    // input would render as empty whitespace inside the
-                    // Visibility wrapper.
                     Expanded(child: _buildBottomInput().paddingOnly(right: 10)),
-                    if (controller.isHost && controller.liveSelectedProducts.isNotEmpty)
-                      _buildStartAuctionButton(controller).paddingOnly(right: 10),
                     if (controller.liveSelectedProducts.isNotEmpty) _buildShopViewSection(),
                   ],
                 ),
@@ -559,116 +446,6 @@ class LiveUi extends StatelessWidget {
           12.height,
         ],
       ),
-    );
-  }
-
-  /// Host-only quick-start auction control. Opens a bottom sheet listing the
-  /// host's already-selected products; tapping one fires `initiateAuction`.
-  Widget _buildStartAuctionButton(LiveController controller) {
-    return GestureDetector(
-      onTap: () => _openStartAuctionSheet(controller),
-      child: Container(
-        height: 55,
-        width: 55,
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFC43A),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.white, width: 1.2),
-        ),
-        child: const Center(
-          child: Icon(Icons.gavel_rounded, color: Colors.black, size: 26),
-        ),
-      ),
-    );
-  }
-
-  void _openStartAuctionSheet(LiveController controller) {
-    final auctionCtl = Get.isRegistered<LiveAuctionController>()
-        ? Get.find<LiveAuctionController>()
-        : Get.put(LiveAuctionController(), permanent: false);
-
-    Get.bottomSheet(
-      Container(
-        color: AppColors.black,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: SafeArea(
-          top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Start auction', style: AppFontStyle.styleW700(AppColors.white, 16)),
-              8.height,
-              Text(
-                'Pick a product from your live show to start bidding.',
-                style: AppFontStyle.styleW400(AppColors.unselected, 12),
-              ),
-              16.height,
-              ConstrainedBox(
-                constraints: BoxConstraints(maxHeight: Get.height * 0.5),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: controller.liveSelectedProducts.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.white10),
-                  itemBuilder: (_, i) {
-                    final p = controller.liveSelectedProducts[i];
-                    final alreadyRunning = p.hasAuctionStarted == true;
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: SizedBox(
-                          width: 44,
-                          height: 44,
-                          child: PreviewImageWidget(
-                            height: 44,
-                            width: 44,
-                            fit: BoxFit.cover,
-                            image: p.mainImage ?? '',
-                            radius: 8,
-                          ),
-                        ),
-                      ),
-                      title: Text(
-                        p.productName ?? '',
-                        style: AppFontStyle.styleW600(AppColors.white, 13),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Text(
-                        'Min ${p.minimumBidPrice ?? p.price ?? 0} · ${p.minAuctionTime ?? 60}s',
-                        style: AppFontStyle.styleW400(AppColors.unselected, 11),
-                      ),
-                      trailing: alreadyRunning
-                          ? const Icon(Icons.circle, color: Color(0xFFFFC43A), size: 10)
-                          : const Icon(Icons.arrow_forward_rounded, color: Colors.white70),
-                      onTap: alreadyRunning
-                          ? null
-                          : () {
-                              Get.back();
-                              _startAuction(auctionCtl, controller, p);
-                            },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      backgroundColor: AppColors.black,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-    );
-  }
-
-  void _startAuction(LiveAuctionController auctionCtl, LiveController controller, SelectedProduct p) {
-    auctionCtl.startAuctionForProduct(
-      product: p,
-      liveStreamerId: controller.sellerId,
-      liveHistoryId: controller.roomId,
-      sellerUserId: controller.userId,
     );
   }
 

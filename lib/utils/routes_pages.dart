@@ -109,9 +109,10 @@ import '../seller_pages/seller_profile_page/view/seller_profile_view.dart';
 import '../user_pages/help_and_support_page/view/help_and_support_view.dart';
 import '../seller_pages/schedule_live_page/view/schedule_live_view.dart';
 import '../user_pages/giveaway/view/my_giveaway_wins_screen.dart';
-import '../user_pages/offer/view/my_offers_screen.dart';
-import '../seller_pages/offers/view/received_offers_screen.dart';
-import '../user_pages/pending_wins/view/pending_wins_screen.dart';
+// Offer + auction screen imports removed — features retired.
+// import '../user_pages/offer/view/my_offers_screen.dart';
+// import '../seller_pages/offers/view/received_offers_screen.dart';
+// import '../user_pages/pending_wins/view/pending_wins_screen.dart';
 
 class AppPages {
   static final routes = [
@@ -120,21 +121,9 @@ class AppPages {
       page: () => const MyGiveawayWinsScreen(),
       transition: Transition.rightToLeft,
     ),
-    GetPage(
-      name: "/MyOffers",
-      page: () => const MyOffersScreen(),
-      transition: Transition.rightToLeft,
-    ),
-    GetPage(
-      name: "/ReceivedOffers",
-      page: () => const ReceivedOffersScreen(),
-      transition: Transition.rightToLeft,
-    ),
-    GetPage(
-      name: "/PendingWins",
-      page: () => const PendingWinsScreen(),
-      transition: Transition.rightToLeft,
-    ),
+    // /MyOffers, /ReceivedOffers, /PendingWins routes removed when the
+    // offer + auction features were retired. Their screen widgets remain
+    // on disk for posterity but are no longer registered as routes.
     GetPage(
       name: "/",
       page: () => const SplashScreen(),
