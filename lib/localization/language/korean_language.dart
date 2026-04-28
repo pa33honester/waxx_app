@@ -302,6 +302,7 @@ final Map<String, String> koKR = {
   "free": "무료",
   "unFollow": "언팔로우",
   "follow": "따르다",
+  "following": "팔로잉",
   "noReviews": "리뷰 없음",
   "addressName": "주소 명",
   "homeOffice": "집/사무실/회사",

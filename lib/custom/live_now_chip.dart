@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waxxapp/Controller/GetxController/user/get_live_seller_list_controller.dart';
-import 'package:waxxapp/seller_pages/live_page/view/live_view.dart';
+import 'package:waxxapp/seller_pages/live_page/util/live_swipe_resolver.dart';
+import 'package:waxxapp/seller_pages/live_page/view/live_swipe_view.dart';
 
 /// Small pulsing "LIVE NOW" chip surfaced on reels whose seller is currently
 /// broadcasting. Reads the already-loaded `GetLiveSellerListController` state
@@ -53,11 +54,9 @@ class _LiveNowChipState extends State<LiveNowChip> with SingleTickerProviderStat
 
         return GestureDetector(
           onTap: () => Get.to(
-            () => LivePageView(
-              key: ValueKey('live_${liveSeller.liveSellingHistoryId}'),
-              liveUserList: liveSeller,
-              isHost: false,
-              isActive: true,
+            () => LiveSwipeView(
+              liveStreams: LiveSwipeResolver.swipeListFor(liveSeller),
+              initialIndex: LiveSwipeResolver.swipeIndexFor(liveSeller),
             ),
             routeName: '/LivePage',
           ),

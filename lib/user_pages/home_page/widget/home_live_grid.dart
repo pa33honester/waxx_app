@@ -4,7 +4,8 @@ import 'package:get/get.dart';
 import 'package:waxxapp/ApiModel/user/GetLiveSellerListModel.dart';
 import 'package:waxxapp/Controller/GetxController/user/get_live_seller_list_controller.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
-import 'package:waxxapp/seller_pages/live_page/view/live_view.dart';
+import 'package:waxxapp/seller_pages/live_page/util/live_swipe_resolver.dart';
+import 'package:waxxapp/seller_pages/live_page/view/live_swipe_view.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/text_titles.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_colors.dart';
@@ -112,11 +113,9 @@ class _LiveTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => Get.to(
-        () => LivePageView(
-          key: ValueKey('live_${seller.liveSellingHistoryId}'),
-          liveUserList: seller,
-          isHost: false,
-          isActive: true,
+        () => LiveSwipeView(
+          liveStreams: LiveSwipeResolver.swipeListFor(seller),
+          initialIndex: LiveSwipeResolver.swipeIndexFor(seller),
         ),
         routeName: '/LivePage',
       ),

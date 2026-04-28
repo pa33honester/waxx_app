@@ -122,6 +122,8 @@ class SplashScreenController extends GetxController {
       editDateOfBirth = getStorage.read("dob");
       genderSelect = getStorage.read("genderSelect");
       editLocation = getStorage.read("location");
+      editUserCountry = getStorage.read("country") ?? "";
+      editUserAddress = getStorage.read("address") ?? "";
       uniqueID = getStorage.read("uniqueID");
       isSellerRequestSand = getStorage.read("isSellerRequestSand");
 

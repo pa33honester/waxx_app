@@ -302,6 +302,7 @@ final Map<String, String> zhCN = {
   "free": "自由的",
   "unFollow": "取消关注",
   "follow": "跟随",
+  "following": "已关注",
   "noReviews": "没有评论",
   "addressName": "地址名称",
   "homeOffice": "家庭/办公室/公司",

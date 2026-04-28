@@ -9,6 +9,7 @@ import 'package:waxxapp/custom/custom_share.dart';
 import 'package:waxxapp/custom/follow_pill.dart';
 import 'package:waxxapp/custom/live_system_message.dart';
 import 'package:waxxapp/custom/loading_ui.dart';
+import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
 import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
@@ -105,9 +106,9 @@ class LiveUi extends StatelessWidget {
   }
 
   /// Vertical column of round action buttons floating along the right edge,
-  /// above the bottom comment-input row. Mirrors the Whatnot pattern.
-  /// Currently just Share — the Offer button was removed when the offer
-  /// feature was retired, and Boost/Clip/Wallet are not yet implemented.
+  /// above the bottom comment-input row. Mirrors the Whatnot / Reels pattern.
+  /// Buyer column: Like / Sound Mute / Share / Report.
+  /// Host column:  Flip Camera / Mic Mute / Share.
   Widget _buildRightActionColumn() {
     return Positioned(
       right: 12,
@@ -118,14 +119,178 @@ class LiveUi extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (isHost) ...[
+                _LiveActionButton(
+                  icon: Icons.cameraswitch_rounded,
+                  label: 'Flip',
+                  onTap: controller.onSwitchCamera,
+                ),
+                14.height,
+                _LiveActionButton(
+                  icon: controller.isMicOn ? Icons.mic_rounded : Icons.mic_off_rounded,
+                  iconColor: controller.isMicOn ? AppColors.white : AppColors.red,
+                  label: controller.isMicOn ? 'Mute' : 'Unmute',
+                  onTap: controller.onSwitchMic,
+                ),
+                14.height,
+              ],
+              if (!isHost) ...[
+                Obx(() => _LiveActionButton(
+                      icon: controller.isLiveLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                      iconColor: controller.isLiveLiked ? AppColors.red : AppColors.white,
+                      label: CustomFormatNumber.convert(SocketServices.liveLikeCount.value),
+                      onTap: controller.onToggleLiveLike,
+                    )),
+                14.height,
+                Obx(() => _LiveActionButton(
+                      icon: controller.isStreamMuted.value ? Icons.volume_off_rounded : Icons.volume_up_rounded,
+                      iconColor: controller.isStreamMuted.value ? AppColors.red : AppColors.white,
+                      label: controller.isStreamMuted.value ? 'Unmute' : 'Mute',
+                      onTap: controller.onToggleStreamMute,
+                    )),
+                14.height,
+              ],
               _LiveActionButton(
                 icon: Icons.ios_share_rounded,
                 label: 'Share',
                 onTap: () => _handleShare(controller),
               ),
+              if (!isHost) ...[
+                14.height,
+                _LiveActionButton(
+                  icon: Icons.more_vert_rounded,
+                  label: 'Report',
+                  onTap: () => _openReportSheet(controller),
+                ),
+              ],
             ],
           );
         },
+      ),
+    );
+  }
+
+  /// Bottom sheet that lets a buyer report the live stream. Reasons come
+  /// from the same `reportReason` collection that drives the Reels report
+  /// flow, fetched lazily on first open.
+  void _openReportSheet(LiveController controller) {
+    final liveId = controller.roomId;
+    if (liveId.isEmpty) {
+      Utils.showToast('Live stream not ready yet.');
+      return;
+    }
+    if (controller.reportReasonModel == null) {
+      controller.getReportReason();
+    }
+    Get.bottomSheet(
+      GetBuilder<LiveController>(
+        builder: (logic) {
+          return Container(
+            height: Get.height * 0.60,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  St.report.tr,
+                  style: AppFontStyle.styleW700(AppColors.white, 18),
+                ),
+                14.height,
+                const Divider(),
+                8.height,
+                Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: logic.reportReasonModel?.data?.length ?? 0,
+                    itemBuilder: (context, index) {
+                      final report = logic.reportReasonModel?.data?[index];
+                      final isSelected = logic.selectedReport?.id == report?.id;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                        child: GestureDetector(
+                          onTap: () => logic.selectReportReason(report),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 22,
+                                width: 22,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: AppColors.white, width: 1.5),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Container(
+                                  height: 12,
+                                  width: 12,
+                                  decoration: BoxDecoration(
+                                    color: isSelected ? AppColors.white : AppColors.black,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              16.width,
+                              Expanded(
+                                child: Text(
+                                  report?.title ?? '',
+                                  style: AppFontStyle.styleW500(AppColors.white, 14),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                18.height,
+                Row(
+                  children: [
+                    Expanded(
+                      child: MainButtonWidget(
+                        height: 50,
+                        width: Get.width,
+                        color: AppColors.black,
+                        border: Border.all(color: AppColors.primary),
+                        callback: () => Get.back(),
+                        child: Text(
+                          St.cancelText.tr,
+                          style: AppFontStyle.styleW700(AppColors.primary, 16),
+                        ),
+                      ),
+                    ),
+                    16.width,
+                    Expanded(
+                      child: MainButtonWidget(
+                        height: 50,
+                        width: Get.width,
+                        color: AppColors.primary,
+                        callback: () {
+                          if (logic.selectedReport == null) {
+                            Utils.showToast('Please select a reason.');
+                            return;
+                          }
+                          logic.reportLive(
+                            liveSellingHistoryId: liveId,
+                            description: logic.selectedReport?.title ?? '',
+                          );
+                        },
+                        child: Text(
+                          St.report.tr,
+                          style: AppFontStyle.styleW700(AppColors.black, 16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      isScrollControlled: true,
+      backgroundColor: AppColors.black,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
     );
   }
@@ -304,10 +469,10 @@ class LiveUi extends StatelessWidget {
               12.width,
               Image.asset(AppAsset.icEye, width: 20),
               5.width,
-              Text(
-                SocketServices.liveWatchCount.value.toString(),
-                style: AppFontStyle.styleW700(AppColors.white, 12),
-              ),
+              Obx(() => Text(
+                    CustomFormatNumber.convert(SocketServices.liveWatchCount.value),
+                    style: AppFontStyle.styleW700(AppColors.white, 12),
+                  )),
               10.width,
               Container(
                 height: 26,
@@ -323,16 +488,6 @@ class LiveUi extends StatelessWidget {
               8.width,
             ],
           ),
-        ),
-        CircleIconButtonUi(
-          color: AppColors.black.withValues(alpha: 0.5),
-          icon: AppAsset.icClose,
-          iconColor: AppColors.white,
-          circleSize: 36,
-          iconSize: 14,
-          callback: () {
-            Get.close(1);
-          },
         ),
       ],
     );
@@ -462,7 +617,7 @@ class LiveUi extends StatelessWidget {
         log("controller.products.length: ${controller.liveSelectedProducts.length}");
         return GestureDetector(
           onTap: () {
-            ProductListBottomSheetUi.show(context: Get.context!, isHost: true);
+            ProductListBottomSheetUi.show(context: Get.context!, isHost: isHost);
           },
           child: Column(
             children: [
@@ -863,11 +1018,13 @@ class _LiveActionButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.iconColor,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -885,7 +1042,7 @@ class _LiveActionButton extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white24, width: 0.6),
             ),
-            child: Icon(icon, color: AppColors.white, size: 22),
+            child: Icon(icon, color: iconColor ?? AppColors.white, size: 22),
           ),
           const SizedBox(height: 4),
           Text(label, style: AppFontStyle.styleW600(AppColors.white, 11)),

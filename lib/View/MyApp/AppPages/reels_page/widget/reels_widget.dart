@@ -61,8 +61,6 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
   late Animation<double> _animation;
   late AnimationController _likeAnimationController;
 
-  bool isFollow = false;
-
   @override
   void initState() {
     _controller = AnimationController(
@@ -570,30 +568,36 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
                                                       children: [
                                                         Flexible(fit: FlexFit.loose, child: GeneralTitle(title: controller.mainReels[widget.index].sellerId?.businessName ?? "")),
                                                         10.width,
-                                                        controller.mainReels[widget.index].sellerId?.id == sellerId
-                                                            ? SizedBox()
-                                                            : GestureDetector(
-                                                                onTap: () {
-                                                                  setState(() {});
-                                                                  isFollow = !isFollow;
-                                                                  followUnFollowController.followUnfollowData(sellerId: controller.mainReels[widget.index].sellerId?.id.toString() ?? "");
-                                                                },
-                                                                child: Container(
-                                                                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                                                                  clipBehavior: Clip.antiAlias,
-                                                                  decoration: BoxDecoration(
-                                                                    borderRadius: BorderRadius.circular(30),
-                                                                    color: AppColors.black.withValues(alpha: 0.7),
-                                                                  ),
-                                                                  child: Text(
-                                                                    isFollow ? St.unFollow.tr : St.follow.tr,
-                                                                    style: AppFontStyle.styleW700(
-                                                                      AppColors.white,
-                                                                      10,
-                                                                    ),
-                                                                  ),
+                                                        Builder(builder: (_) {
+                                                          final reel = controller.mainReels[widget.index];
+                                                          if (reel.sellerId?.id == sellerId) return const SizedBox();
+                                                          final following = reel.isFollow == true;
+                                                          return GestureDetector(
+                                                            onTap: () {
+                                                              final sid = reel.sellerId?.id?.toString();
+                                                              if (sid == null || sid.isEmpty) return;
+                                                              setState(() {
+                                                                reel.isFollow = !following;
+                                                              });
+                                                              followUnFollowController.followUnfollowData(sellerId: sid);
+                                                            },
+                                                            child: Container(
+                                                              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                                                              clipBehavior: Clip.antiAlias,
+                                                              decoration: BoxDecoration(
+                                                                borderRadius: BorderRadius.circular(30),
+                                                                color: AppColors.black.withValues(alpha: 0.7),
+                                                              ),
+                                                              child: Text(
+                                                                following ? St.following.tr : St.follow.tr,
+                                                                style: AppFontStyle.styleW700(
+                                                                  AppColors.white,
+                                                                  10,
                                                                 ),
                                                               ),
+                                                            ),
+                                                          );
+                                                        }),
                                                       ],
                                                     ),
                                                     Text(
@@ -629,12 +633,22 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      CircleButtonWidget(
-                                        callback: onClickLike,
-                                        size: 42,
-                                        color: AppColors.black.withValues(alpha: 0.3),
-                                        child: isLike.value ? Image.asset(AppAsset.icHeart, color: AppColors.white, width: 22) : Image.asset(AppAsset.icLiked, width: 22),
-                                      ),
+                                      Obx(() => Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              CircleButtonWidget(
+                                                callback: onClickLike,
+                                                size: 42,
+                                                color: AppColors.black.withValues(alpha: 0.3),
+                                                child: isLike.value ? Image.asset(AppAsset.icHeart, color: AppColors.white, width: 22) : Image.asset(AppAsset.icLiked, width: 22),
+                                              ),
+                                              4.height,
+                                              Text(
+                                                CustomFormatNumber.convert((customChanges["like"] as int?) ?? 0),
+                                                style: AppFontStyle.styleW700(AppColors.white, 11),
+                                              ),
+                                            ],
+                                          )),
                                       20.height,
                                       CircleButtonWidget(
                                         callback: onClickShare,

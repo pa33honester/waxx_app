@@ -105,6 +105,7 @@ class Api {
   static const confirmCodOrderItemBySeller = "order/confirmCodOrderItemBySeller";
   static const getReportreason = "reportReason/getReportreason";
   static const reportReel = "reportToReel/reportReel";
+  static const reportLive = "reportToLive/reportLive";
   static const createWithdraw = "withdrawRequest/initiateCashOut";
   static const getWithdrawalRequestsBySeller = "withdrawRequest/getWithdrawalRequestsBySeller";
   static const getSellerWalletHistory = "sellerWallet/retrieveSellerWalletHistory";

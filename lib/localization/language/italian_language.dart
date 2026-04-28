@@ -302,6 +302,7 @@ final Map<String, String> itIT = {
   "free": "Gratuito",
   "unFollow": "Smetti di seguire",
   "follow": "Seguire",
+  "following": "Seguiti",
   "noReviews": "Nessuna recensione",
   "addressName": "Nome dell'indirizzo",
   "homeOffice": "Casa/Ufficio/Azienda",

@@ -31,6 +31,8 @@ String editEmail = "";
 String editDateOfBirth = "";
 String genderSelect = "Male";
 String editLocation = "";
+String editUserCountry = "";
+String editUserAddress = "";
 String uniqueID = "";
 
 ///------- Seller Edits ------------\\\

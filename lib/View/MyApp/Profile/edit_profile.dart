@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:country_picker/country_picker.dart';
 import 'package:waxxapp/Controller/GetxController/user/edit_profile_controller.dart';
 import 'package:waxxapp/custom/simple_app_bar_widget.dart';
 import 'package:waxxapp/user_pages/account_settings/change_email/view/change_email_view.dart';
@@ -310,6 +311,28 @@ class EditProfileState extends State<EditProfile> {
                                 if (ok == true && mounted) setState(() {});
                               },
                             ),
+                            20.height,
+                            _readOnlyFieldRow(
+                              title: St.country.tr,
+                              value: () {
+                                final c = editProfileController.countryController.text.trim();
+                                return c.isEmpty ? 'Add your country' : c;
+                              }(),
+                              isPlaceholder: editProfileController.countryController.text.trim().isEmpty,
+                              actionLabel: editProfileController.countryController.text.trim().isEmpty ? 'Add' : 'Change',
+                              onAction: _pickCountry,
+                            ),
+                            20.height,
+                            _readOnlyFieldRow(
+                              title: St.address.tr,
+                              value: () {
+                                final a = editProfileController.addressController.text.trim();
+                                return a.isEmpty ? 'Add your address' : a;
+                              }(),
+                              isPlaceholder: editProfileController.addressController.text.trim().isEmpty,
+                              actionLabel: editProfileController.addressController.text.trim().isEmpty ? 'Add' : 'Change',
+                              onAction: _editAddress,
+                            ),
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 20),
                               child: SizedBox(
@@ -528,6 +551,90 @@ class EditProfileState extends State<EditProfile> {
     );
   }
 
+  void _pickCountry() {
+    showCountryPicker(
+      context: context,
+      countryListTheme: CountryListThemeData(
+        backgroundColor: AppColors.tabBackground,
+        textStyle: AppFontStyle.styleW600(AppColors.white, 14),
+        searchTextStyle: AppFontStyle.styleW600(AppColors.white, 14),
+        bottomSheetHeight: Get.height * 0.7,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        inputDecoration: InputDecoration(
+          hintText: St.searchText.tr,
+          hintStyle: AppFontStyle.styleW500(AppColors.unselected, 13),
+          prefixIcon: Icon(Icons.search, color: AppColors.unselected),
+          filled: true,
+          fillColor: AppColors.black,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+      onSelect: (Country country) async {
+        editProfileController.countryController.text = country.name;
+        setState(() {});
+        await editProfileController.editDataStorage();
+      },
+    );
+  }
+
+  Future<void> _editAddress() async {
+    final ctrl = TextEditingController(text: editProfileController.addressController.text);
+    final saved = await Get.bottomSheet<bool>(
+      Container(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.tabBackground,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(St.address.tr, style: AppFontStyle.styleW700(AppColors.white, 16)),
+            16.height,
+            TextField(
+              controller: ctrl,
+              maxLines: 3,
+              autofocus: true,
+              cursorColor: AppColors.primary,
+              style: AppFontStyle.styleW600(AppColors.white, 14),
+              decoration: InputDecoration(
+                hintText: 'Enter your address',
+                hintStyle: AppFontStyle.styleW500(AppColors.unselected, 13),
+                filled: true,
+                fillColor: AppColors.black,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            16.height,
+            PrimaryPinkButton(
+              onTaped: () => Get.back(result: true),
+              text: St.saveChanges.tr,
+            ),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+    );
+    if (saved == true && mounted) {
+      editProfileController.addressController.text = ctrl.text.trim();
+      setState(() {});
+      await editProfileController.editDataStorage();
+    }
+  }
+
+  // ignore: unused_element
   DateTime? _selectedDate;
 
   Future<void> _selectDate(BuildContext context) async {

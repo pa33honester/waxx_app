@@ -15,6 +15,8 @@ class ProfileEditApi extends GetxService {
     required String dob,
     required String gender,
     required String location,
+    String? country,
+    String? address,
     String? mobileNumber,
     String? countryCode,
     String? fcmToken,
@@ -27,6 +29,8 @@ class ProfileEditApi extends GetxService {
       log("dob = $dob");
       log("gender = $gender");
       log("location = $location");
+      log("country = $country");
+      log("address = $address");
       log("mobileNumber = $mobileNumber");
       log("countryCode = $countryCode");
       log("fcmToken = $fcmToken");
@@ -58,6 +62,8 @@ class ProfileEditApi extends GetxService {
         "dob": dob,
         "gender": gender,
         "location": location,
+        "country": country ?? "",
+        "address": address ?? "",
         "mobileNumber": mobileNumber.toString(),
         "countryCode": countryCode.toString(),
       };

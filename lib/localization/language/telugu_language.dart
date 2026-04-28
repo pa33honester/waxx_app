@@ -302,6 +302,7 @@ final Map<String, String> teIN = {
   "free": "ఉచిత",
   "unFollow": "అనుసరించవద్దు",
   "follow": "అనుసరించండి",
+  "following": "అనుసరిస్తోంది",
   "noReviews": "సమీక్షలు లేవు",
   "addressName": "చిరునామా పేరు",
   "homeOffice": "ఇల్లు/కార్యాలయం/సంస్థ",

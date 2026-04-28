@@ -45,6 +45,7 @@ class Reel {
   bool? isFake;
   DateTime? createdAt;
   bool? isLike;
+  bool? isFollow;
   int? duration;
 
   Reel({
@@ -60,6 +61,7 @@ class Reel {
     this.isFake,
     this.createdAt,
     this.isLike,
+    this.isFollow,
     this.duration,
   });
 
@@ -76,6 +78,7 @@ class Reel {
         isFake: json["isFake"],
         createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
         isLike: json["isLike"],
+        isFollow: json["isFollow"],
         duration: json["duration"],
       );
 
@@ -92,6 +95,7 @@ class Reel {
         "isFake": isFake,
         "createdAt": createdAt?.toIso8601String(),
         "isLike": isLike,
+        "isFollow": isFollow,
         "duration": duration,
       };
 }

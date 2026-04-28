@@ -302,6 +302,7 @@ final Map<String, String> bnIN = {
   "free": "বিনামূল্যে",
   "unFollow": "আনফলো",
   "follow": "অনুসরণ করুন",
+  "following": "অনুসরণ করছেন",
   "noReviews": "কোন রিভিউ নেই",
   "addressName": "ঠিকানা নাম",
   "homeOffice": "বাড়ি/অফিস/কোম্পানী",

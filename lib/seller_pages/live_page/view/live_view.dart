@@ -59,11 +59,11 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
   int? localViewID;
   Widget? remoteView;
   int? remoteViewID;
-  // Stream id we asked the engine to play. Persisted so the buyer-side
-  // exit path can stopPlayingStream + destroyCanvasView; without that
-  // teardown the native audio/video pipeline leaks for the rest of the
-  // process and the next loginRoom often can't attach a fresh stream.
-  String? remoteStreamID;
+  // Stream id we asked the engine to play is persisted on [LiveController.remoteStreamID]
+  // so the buyer-side exit path can stopPlayingStream + destroyCanvasView (without that
+  // teardown the native audio/video pipeline leaks for the rest of the process and the
+  // next loginRoom often can't attach a fresh stream) AND so the right-column Sound
+  // Mute button can call mutePlayStreamAudio against the correct id.
 
   @override
   void initState() {
@@ -272,8 +272,8 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
       // (a) leaks the emulator audio HAL into a `pcm_writei ... I/O error`
       // spam at ~10 Hz, and (b) makes a subsequent loginRoom unable to
       // attach a fresh stream — buyers exit/rejoin and see a black page.
-      if (!widget.isHost && remoteStreamID != null) {
-        _stopPlayStream(remoteStreamID!);
+      if (!widget.isHost && liveController.remoteStreamID != null) {
+        _stopPlayStream(liveController.remoteStreamID!);
       }
       _logoutRoom();
       SocketServices.onLiveRoomExit(isHost: widget.isHost, liveHistoryId: roomID);
@@ -430,7 +430,12 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
   }
 
   Future<void> _startPlayStream(String streamID) async {
-    remoteStreamID = streamID;
+    liveController.remoteStreamID = streamID;
+    // If the user toggled Sound Mute before the stream actually started
+    // playing, honour that preference now so we don't leak audio for a beat.
+    if (!widget.isHost && liveController.isStreamMuted.value) {
+      ZegoExpressEngine.instance.mutePlayStreamAudio(streamID, true);
+    }
     await ZegoExpressEngine.instance.createCanvasView((viewID) {
       remoteViewID = viewID;
       ZegoCanvas canvas = ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFill);
@@ -447,8 +452,8 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
 
   Future<void> _stopPlayStream(String streamID) async {
     ZegoExpressEngine.instance.stopPlayingStream(streamID);
-    if (remoteStreamID == streamID) {
-      remoteStreamID = null;
+    if (liveController.remoteStreamID == streamID) {
+      liveController.remoteStreamID = null;
     }
     if (remoteViewID != null) {
       ZegoExpressEngine.instance.destroyCanvasView(remoteViewID!);

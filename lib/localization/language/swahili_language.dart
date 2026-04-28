@@ -302,6 +302,7 @@ final Map<String, String> swKE = {
   "free": "Bure",
   "unFollow": "Acha kufuata",
   "follow": "Fuata",
+  "following": "Unafuata",
   "noReviews": "Hakuna Ukaguzi",
   "addressName": "Jina la anwani",
   "homeOffice": "Nyumbani/Ofisi/Kampuni",

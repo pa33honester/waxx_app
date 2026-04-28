@@ -302,6 +302,7 @@ final Map<String, String> ardz = {
   "free": "حر",
   "unFollow": "الغاء المتابعة",
   "follow": "يتبع",
+  "following": "متابع",
   "noReviews": "لم يتم تقديم تعليقات",
   "addressName": "اسم عنوان",
   "homeOffice": "المنزل/المكتب/الشركة",

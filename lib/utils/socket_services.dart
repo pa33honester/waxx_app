@@ -22,6 +22,7 @@ class SocketServices {
 
   static bool isLiveRunning = false;
   static RxInt liveWatchCount = 0.obs;
+  static RxInt liveLikeCount = 0.obs;
   static RxList mainLiveComments = [].obs;
   static ScrollController scrollController = ScrollController();
   static TextEditingController sellerCommentText = TextEditingController();
@@ -47,6 +48,7 @@ class SocketServices {
 
       socket!.connect();
       liveWatchCount.value = 0;
+      liveLikeCount.value = 0;
 
       socket!.onConnect((data) {
         log("Socket Connected");
@@ -113,6 +115,17 @@ class SocketServices {
     socket!.on("lessView", (lessView) {
       liveWatchCount.value = lessView;
       log("Socket Listen => Less View : $lessView");
+    });
+
+    socket!.on("liveLikeCount", (count) {
+      log("Socket Listen => Live Like Count : $count");
+      if (count is int) {
+        liveLikeCount.value = count;
+      } else if (count is num) {
+        liveLikeCount.value = count.toInt();
+      } else {
+        liveLikeCount.value = int.tryParse(count.toString()) ?? liveLikeCount.value;
+      }
     });
 
     socket!.on("comment", (comment) {
@@ -287,6 +300,7 @@ class SocketServices {
     socket!.off("liveRoomConnect");
     socket!.off("addView");
     socket!.off("lessView");
+    socket!.off("liveLikeCount");
     socket!.off("comment");
     socket!.off("endLiveSeller");
     socket!.off("selectedProductsUpdated");
@@ -411,6 +425,20 @@ class SocketServices {
     } else {
       log("Socket Not Connected");
     }
+  }
+
+  /// Buyer taps the heart on the live page. The backend increments the
+  /// running [LiveSellingHistory.likeCount] and broadcasts the new total
+  /// to the room as a `liveLikeCount` event, which our listener above
+  /// pipes into [liveLikeCount].
+  static void onLiveLike({required String liveHistoryId}) {
+    if (socket == null || !socket!.connected) {
+      log("Socket Not Connected (liveLike skipped)");
+      return;
+    }
+    final payload = jsonEncode({"liveSellingHistoryId": liveHistoryId});
+    socket!.emit("liveLike", payload);
+    log("Socket Emit => liveLike: $payload");
   }
 
   /// Host-side: kick off an auction for a product already in their selected
@@ -567,6 +595,7 @@ class SocketServices {
     if (isLiveRunning) {
       isLiveRunning = false;
       liveWatchCount.value = 0;
+      liveLikeCount.value = 0;
 
       // Navigate back or show appropriate UI
       if (Get.context != null) {

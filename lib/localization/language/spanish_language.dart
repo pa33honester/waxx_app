@@ -302,6 +302,7 @@ final Map<String, String> esES = {
   "free": "Gratis",
   "unFollow": "Dejar de seguir",
   "follow": "Seguir",
+  "following": "Siguiendo",
   "noReviews": "Sin reseñas",
   "addressName": "Nombre de la dirección",
   "homeOffice": "Hogar/Oficina/Empresa",

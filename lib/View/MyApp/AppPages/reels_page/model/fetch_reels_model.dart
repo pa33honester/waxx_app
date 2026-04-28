@@ -189,6 +189,7 @@ class Data {
   bool? get isVerified => _isVerified;
   bool? get isLike => _isLike;
   bool? get isFollow => _isFollow;
+  set isFollow(bool? value) => _isFollow = value;
   int? get totalLikes => _totalLikes;
   int? get totalComments => _totalComments;
   String? get time => _time;

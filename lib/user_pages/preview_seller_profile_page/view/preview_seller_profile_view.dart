@@ -268,7 +268,7 @@ class _PreviewSellerProfileViewState extends State<PreviewSellerProfileView> wit
                                                       }
                                                     },
                                                     child: Text(
-                                                      controller.isFollowing ? "Following" : St.follow.tr,
+                                                      controller.isFollowing ? St.following.tr : St.follow.tr,
                                                       style: AppFontStyle.styleW700(controller.isFollowing ? AppColors.primary : AppColors.black, 14),
                                                     ),
                                                   ),

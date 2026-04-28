@@ -303,6 +303,7 @@ final Map<String, String> deat = {
   "free": "Frei",
   "unFollow": "Nicht mehr folgen",
   "follow": "Folgen",
+  "following": "Folge ich",
   "noReviews": "Keine Bewertungen",
   "addressName": "Adressname",
   "homeOffice": "Zuhause/Büro/Firma",

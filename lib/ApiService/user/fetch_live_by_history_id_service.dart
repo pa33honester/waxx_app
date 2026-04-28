@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:waxxapp/ApiModel/user/GetLiveSellerListModel.dart';
 import 'package:waxxapp/utils/api_url.dart';
+import 'package:waxxapp/utils/socket_services.dart';
 
 /// Looks up a single live show by its `liveSellingHistoryId`. Used by the
 /// `/live/{id}` deep-link target so a tap on a shared link can jump straight
@@ -32,7 +33,13 @@ class FetchLiveByHistoryIdService {
       }
       final json = jsonDecode(res.body) as Map<String, dynamic>;
       if (json["status"] == true && json["data"] is Map<String, dynamic>) {
-        final live = LiveSeller.fromJson(json["data"] as Map<String, dynamic>);
+        final dataMap = json["data"] as Map<String, dynamic>;
+        // Seed the room-wide like total before the socket subscribes, so a
+        // late joiner sees the running count straight away instead of "0"
+        // until someone next likes.
+        final lc = dataMap["likeCount"];
+        if (lc is num) SocketServices.liveLikeCount.value = lc.toInt();
+        final live = LiveSeller.fromJson(dataMap);
         return (ok: true, live: live, ended: false, message: "");
       }
       // status:false with our standard "ended" message means the LiveSeller

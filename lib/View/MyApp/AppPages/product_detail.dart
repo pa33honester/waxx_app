@@ -56,7 +56,6 @@ class _ProductDetailState extends State<ProductDetail> {
   RemoveAllProductFromCartController removeAllProductFromCartController = Get.put(RemoveAllProductFromCartController());
   GetAllCartProductController getAllCartProductController = Get.put(GetAllCartProductController());
 
-  bool isFollow = false;
   bool isSwiped = false;
   bool isLiked = false;
   bool isOneTimePress = false;
@@ -703,26 +702,32 @@ class _ProductDetailState extends State<ProductDetail> {
                                                 ],
                                               ),
                                               const Spacer(),
-                                              userProductDetailsController.userProductDetails?.product?[0].seller?.id == sellerId
-                                                  ? SizedBox()
-                                                  : MainButtonWidget(
-                                                      height: 42,
-                                                      width: 90,
-                                                      color: (userProductDetailsController.userProductDetails?.product?[0].isFollow == true & isFollow) ? AppColors.tabBackground : AppColors.primary,
-                                                      child: Text(
-                                                        (userProductDetailsController.userProductDetails?.product![0].isFollow == true & isFollow) ? St.unFollow.tr : St.follow.tr,
-                                                        style: AppFontStyle.styleW700((userProductDetailsController.userProductDetails?.product?[0].isFollow == true & isFollow) ? AppColors.white : AppColors.black, 14),
-                                                      ),
-                                                      callback: () {
-                                                        if (getStorage.read("isDemoLogin") ?? false || isDemoSeller) {
-                                                          displayToast(message: St.thisIsDemoUser.tr);
-                                                        } else {
-                                                          setState(() {});
-                                                          isFollow = !isFollow;
-                                                          followUnFollowController.followUnfollowData(sellerId: userProductDetailsController.userProductDetails!.product![0].seller!.id.toString());
-                                                        }
-                                                      },
-                                                    ),
+                                              Builder(builder: (_) {
+                                                final product = userProductDetailsController.userProductDetails?.product?[0];
+                                                if (product?.seller?.id == sellerId) return const SizedBox();
+                                                final following = product?.isFollow == true;
+                                                return MainButtonWidget(
+                                                  height: 42,
+                                                  width: 90,
+                                                  color: following ? AppColors.tabBackground : AppColors.primary,
+                                                  child: Text(
+                                                    following ? St.following.tr : St.follow.tr,
+                                                    style: AppFontStyle.styleW700(following ? AppColors.white : AppColors.black, 14),
+                                                  ),
+                                                  callback: () {
+                                                    if (getStorage.read("isDemoLogin") ?? false || isDemoSeller) {
+                                                      displayToast(message: St.thisIsDemoUser.tr);
+                                                      return;
+                                                    }
+                                                    final sellerIdToToggle = product?.seller?.id?.toString();
+                                                    if (sellerIdToToggle == null || sellerIdToToggle.isEmpty) return;
+                                                    setState(() {
+                                                      product!.isFollow = !following;
+                                                    });
+                                                    followUnFollowController.followUnfollowData(sellerId: sellerIdToToggle);
+                                                  },
+                                                );
+                                              }),
                                             ],
                                           ),
                                         ),

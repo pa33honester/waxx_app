@@ -5,9 +5,11 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waxxapp/ApiService/user/fetch_live_by_history_id_service.dart';
+import 'package:waxxapp/Controller/GetxController/user/get_live_seller_list_controller.dart';
 import 'package:waxxapp/View/MyApp/AppPages/reels_page/view/reels_view.dart';
 import 'package:waxxapp/custom/loading_ui.dart';
-import 'package:waxxapp/seller_pages/live_page/view/live_view.dart';
+import 'package:waxxapp/seller_pages/live_page/util/live_swipe_resolver.dart';
+import 'package:waxxapp/seller_pages/live_page/view/live_swipe_view.dart';
 import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
@@ -176,17 +178,31 @@ class AppLinkService {
     // Make sure BottomBar is up so the back-button stack is sane.
     if (!Get.isRegistered<BottomBarController>()) Get.put(BottomBarController());
 
+    // Best-effort fetch the current list of broadcasting sellers so the
+    // deep-link viewer lands in a Reels-style swipe feed with peers above
+    // and below — not a single isolated show. If the list is already
+    // populated (likely, since the home grid keeps it fresh) this is a
+    // no-op. If the list ends up not containing the linked show, the
+    // resolver falls back to a single-item feed (same UX as before).
+    if (Get.isRegistered<GetLiveSellerListController>()) {
+      final ctrl = Get.find<GetLiveSellerListController>();
+      if (ctrl.getSellerLiveList.isEmpty) {
+        await ctrl.getSellerList();
+      }
+    } else {
+      final ctrl = Get.put(GetLiveSellerListController());
+      await ctrl.getSellerList();
+    }
+
     // If a live page is already on top of the stack — most commonly the
     // user was watching a live, backgrounded the app, then tapped a
     // share link — replace it rather than stack a new one. Two
     // LivePageView instances would race for the singleton Zego engine
     // (loginRoom returns 1002001 on the second one, the first one's
     // dispose later kicks the second one out of the room).
-    LivePageView buildLivePage() => LivePageView(
-          key: ValueKey('live_${live.liveSellingHistoryId}'),
-          liveUserList: live,
-          isHost: false,
-          isActive: true,
+    LiveSwipeView buildLivePage() => LiveSwipeView(
+          liveStreams: LiveSwipeResolver.swipeListFor(live),
+          initialIndex: LiveSwipeResolver.swipeIndexFor(live),
         );
 
     if (Get.currentRoute == '/LivePage') {

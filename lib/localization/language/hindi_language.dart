@@ -302,6 +302,7 @@ final Map<String, String> hiIN = {
   "free": "मुक्त",
   "unFollow": "करें",
   "follow": "अनुसरण करना",
+  "following": "फ़ॉलो किया गया",
   "noReviews": "कोई समीक्षा नहीं",
   "addressName": "नाम पता",
   "homeOffice": "घर/कार्यालय/कंपनी",

@@ -2,10 +2,14 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:waxxapp/ApiModel/user/GetLiveSellerListModel.dart';
+import 'package:waxxapp/ApiModel/user/report_reason_model.dart';
+import 'package:waxxapp/ApiModel/user/report_reel_model.dart';
+import 'package:waxxapp/ApiService/user/report_service.dart';
 import 'package:waxxapp/custom/loading_ui.dart';
 import 'package:waxxapp/seller_pages/select_product_for_streame/model/selected_product_model.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/database.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/socket_services.dart';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -32,6 +36,26 @@ class LiveController extends GetxController {
   bool isFollow = false;
   bool isHost = false;
   bool isProfileImageBanned = false;
+
+  // Local heart toggle for the buyer-side live page. Server-side persistence
+  // is intentionally skipped — live likes are ephemeral the way TikTok / IG
+  // Live treat them. Tap flips the heart and the icon-only state updates.
+  bool isLiveLiked = false;
+
+  // Buyer-side: muting the incoming Zego stream so the user can watch silently
+  // without affecting other viewers. The streamID we mute against lives on
+  // [remoteStreamID]; the live view sets it when `_startPlayStream` fires and
+  // clears it on cleanup. Rx so the icon updates without an explicit `update`
+  // ping from inside the Zego callbacks.
+  RxBool isStreamMuted = false.obs;
+  String? remoteStreamID;
+
+  // Report-this-live bottom sheet state. Reasons are fetched once on
+  // first open via [getReportReason]; [selectedReport] tracks the
+  // currently-checked option.
+  ReportReasonModel? reportReasonModel;
+  Report? selectedReport;
+  ReportReelModel? reportLiveModel;
   // bool isSelectProduct = false;
 
   int countTime = 0;
@@ -70,6 +94,19 @@ class LiveController extends GetxController {
       ZegoExpressEngine.instance.useFrontCamera(isFrontCamera);
     }
     Get.back(); // Stop Loading...
+    update(["onSwitchCamera"]);
+  }
+
+  /// Buyer-side toggle: mutes / unmutes the incoming live audio for *this*
+  /// viewer only. No-ops if we don't yet have a [remoteStreamID] (i.e. the
+  /// host's stream hasn't been received yet) — the icon still flips so the
+  /// user has feedback, and the next playback cycle will respect the state.
+  void onToggleStreamMute() {
+    isStreamMuted.value = !isStreamMuted.value;
+    final id = remoteStreamID;
+    if (id != null && id.isNotEmpty) {
+      ZegoExpressEngine.instance.mutePlayStreamAudio(id, isStreamMuted.value);
+    }
   }
 
   Future<void> onSendComment() async {
@@ -188,6 +225,57 @@ class LiveController extends GetxController {
     updatedLiveUserList = users.isNotEmpty ? users.first : null;
     log("GetLiveUserInfo Socket Listen updatedLiveUserList => ${updatedLiveUserList?.toJson()}");
     update(["onUpdateMultiLive", "idShare"]);
+  }
+
+  void onToggleLiveLike() {
+    if (roomId.isEmpty) return;
+    // Toggle the local heart immediately; the room-wide running total is
+    // owned by the backend and broadcast via the `liveLikeCount` socket
+    // event. Optimistically nudge the local mirror so the number doesn't
+    // visually lag a round-trip behind the tap.
+    isLiveLiked = !isLiveLiked;
+    if (isLiveLiked) {
+      SocketServices.liveLikeCount.value += 1;
+      SocketServices.onLiveLike(liveHistoryId: roomId);
+    }
+    update(["onToggleLiveLike"]);
+  }
+
+  Future<void> getReportReason() async {
+    try {
+      final data = await ReportService().getReportReason();
+      reportReasonModel = data;
+      update(["onReportReasonsLoaded"]);
+    } catch (e) {
+      log('LiveController.getReportReason error: $e');
+    }
+  }
+
+  void selectReportReason(Report? report) {
+    selectedReport = report;
+    update();
+  }
+
+  Future<void> reportLive({
+    required String liveSellingHistoryId,
+    required String description,
+  }) async {
+    try {
+      final data = await ReportService().reportLive(
+        userId: loginUserId,
+        liveSellingHistoryId: liveSellingHistoryId,
+        description: description,
+      );
+      reportLiveModel = data;
+      Utils.showToast(reportLiveModel?.message ?? '');
+      if (reportLiveModel?.status == true) {
+        selectedReport = null;
+        update();
+        Get.back();
+      }
+    } catch (e) {
+      log('LiveController.reportLive error: $e');
+    }
   }
 
   void handleLiveStreamEnd() {

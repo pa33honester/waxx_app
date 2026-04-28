@@ -303,6 +303,7 @@ final Map<String, String> enUS = {
   "free": "Free",
   "unFollow": "Unfollow",
   "follow": "Follow",
+  "following": "Following",
   "noReviews": "No Reviews",
   "addressName": "Address name",
   "homeOffice": "Home/Office/Company",

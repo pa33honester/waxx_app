@@ -34,6 +34,37 @@ class ReportService extends GetxService {
     }
   }
 
+  Future<ReportReelModel> reportLive({
+    required String userId,
+    required String liveSellingHistoryId,
+    required String description,
+  }) async {
+    final url = Uri.parse(Api.baseUrl + Api.reportLive);
+
+    final body = jsonEncode({
+      'userId': userId,
+      'liveSellingHistoryId': liveSellingHistoryId,
+      'description': description,
+    });
+
+    log("PAYLOAD :: $body");
+
+    final headers = {
+      'key': Api.secretKey,
+      'Content-Type': 'application/json',
+    };
+    final response = await http.post(url, headers: headers, body: body);
+
+    log('Report Live API URL :: $url \n STATUS CODE :: ${response.statusCode} \n RESPONSE :: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      return ReportReelModel.fromJson(jsonResponse);
+    } else {
+      throw Exception('Report live failed');
+    }
+  }
+
   Future<ReportReasonModel> getReportReason() async {
     final url = Uri.parse(Api.baseUrl + Api.getReportreason);
 

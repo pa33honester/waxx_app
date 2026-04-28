@@ -8,7 +8,8 @@ import 'package:waxxapp/custom/circle_button_widget.dart';
 import 'package:waxxapp/custom/live_avatar_ring.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
-import 'package:waxxapp/seller_pages/live_page/view/live_view.dart';
+import 'package:waxxapp/seller_pages/live_page/util/live_swipe_resolver.dart';
+import 'package:waxxapp/seller_pages/live_page/view/live_swipe_view.dart';
 import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/text_titles.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
@@ -317,11 +318,9 @@ class _HomePageLiveSellingState extends State<HomePageLiveSelling> {
                                     child: GestureDetector(
                                       onTap: () {
                                         Get.to(
-                                          () => LivePageView(
-                                            key: ValueKey("live_${liveData.liveSellingHistoryId}_$index"),
-                                            liveUserList: liveData,
-                                            isHost: false,
-                                            isActive: true,
+                                          () => LiveSwipeView(
+                                            liveStreams: LiveSwipeResolver.swipeListFor(liveData),
+                                            initialIndex: LiveSwipeResolver.swipeIndexFor(liveData),
                                           ),
                                           routeName: '/LivePage',
                                         )?.then((value) async {

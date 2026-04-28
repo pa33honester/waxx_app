@@ -347,6 +347,7 @@ class St {
   static String free = "free";
   static String unFollow = "unFollow";
   static String follow = "follow";
+  static String following = "following";
   static String noReviews = "noReviews";
   static String addressName = "addressName";
   static String homeOffice = "homeOffice";

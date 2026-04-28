@@ -302,6 +302,7 @@ final Map<String, String> taIN = {
   "free": "இலவசம்",
   "unFollow": "பின்தொடர வேண்டாம்",
   "follow": "பின்பற்றவும்",
+  "following": "பின்தொடர்கிறது",
   "noReviews": "விமர்சனங்கள் இல்லை",
   "addressName": "முகவரி பெயர்",
   "homeOffice": "வீடு/அலுவலகம்/நிறுவனம்",

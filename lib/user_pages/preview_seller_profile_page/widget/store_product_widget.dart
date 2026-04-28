@@ -410,7 +410,6 @@ class _FullScreenReelViewState extends State<FullScreenReelView> {
   late ChewieController _chewieController;
   int _currentIndex = 0;
   final controller = Get.find<PreviewSellerProfileController>();
-  bool isFollow = false;
   RxBool isLike = false.obs;
   RxMap customChanges = {"like": 0, "comment": 0}.obs;
 
@@ -701,28 +700,34 @@ class _FullScreenReelViewState extends State<FullScreenReelView> {
                                   children: [
                                     Flexible(fit: FlexFit.loose, child: GeneralTitle(title: "")),
                                     10.width,
-                                    GestureDetector(
-                                      onTap: () {
-                                        print('mmmmmmmmmmmm');
-                                        setState(() {});
-                                        isFollow = !isFollow;
-                                        followUnFollowController.followUnfollowData(sellerId: controller.reels[widget.initialIndex].sellerId?.id.toString() ?? "");
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                                        clipBehavior: Clip.antiAlias,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(30),
-                                          color: AppColors.black.withValues(alpha: 0.7),
-                                        ),
-                                        child: Text(
-                                          isFollow ? St.unFollow.tr : St.follow.tr,
-                                          style: AppFontStyle.styleW700(
-                                            AppColors.white,
-                                            10,
+                                    GetBuilder<PreviewSellerProfileController>(
+                                      builder: (logic) {
+                                        final following = logic.isFollowing;
+                                        return GestureDetector(
+                                          onTap: () {
+                                            final sid = controller.reels[widget.initialIndex].sellerId?.id?.toString();
+                                            if (sid == null || sid.isEmpty) return;
+                                            logic.isFollowing = !following;
+                                            logic.update();
+                                            followUnFollowController.followUnfollowData(sellerId: sid);
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                                            clipBehavior: Clip.antiAlias,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(30),
+                                              color: AppColors.black.withValues(alpha: 0.7),
+                                            ),
+                                            child: Text(
+                                              following ? St.following.tr : St.follow.tr,
+                                              style: AppFontStyle.styleW700(
+                                                AppColors.white,
+                                                10,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),

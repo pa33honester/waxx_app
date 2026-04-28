@@ -302,6 +302,7 @@ final Map<String, String> trTR = {
   "free": "Özgür",
   "unFollow": "Takibi bırak",
   "follow": "Takip etmek",
+  "following": "Takip ediliyor",
   "noReviews": "Yorum Yok",
   "addressName": "Adres adı",
   "homeOffice": "Ev/Ofis/Şirket",

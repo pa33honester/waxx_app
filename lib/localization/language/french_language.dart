@@ -302,6 +302,7 @@ final Map<String, String> frCH = {
   "free": "Gratuit",
   "unFollow": "Ne plus suivre",
   "follow": "Suivre",
+  "following": "Abonné",
   "noReviews": "Aucun avis",
   "addressName": "Nom de l'adresse",
   "homeOffice": "Accueil/Bureau/Entreprise",

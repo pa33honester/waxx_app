@@ -20,6 +20,8 @@ class EditProfileController extends GetxController {
   final TextEditingController eNumberController = TextEditingController(text: Database.fetchLoginUserProfileModel?.user?.mobileNumber);
   final TextEditingController dateOfBirth = TextEditingController(text: editDateOfBirth);
   final TextEditingController locationController = TextEditingController(text: editLocation);
+  final TextEditingController countryController = TextEditingController(text: editUserCountry);
+  final TextEditingController addressController = TextEditingController(text: editUserAddress);
   //------------------------------------------------
   final TextEditingController mobileNumberController = TextEditingController();
 
@@ -40,6 +42,8 @@ class EditProfileController extends GetxController {
         dob: editDateOfBirth,
         gender: genderSelect,
         location: locationController.text,
+        country: countryController.text,
+        address: addressController.text,
         mobileNumber: "",
         countryCode: dialCode,
         fcmToken: fcmToken,
@@ -52,6 +56,8 @@ class EditProfileController extends GetxController {
       getStorage.write("dob", dateOfBirth.text);
       getStorage.write("genderSelect", genderSelect);
       getStorage.write("location", locationController.text);
+      getStorage.write("country", countryController.text);
+      getStorage.write("address", addressController.text);
       getStorage.write("dialCode", dialCode);
 
       editImage = getStorage.read("imageXFile");
@@ -62,6 +68,8 @@ class EditProfileController extends GetxController {
       editDateOfBirth = getStorage.read("dob");
       genderSelect = getStorage.read("genderSelect");
       editLocation = getStorage.read("location");
+      editUserCountry = getStorage.read("country") ?? "";
+      editUserAddress = getStorage.read("address") ?? "";
       mobileNumber = getStorage.read("mobileNumber");
       dialCode = getStorage.read("dialCode");
     } catch (e) {

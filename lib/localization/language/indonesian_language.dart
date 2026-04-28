@@ -302,6 +302,7 @@ final Map<String, String> idID = {
   "free": "Bebas",
   "unFollow": "Berhenti mengikuti",
   "follow": "Mengikuti",
+  "following": "Sedang diikuti",
   "noReviews": "Tidak Ada Ulasan",
   "addressName": "Nama alamat",
   "homeOffice": "Rumah/Kantor/Perusahaan",

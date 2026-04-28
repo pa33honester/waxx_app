@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waxxapp/ApiModel/search/search_results_model.dart';
 import 'package:waxxapp/Controller/GetxController/user/get_live_seller_list_controller.dart';
-import 'package:waxxapp/seller_pages/live_page/view/live_view.dart';
+import 'package:waxxapp/seller_pages/live_page/util/live_swipe_resolver.dart';
+import 'package:waxxapp/seller_pages/live_page/view/live_swipe_view.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/view/preview_seller_profile_view.dart';
 import 'package:waxxapp/user_pages/search_page/controller/unified_search_controller.dart';
 import 'package:waxxapp/utils/app_colors.dart';
@@ -393,11 +394,9 @@ class _LiveShowCard extends StatelessWidget {
     );
     if (liveSeller != null) {
       Get.to(
-        () => LivePageView(
-          key: ValueKey('live_${liveSeller.liveSellingHistoryId}'),
-          liveUserList: liveSeller,
-          isHost: false,
-          isActive: true,
+        () => LiveSwipeView(
+          liveStreams: LiveSwipeResolver.swipeListFor(liveSeller),
+          initialIndex: LiveSwipeResolver.swipeIndexFor(liveSeller),
         ),
         routeName: '/LivePage',
       );

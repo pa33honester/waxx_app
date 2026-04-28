@@ -302,6 +302,7 @@ final Map<String, String> urPK = {
   "free": "مفت",
   "unFollow": "ان فالو کریں۔",
   "follow": "پیروی",
+  "following": "فالو کیا ہوا",
   "noReviews": "کوئی جائزے نہیں۔",
   "addressName": "پتہ کا نام",
   "homeOffice": "گھر/دفتر/کمپنی",

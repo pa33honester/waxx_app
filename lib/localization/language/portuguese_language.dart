@@ -302,6 +302,7 @@ final Map<String, String> ptPT = {
   "free": "Livre",
   "unFollow": "Deixar de seguir",
   "follow": "Seguir",
+  "following": "Seguindo",
   "noReviews": "Sem comentários",
   "addressName": "Nome do endereço",
   "homeOffice": "Casa/Escritório/Empresa",

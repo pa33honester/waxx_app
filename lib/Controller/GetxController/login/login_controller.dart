@@ -58,6 +58,8 @@ class LoginController extends GetxController {
         editLocation = userLogin?.user?.location.toString() ?? "";
         uniqueID = userLogin?.user?.uniqueId.toString() ?? '';
         Database.fetchLoginUserProfileModel = await WhoLoginApi.callApi(userId: loginUserId);
+        editUserCountry = Database.fetchLoginUserProfileModel?.user?.country ?? "";
+        editUserAddress = Database.fetchLoginUserProfileModel?.user?.address ?? "";
         if (userLogin?.user?.isSeller == true) {
           isSeller = true;
           await sellerDataController.getSellerAllData();
@@ -78,6 +80,8 @@ class LoginController extends GetxController {
         getStorage.write("dob", editDateOfBirth);
         getStorage.write("genderSelect", genderSelect);
         getStorage.write("location", editLocation);
+        getStorage.write("country", editUserCountry);
+        getStorage.write("address", editUserAddress);
         getStorage.write("uniqueID", uniqueID);
         update();
         isLoading(false);
@@ -131,6 +135,8 @@ class LoginController extends GetxController {
         editLocation = userLogin?.user?.location.toString() ?? '';
         uniqueID = userLogin?.user?.uniqueId.toString() ?? '';
         Database.fetchLoginUserProfileModel = await WhoLoginApi.callApi(userId: loginUserId);
+        editUserCountry = Database.fetchLoginUserProfileModel?.user?.country ?? "";
+        editUserAddress = Database.fetchLoginUserProfileModel?.user?.address ?? "";
 
         if (userLogin?.user?.isSeller == true) {
           await sellerDataController.getSellerAllData();
@@ -146,6 +152,8 @@ class LoginController extends GetxController {
         getStorage.write("dob", editDateOfBirth);
         getStorage.write("genderSelect", genderSelect);
         getStorage.write("location", editLocation);
+        getStorage.write("country", editUserCountry);
+        getStorage.write("address", editUserAddress);
         getStorage.write("uniqueID", uniqueID);
         getStorage.write("isDemoLogin", true);
         update();

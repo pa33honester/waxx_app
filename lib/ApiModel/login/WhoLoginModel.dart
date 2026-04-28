@@ -60,6 +60,8 @@ class User {
     String? dob,
     String? gender,
     String? location,
+    String? country,
+    String? address,
     String? mobileNumber,
     String? countryCode,
     String? image,
@@ -85,6 +87,8 @@ class User {
     _dob = dob;
     _gender = gender;
     _location = location;
+    _country = country;
+    _address = address;
     _mobileNumber = mobileNumber;
     _countryCode = countryCode;
     _image = image;
@@ -112,6 +116,8 @@ class User {
     _dob = json['dob'];
     _gender = json['gender'];
     _location = json['location'];
+    _country = json['country'];
+    _address = json['address'];
     _mobileNumber = json['mobileNumber'];
     _countryCode = json['countryCode'];
     _image = json['image'];
@@ -137,6 +143,8 @@ class User {
   String? _dob;
   String? _gender;
   String? _location;
+  String? _country;
+  String? _address;
   String? _mobileNumber;
   String? _countryCode;
   String? _image;
@@ -162,6 +170,8 @@ class User {
     String? dob,
     String? gender,
     String? location,
+    String? country,
+    String? address,
     String? mobileNumber,
     String? countryCode,
     String? image,
@@ -188,6 +198,8 @@ class User {
         dob: dob ?? _dob,
         gender: gender ?? _gender,
         location: location ?? _location,
+        country: country ?? _country,
+        address: address ?? _address,
         mobileNumber: mobileNumber ?? _mobileNumber,
         countryCode: mobileNumber ?? _countryCode,
         image: image ?? _image,
@@ -213,6 +225,8 @@ class User {
   String? get dob => _dob;
   String? get gender => _gender;
   String? get location => _location;
+  String? get country => _country;
+  String? get address => _address;
   String? get mobileNumber => _mobileNumber;
   String? get countryCode => _countryCode;
   String? get image => _image;
@@ -242,6 +256,8 @@ class User {
     map['dob'] = _dob;
     map['gender'] = _gender;
     map['location'] = _location;
+    map['country'] = _country;
+    map['address'] = _address;
     map['mobileNumber'] = _mobileNumber;
     map['countryCode'] = _countryCode;
     map['image'] = _image;

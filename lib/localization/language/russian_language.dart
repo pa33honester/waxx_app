@@ -303,6 +303,7 @@ final Map<String, String> ruRU = {
   "free": "Бесплатно",
   "unFollow": "Отписаться",
   "follow": "Следовать",
+  "following": "Подписан",
   "noReviews": "Нет отзывов",
   "addressName": "Адрес",
   "homeOffice": "Дом/Офис/Компания",
