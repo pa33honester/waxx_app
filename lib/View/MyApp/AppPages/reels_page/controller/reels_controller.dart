@@ -49,18 +49,57 @@ class ReelsController extends GetxController {
   // }
 
   Future<void> init({int initialIndex = 0}) async {
-    if (isInitAlreadyCall == false) {
-      isInitAlreadyCall = true;
-      log('ENIT :: ');
-      currentPageIndex = initialIndex;
-      mainReels.clear();
-      FetchReelsApi.startPagination = 0;
-      preloadPageController = PreloadPageController(initialPage: initialIndex); // Dynamically set the initial page
-      isLoadingReels = true;
+    if (isInitAlreadyCall) return;
+    isInitAlreadyCall = true;
+    log('ENIT :: ');
+    currentPageIndex = initialIndex;
 
-      await onGetReels();
-      isLoadingReels = false;
+    // Warm-cache path: if we already loaded reels in a previous visit
+    // (controller is permanent, so the in-memory list survives tab
+    // switches), reuse them. The user sees the feed instantly; we
+    // refresh in the background so a stale list converges to fresh data.
+    if (mainReels.isNotEmpty) {
+      preloadPageController = PreloadPageController(
+        initialPage: initialIndex.clamp(0, mainReels.length - 1).toInt(),
+      );
+      // Don't flip isLoadingReels — the page renders straight away.
       isInitAlreadyCall = false;
+      // Background refresh: refetch the first page silently and replace
+      // the cached list when the response lands. Quiet-fail on error.
+      _refreshFirstPageInBackground();
+      return;
+    }
+
+    // Cold path: full shimmer until the first response lands.
+    mainReels.clear();
+    FetchReelsApi.startPagination = 0;
+    preloadPageController = PreloadPageController(initialPage: initialIndex);
+    isLoadingReels = true;
+
+    await onGetReels();
+    isLoadingReels = false;
+    isInitAlreadyCall = false;
+  }
+
+  Future<void> _refreshFirstPageInBackground() async {
+    try {
+      final saved = FetchReelsApi.startPagination;
+      FetchReelsApi.startPagination = 0;
+      final fresh = await FetchReelsApi.callApi(
+        loginUserId: loginUserId,
+        reelId: BranchIoServices.eventId,
+      );
+      if (fresh?.reels != null && fresh!.reels!.isNotEmpty) {
+        mainReels
+          ..clear()
+          ..addAll(fresh.reels!);
+        update(["onGetReels"]);
+      } else {
+        // Restore prior pagination cursor if the silent refresh failed.
+        FetchReelsApi.startPagination = saved;
+      }
+    } catch (e) {
+      log('reels background refresh error: $e');
     }
   }
 

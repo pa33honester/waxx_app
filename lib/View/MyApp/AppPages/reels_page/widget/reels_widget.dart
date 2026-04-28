@@ -19,7 +19,6 @@ import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/font_style.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
-import 'package:waxxapp/utils/shimmers.dart';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -271,24 +270,28 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
         _viewBumped = true;
         final reelId = controller.mainReels[widget.index].id ?? "";
         if (reelId.isNotEmpty) {
-          ReelViewService.incrementView(reelId: reelId);
-          // Optimistic local bump on the reels-page list…
-          final current = controller.mainReels[widget.index].view ?? 0;
-          controller.mainReels[widget.index].view = current + 1;
-          // …and also on the home Shorts rail's separate list, so the
-          // viewer count reflects immediately on the home page without
-          // waiting for a refetch. The two controllers hold distinct
-          // Reel instances populated from the same backend response, so
-          // mutating one doesn't propagate to the other.
-          if (Get.isRegistered<GetReelsForUserController>()) {
-            final homeReels = Get.find<GetReelsForUserController>().allReels;
-            final idx = homeReels.indexWhere((r) => r.id == reelId);
-            if (idx >= 0) {
-              final cur = homeReels[idx].view ?? 0;
-              homeReels[idx].view = cur + 1;
-              Get.find<GetReelsForUserController>().update();
+          // Backend dedupes by (userId, reelId). Only apply the optimistic
+          // local +1 when the call actually bumped the server count — that
+          // way a repeat view by the same user (which the backend silently
+          // no-ops) doesn't keep ticking the on-screen counter up.
+          ReelViewService.incrementView(reelId: reelId).then((counted) {
+            if (!counted) return;
+            // Reels-page list…
+            final current = controller.mainReels[widget.index].view ?? 0;
+            controller.mainReels[widget.index].view = current + 1;
+            // …and the home Shorts rail's separate list. The two controllers
+            // hold distinct Reel instances populated from the same backend
+            // response, so mutating one doesn't propagate to the other.
+            if (Get.isRegistered<GetReelsForUserController>()) {
+              final homeReels = Get.find<GetReelsForUserController>().allReels;
+              final idx = homeReels.indexWhere((r) => r.id == reelId);
+              if (idx >= 0) {
+                final cur = homeReels[idx].view ?? 0;
+                homeReels[idx].view = cur + 1;
+                Get.find<GetReelsForUserController>().update();
+              }
             }
-          }
+          });
         }
       }
     } else {
@@ -299,7 +302,27 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
     return Scaffold(
       body: Obx(
         () => isVideoLoading.value
-            ? Shimmers.reelsView()
+            // Render the reel's thumbnail (already in the API response, same
+            // image the home Shorts rail uses) full-screen while the video
+            // controller initializes — perceived load time drops from
+            // shimmer-then-pop to instant cover-then-fade-to-video.
+            ? Stack(
+                fit: StackFit.expand,
+                children: [
+                  Container(color: Colors.black),
+                  if ((controller.mainReels[widget.index].thumbnail ?? '').isNotEmpty)
+                    Positioned.fill(
+                      child: PreviewImageWidget(
+                        image: controller.mainReels[widget.index].thumbnail,
+                        height: Get.height,
+                        width: Get.width,
+                        fit: BoxFit.cover,
+                        radius: 0,
+                      ),
+                    ),
+                  Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                ],
+              )
             : SizedBox(
                 height: Get.height,
                 width: Get.width,

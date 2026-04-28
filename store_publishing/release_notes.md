@@ -1,6 +1,118 @@
 # Release Notes — Waxx App
 
 ---
+## 📲 Version 1.0.8 — Reels-style live feed, like/report on live, faster reels, profile country & address
+
+**Version:** 1.0.8
+**Build Number:** 11
+**Release Date:** April 2026
+**Type:** Feature drop + UX/perf
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🔥 Update — v1.0.8
+
+📺 Swipe up/down between live shows — Reels-style
+❤️ Like, mute, share, report on the buyer-side live page
+👁 Per-user view count on Shorts (no more inflated counts)
+⚡ Reels load fast — cached feed + thumbnail-first paint
+🎥 720p live broadcast — sharper picture for viewers
+🌍 Country & Address now editable in your Profile
+✨ Cleaner Live top bar, working Mute/Flip on host side
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🆕 New features in v1.0.8
+
+**Reels-style vertical swipe between live shows**
+- New `LiveSwipeView` wraps a vertical `PreloadPageView` (`preloadPagesCount: 0`) over the buyer-side `LivePageView`. Only the **settled** index renders a real `LivePageView`; pages above and below render a cheap `_LivePeekTile` placeholder so the swipe animation feels right but we never have two Zego rooms logged in at once. The settle triggers full dispose+init of the active page; the existing defensive `await logoutRoom(roomID)` covers the brief overlap.
+- All six entry points (`live_now_chip`, `home_live_grid`, `home_live_products_rail`, `unified_search_view`, `home_page_divided`, `app_link_service`) now route through `LiveSwipeView`. A new `LiveSwipeResolver` helper pulls the current peer list from `GetLiveSellerListController` or falls back to a single-item feed when the tapped show isn't in the cached list. `app_link_service.dart` also kicks `getSellerList()` if the list is empty so deep-link viewers get a populated swipe feed.
+- Pagination via `GetLiveSellerListController.loadMoreData()` triggers when the settled index is within 2 of list end.
+- Route name `'/LivePage'` preserved so the existing replace-vs-stack logic in `AppLinkService` still works.
+
+**Live page right-column action buttons (Whatnot / Reels parity)**
+- Buyer column: **Like** (server-tracked count broadcast room-wide via socket `liveLike` event), **Sound Mute** (Zego `mutePlayStreamAudio` against the remote stream so this viewer can watch silently), **Share**, **Report** (new bottom sheet, reuses the existing `reportReason` collection via a new `reportoLive` backend collection + `POST /reportToLive/reportLive` endpoint, FCM confirmation back to the reporter).
+- Host column: **Flip Camera**, **Mic Mute**, **Share**. Reuses existing `LiveController.onSwitchCamera` / `onSwitchMic`.
+- Live like count is persisted server-side on `LiveSellingHistory.likeCount`. The socket `liveLike` handler `$inc`s the count atomically and broadcasts the new total to the room (`liveLikeCount` event). New joiners get the running total seeded by the `addView` handler so late entrants don't see a stale "0".
+- `getLiveByHistoryId` aggregation joins `liveHistory.likeCount` so the deep-link path also seeds the count via the HTTP response.
+
+**Per-user reel view count**
+- New `Reel.view` field; `getReelsForUser` projects it. Home-page Shorts rail tiles now render a "👁 1.2K" badge (formatted via the same `CustomFormatNumber.convert` the Live top bar uses).
+- New `ViewHistoryOfReel` collection with a compound unique index on `(userId, reelId)`; `POST /reel/incrementView/:reelId` only `$inc`s `Reel.view` when the insert actually creates a row, so a repeat view by the same user is a silent no-op. Response includes `counted` so the Flutter optimistic local +1 stays in sync with backend reality.
+- One-shot `scripts/migrate_reel_view_reset.js` zeroes existing counts and clears any prior history rows so the dedupe baseline is clean. Run once after deploy.
+
+**Profile country & address**
+- User schema gains `country` + `address`. The user-update endpoint accepts both with the same preserve-on-empty fallback as `location`. Edit-Profile page surfaces them as two new read-only field rows under Email — Country opens `showCountryPicker`, Address opens a single-field bottom sheet. Persisted in `getStorage` and seeded on login + splash.
+
+**Localization**
+- Added `St.following` ("Following") to all 18 language files; the seller profile + product detail + Reels follow pill all now use it consistently for the "currently following" state.
+
+#### 🛠 UX / perf in v1.0.8
+
+**Reels load speed**
+- `PreloadPageView.preloadPagesCount` 4 → 1; was spawning 5 concurrent `VideoPlayerController.networkUrl` downloads on cold start. `FetchReelsApi.limitPagination` 20 → 5 so the initial fetch lands faster.
+- Warm-cache: `ReelsController.init` no longer clears + refetches on every tab visit; if `mainReels` is non-empty (from a prior visit), the feed renders instantly and we silently refresh the first page in the background.
+- Thumbnail-during-init: while `videoPlayerController.initialize()` runs, the page renders the reel's `thumbnail` full-screen + a small spinner instead of a generic shimmer. Perceived load is instant.
+- New buyer-side **mute/unmute** button on the Reels right column (TikTok-style — once muted, every subsequent reel stays muted via a shared `RxBool` on `ReelsController` + a per-page `Worker`).
+
+**Live broadcast quality**
+- Zego engine now publishes at 720p (1280×720, ~1.5 Mbps) via `setVideoConfig(Preset720P)` immediately after `createEngineWithProfile`. Was falling back to the SDK default ~360p.
+
+**Live page polish**
+- Buyer-side viewer count was rendering a non-`Obx` `Text` so the `RxInt` updates never triggered a rebuild — now wrapped in `Obx` and formatted via `CustomFormatNumber` so big rooms render as `1.2K`.
+- Removed the redundant top-right X button on the buyer top bar so the views badge has breathing room; system back / swipe back still exits.
+- Mute/Flip icons + Report bottom-sheet reason list weren't redrawing after their controller update — `LiveController.onSwitchMic` / `onSwitchCamera` / `getReportReason` were calling `update([id])` against unkeyed `GetBuilder`s. Switched to bare `update()`.
+
+#### 🐛 Bug fixes in v1.0.8
+
+| Issue | Fix |
+|---|---|
+| Reels heart icon swapped (red shown when not liked, outline when liked) | The two assets (`ic_heart` outline, `ic_liked` red filled) were mapped backwards in three places. Fixed in `reels_widget.dart` (×2) and `store_product_widget.dart`. |
+| Product Detail "Follow" button always read "Follow" even when already following | Was using bitwise-AND with an always-false local field instead of the server-returned `product.isFollow`. Driven off the model now and toggled optimistically. Same fix applied to the seller-profile preview's reels viewer. |
+| Seller profile Follow toggle didn't refresh the followers count or list | `onChangeFollowButton` fired the API but never re-pulled followers. Now awaits the toggle then calls `onGetSellerFollowers`. Also fixed `onGetSellerFollowers` to clear the list before populating so re-fetches don't duplicate entries. |
+| Seller profile SliverAppBar bottom overflowed by ~25px on Products tab | `preferredSize` heights bumped 114/56 → 140/78 to fit the natural Column size of `TabBar` + `CategoryTabsWidget`. |
+| Reels follow pill identical colour for both states | Following = filled primary (active relationship); Follow = translucent dark CTA. Same convention as the seller-profile button. |
+| AddProductLiveBottomSheet '+ Add' pill leaked to buyers | Hostness flag now passed through; the host-only quick-add no longer shows on the buyer's product list. |
+| Reels page Follow pill's `isFollow` was always false | `getReelsForUser` aggregation now `$lookup`s the followers collection and projects an `isFollow` per-reel; Reel model gains the field. |
+
+#### 📁 Files Changed
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.0.7+10` → `1.0.8+11`) |
+| Backend version | `waxxapp_admin/backend/package.json` (`1.12.0` → `1.15.0`) |
+| Live swipe feed | `lib/seller_pages/live_page/view/live_swipe_view.dart` (new), `lib/seller_pages/live_page/util/live_swipe_resolver.dart` (new), `lib/services/app_link_service.dart`, `lib/custom/live_now_chip.dart`, `lib/user_pages/home_page/widget/{home_live_grid.dart,home_live_products_rail.dart}`, `lib/user_pages/search_page/view/unified_search_view.dart`, `lib/utils/CoustomWidget/Page_devided/home_page_divided.dart` |
+| Live actions column | `lib/seller_pages/live_page/widget/live_widget.dart`, `lib/seller_pages/live_page/controller/live_controller.dart`, `lib/seller_pages/live_page/view/live_view.dart` |
+| Live like + report backend | `backend/server/liveSellingHistory/liveSellingHistory.model.js`, `backend/socket.js`, `backend/server/liveSeller/liveSeller.controller.js`, `backend/server/reportoLive/{reportoLive.model.js,controller.js,route.js}` (new), `backend/route.js`, `backend/server/scheduledLive/scheduledLive.controller.js` |
+| Live like + report Flutter | `lib/ApiService/user/{fetch_live_by_history_id_service.dart,report_service.dart}`, `lib/utils/socket_services.dart`, `lib/utils/api_url.dart` |
+| Reel view counter + dedupe | `backend/server/reel/{reel.model.js,reel.controller.js,reel.route.js}`, `backend/server/viewHistoryOfReel/viewHistoryOfReel.model.js` (new), `backend/scripts/migrate_reel_view_reset.js` (new), `lib/ApiModel/seller/GetReelsForUserModel.dart`, `lib/ApiService/user/reel_view_service.dart` (new), `lib/utils/api_url.dart`, `lib/View/MyApp/AppPages/reels_page/widget/reels_widget.dart`, `lib/utils/CoustomWidget/Page_devided/home_page_divided.dart` |
+| Reels perf + mute | `lib/View/MyApp/AppPages/reels_page/{controller/reels_controller.dart,view/reels_view.dart,widget/reels_widget.dart,api/fetch_reels_api.dart}` |
+| Reels follow + heart icon fixes | `lib/View/MyApp/AppPages/reels_page/widget/reels_widget.dart`, `lib/View/MyApp/AppPages/reels_page/model/fetch_reels_model.dart`, `lib/user_pages/preview_seller_profile_page/widget/store_product_widget.dart`, `lib/user_pages/preview_seller_profile_page/view/preview_seller_profile_view.dart`, `lib/user_pages/preview_seller_profile_page/controller/preview_seller_profile_controller.dart`, `backend/server/reel/reel.controller.js` |
+| Profile country/address | `lib/View/MyApp/Profile/edit_profile.dart`, `lib/Controller/GetxController/{user/edit_profile_controller.dart,login/login_controller.dart,login/splash_screen_controller.dart}`, `lib/Controller/ApiControllers/user/api_profile_edit_controller.dart`, `lib/ApiService/login/profile_edit_service.dart`, `lib/ApiModel/login/WhoLoginModel.dart`, `lib/utils/globle_veriables.dart`, `backend/server/user/{user.model.js,user.controller.js}` |
+| Live broadcast quality | `lib/utils/Zego/create_engine.dart` |
+| Product Detail Follow fix | `lib/View/MyApp/AppPages/product_detail.dart` |
+| Localisation | `lib/utils/Strings/strings.dart` + 18 language files for `St.following` |
+
+#### ✅ Testing Verification (v1.0.8)
+
+1. **Live swipe**: open the live tab on home → tap a live tile → vertical swipe up — second live mounts, first tears down. No `loginRoom 1002001` errors. Back button still exits cleanly.
+2. **Live like count**: 3 buyers in the same room, one taps Like — every viewer's count increments to the same total simultaneously. Late joiner gets the running total seeded on `addView`. Deep-link entry seeds via the byHistoryId response.
+3. **Reel view dedupe**: same user opens a reel twice → server log shows first call `counted: true`, second `counted: false`. View count increments once. Different user opens same reel → counts again.
+4. **Reels load**: cold-start app, tap Reels — first reel renders thumbnail immediately; video appears within ~1–2s on 4G. Tab away and back → instant render of cached feed; background refresh swaps in any new reels.
+5. **Live broadcast quality**: a buyer device viewing a host's stream visibly sharper than 1.0.7. Zego logs report 1280×720 publish.
+6. **Profile country/address**: edit profile → tap Country → pick from picker → saves; the picked country surfaces on the seller-account screen as `editUserCountry` and persists across app restarts.
+7. **Regression**: existing live entry points (LIVE NOW chip, home grid, search results, share-link tap) still push the live page; chat history replays; like/share/report buttons still work; counters update; the new top-bar layout (no X) is unchanged.
+
+#### Required server actions before deploy
+
+1. `git pull` in `waxxapp_admin/backend`.
+2. `node scripts/migrate_reel_view_reset.js` — zeroes existing inflated reel view counts and clears any prior history rows so the new dedupe baseline is clean. Idempotent; safe to re-run.
+3. `pm2 restart backend`.
+
+---
 ## 📲 Version 1.0.7 — Live push routing + chat history + clean share link
 *(Play Store: What's New)*
 
