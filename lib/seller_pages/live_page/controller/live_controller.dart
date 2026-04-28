@@ -100,6 +100,25 @@ class LiveController extends GetxController {
     }
   }
 
+  /// Called by the socket layer when the backend emits
+  /// `selectedProductsUpdated` (host added a product mid-stream). Replaces
+  /// the in-memory list and pings GetBuilder so every widget watching
+  /// `liveSelectedProducts` repaints.
+  void onSelectedProductsUpdated(Map data) {
+    final raw = data['selectedProducts'];
+    if (raw is! List) return;
+    try {
+      final next = raw
+          .whereType<Map>()
+          .map((e) => SelectedProduct.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+      liveSelectedProducts = next;
+      update();
+    } catch (e) {
+      // Bad shape — leave the existing list alone rather than empty it.
+    }
+  }
+
   void onChangeTime() {
     isLivePage = true;
 

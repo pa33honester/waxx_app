@@ -118,6 +118,22 @@ class SocketServices {
       onEndLiveSeller(liveSellingHistoryId: liveSellingHistoryId);
     });
 
+    // Backend fires this whenever the live's selectedProducts list changes
+    // mid-stream (e.g. host taps "+ Add product"). The LiveController
+    // refreshes its in-memory list so the buyer's Shop sheet reflects the
+    // new product without needing a full page reload.
+    socket!.on("selectedProductsUpdated", (data) {
+      log("Socket Listen => selectedProductsUpdated : $data");
+      try {
+        final parsed = data is String ? jsonDecode(data) : data;
+        if (parsed is Map && Get.isRegistered<LiveController>()) {
+          Get.find<LiveController>().onSelectedProductsUpdated(parsed);
+        }
+      } catch (e) {
+        log("selectedProductsUpdated parse error: $e");
+      }
+    });
+
     // ----- Giveaways (buyer + seller watch the same events) -----
     socket!.on("giveawayStarted", (data) {
       log("Socket Listen => giveawayStarted: $data");

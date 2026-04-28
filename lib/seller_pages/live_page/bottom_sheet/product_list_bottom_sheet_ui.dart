@@ -1,6 +1,9 @@
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:waxxapp/ApiService/seller/add_product_to_live_service.dart';
+import 'package:waxxapp/ApiService/seller/show_catalog_service.dart';
+import 'package:waxxapp/Controller/ApiControllers/seller/show_catalog_controller.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
 import 'package:waxxapp/seller_pages/select_product_for_streame/model/selected_product_model.dart';
@@ -52,6 +55,28 @@ class ProductListBottomSheetUi {
                           style: AppFontStyle.styleW700(AppColors.white, 16),
                         ),
                         const Spacer(),
+                        if (isHost)
+                          // Host-only "+ Add" pill — opens a catalog picker so the
+                          // seller can append products to the live show without
+                          // leaving the broadcast.
+                          GestureDetector(
+                            onTap: () => ProductListBottomSheetUi._openAddProductPicker(context, logic),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.add_rounded, size: 16, color: AppColors.black),
+                                  const SizedBox(width: 4),
+                                  Text('Add', style: AppFontStyle.styleW700(AppColors.black, 12)),
+                                ],
+                              ),
+                            ),
+                          ),
                         GestureDetector(
                           onTap: () => Get.back(),
                           child: Padding(
@@ -131,6 +156,136 @@ class ProductListBottomSheetUi {
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+
+  /// Opens a sub-sheet listing every product in the host's catalog.
+  /// Tapping one calls [AddProductToLiveService.add] and on success
+  /// the backend emits `selectedProductsUpdated` over the socket so
+  /// [LiveController] refreshes its in-memory list and this Shop
+  /// sheet repaints.
+  static void _openAddProductPicker(BuildContext context, LiveController liveLogic) {
+    final catalog = Get.isRegistered<ShowCatalogController>()
+        ? Get.find<ShowCatalogController>()
+        : Get.put(ShowCatalogController());
+    catalog.start = 1;
+    catalog.catalogItems.clear();
+    catalog.isLoading(true);
+    catalog.update();
+
+    // ShowCatalogApi.showCatalogs reads sellerId from the global itself,
+    // so we don't pass it as a parameter here.
+    ShowCatalogApi().showCatalogs(start: '1', limit: '50', search: 'All', saleType: 'All').then((data) {
+      catalog.catalogItems.addAll(data.products ?? []);
+      catalog.isLoading(false);
+      catalog.update();
+    });
+
+    final alreadyOnAirIds = liveLogic.liveSelectedProducts.map((p) => p.productId ?? '').toSet();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        height: Get.height * 0.7,
+        decoration: BoxDecoration(
+          color: AppColors.black,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text('Add product to live', style: AppFontStyle.styleW700(AppColors.white, 16)),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Get.back(),
+                    child: Icon(Icons.close_rounded, color: AppColors.white),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: GetBuilder<ShowCatalogController>(
+                  builder: (c) {
+                    if (c.isLoading.value && c.catalogItems.isEmpty) {
+                      return Center(child: CircularProgressIndicator(color: AppColors.primary));
+                    }
+                    if (c.catalogItems.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No products in your catalog yet.',
+                          style: AppFontStyle.styleW500(AppColors.unselected, 13),
+                        ),
+                      );
+                    }
+                    return ListView.separated(
+                      itemCount: c.catalogItems.length,
+                      separatorBuilder: (_, __) => const Divider(color: Colors.white10, height: 1),
+                      itemBuilder: (_, i) {
+                        final p = c.catalogItems[i];
+                        final id = (p.id ?? '').toString();
+                        final disabled = alreadyOnAirIds.contains(id);
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: SizedBox(
+                              width: 44,
+                              height: 44,
+                              child: PreviewImageWidget(
+                                height: 44,
+                                width: 44,
+                                fit: BoxFit.cover,
+                                image: p.mainImage ?? '',
+                                radius: 8,
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            p.productName ?? '',
+                            style: AppFontStyle.styleW600(AppColors.white, 13),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(
+                            disabled ? 'Already on air' : 'Tap to add',
+                            style: AppFontStyle.styleW400(
+                              disabled ? AppColors.unselected : AppColors.primary,
+                              11,
+                            ),
+                          ),
+                          trailing: disabled
+                              ? Icon(Icons.check_rounded, color: AppColors.unselected, size: 20)
+                              : Icon(Icons.add_circle_rounded, color: AppColors.primary, size: 22),
+                          onTap: disabled
+                              ? null
+                              : () async {
+                                  final result = await AddProductToLiveService.add(
+                                    sellerId: liveLogic.sellerId,
+                                    productId: id,
+                                  );
+                                  if (result.ok) {
+                                    Utils.showToast('Added to live show.');
+                                    Get.back();
+                                  } else {
+                                    Utils.showToast(result.message.isNotEmpty ? result.message : "Couldn't add product.");
+                                  }
+                                },
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -259,4 +414,5 @@ class ProductsUi extends StatelessWidget {
       ),
     );
   }
+
 }

@@ -40,6 +40,7 @@ class Api {
   static const previousSearchProducts = "product/searchProduct";
   static const liveSeller = "liveSeller";
   static const liveHeartbeat = "liveSeller/heartbeat";
+  static const addProductToLive = "liveSeller/addProductToLive";
   // Backend appends the liveSellingHistoryId as a path segment.
   static const liveByHistoryId = "liveSeller/byHistoryId";
   static const uploadShort = "reel/uploadReel";
