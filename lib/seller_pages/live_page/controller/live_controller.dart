@@ -248,7 +248,10 @@ class LiveController extends GetxController {
     try {
       final data = await ReportService().getReportReason();
       reportReasonModel = data;
-      update(["onReportReasonsLoaded"]);
+      // Bare update() — the report bottom sheet's GetBuilder<LiveController>
+      // is unkeyed, so an id-tagged update() never reached it and the list
+      // stayed empty even after the reasons arrived.
+      update();
     } catch (e) {
       log('LiveController.getReportReason error: $e');
     }
