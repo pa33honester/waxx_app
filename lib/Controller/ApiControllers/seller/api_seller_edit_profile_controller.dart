@@ -18,9 +18,9 @@ class SellerEditController extends GetxController {
     required String state,
     required String country,
     required String bankName,
-    required String accountNumber,
-    required String IFSCCode,
-    required String branchName,
+    required String momoNumber,
+    required String networkName,
+    required String momoName,
   }) async {
     try {
       log("$state Kenil 2");
@@ -36,9 +36,9 @@ class SellerEditController extends GetxController {
           state: state,
           country: country,
           bankName: bankName,
-          accountNumber: accountNumber,
-          IFSCCode: IFSCCode,
-          branchName: branchName);
+          momoNumber: momoNumber,
+          networkName: networkName,
+          momoName: momoName);
       sellerEditProfileData = data;
       // if (sellerEditProfileData!.status == true) {
       //
