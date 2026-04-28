@@ -46,6 +46,10 @@ class AddProductApi extends GetxService {
     required String processingTime,
     required String recipientAddress,
     required bool isImmediatePaymentRequired,
+    /// Optional list of admin-managed PromoCode ids the seller has
+    /// opted this product into. Backend stores them on Product.promoCodes
+    /// and they become eligible at checkout for buyers using those codes.
+    List<String> promoCodes = const [],
   }) async {
     final url = Uri.parse(Api.baseUrl + Api.createProduct);
     var request = http.MultipartRequest("POST", url);
@@ -94,6 +98,9 @@ class AddProductApi extends GetxService {
       'processingTime': processingTime,
       'recipientAddress': recipientAddress,
       'isImmediatePaymentRequired': isImmediatePaymentRequired.toString(),
+      // CSV is the simplest cross-language form for an array in
+      // multipart/form-data. Backend's parsePromoCodeIds accepts it.
+      if (promoCodes.isNotEmpty) 'promoCodes': promoCodes.join(','),
     };
 
     log("Product create by seller api body :: $body");

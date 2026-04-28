@@ -6,6 +6,7 @@ import 'package:cool_dropdown/models/cool_dropdown_item.dart';
 import 'package:waxxapp/ApiModel/seller/ProductEditModel.dart' as edit;
 import 'package:waxxapp/ApiService/seller/add_product_service.dart';
 import 'package:waxxapp/ApiService/seller/product_edit_service.dart';
+import 'package:waxxapp/ApiService/seller/promo_code_list_service.dart';
 import 'package:waxxapp/Controller/GetxController/seller/seller_product_detail_controller.dart';
 import 'package:waxxapp/seller_pages/listing/api/fetch_category_sub_attributes_api.dart';
 import 'package:waxxapp/seller_pages/listing/controller/chat_gpt_controller.dart';
@@ -719,6 +720,29 @@ class ListingController extends GetxController {
   bool isMoreOptionsEnabled = false;
   bool isOffersAllowed = false;
 
+  // Promo Codes (admin-managed) the seller has opted this product into.
+  // Loaded lazily by [loadPromoCodes] before the picker sheet opens; the
+  // selection is sent up as a CSV `promoCodes` field on product create.
+  final RxList<PromoCodeOption> availablePromoCodes = <PromoCodeOption>[].obs;
+  final RxBool isLoadingPromoCodes = false.obs;
+  final RxSet<String> selectedPromoCodeIds = <String>{}.obs;
+
+  Future<void> loadPromoCodes({bool force = false}) async {
+    if (!force && availablePromoCodes.isNotEmpty) return;
+    isLoadingPromoCodes.value = true;
+    final fetched = await PromoCodeListService.fetchAll();
+    availablePromoCodes.assignAll(fetched);
+    isLoadingPromoCodes.value = false;
+  }
+
+  void togglePromoCode(String id) {
+    if (selectedPromoCodeIds.contains(id)) {
+      selectedPromoCodeIds.remove(id);
+    } else {
+      selectedPromoCodeIds.add(id);
+    }
+  }
+
   // bool hasMinimumOfferAmount = false;
 
   String? selectedDuration = '1 day';
@@ -1207,6 +1231,7 @@ class ListingController extends GetxController {
         processingTime: selectedBusinessDays ?? '',
         recipientAddress: recipientAddress,
         isImmediatePaymentRequired: isImmediatePaymentEnabled,
+        promoCodes: selectedPromoCodeIds.toList(),
       );
       Get.back();
       if (result.status == true) {
