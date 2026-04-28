@@ -1,6 +1,129 @@
 # Release Notes — Waxx App
 
 ---
+## 📲 Version 1.0.7 — Live push routing + chat history + clean share link
+*(Play Store: What's New)*
+
+**Version:** 1.0.7
+**Build Number:** 10
+**Release Date:** April 2026
+**Type:** Stability / UX
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🔧 Update — v1.0.7
+
+🔔 Tap a "live now" notification → opens the broadcast directly
+💬 Late joiners now see the chat history (no more empty panel)
+🔗 Live share copy is the URL alone — no extra prompt line
+🐛 Push routing reaches all followers, no more silent skips
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🆕 Improvements in v1.0.7
+
+**Push notification taps land on the broadcast**
+- `notifyFollowersLiveStarted` now includes `liveSellingHistoryId` in the FCM data payload (one extra `LiveSeller.findOne` batched into the existing `Promise.all`).
+- Flutter `handleRemoteMessage` gained a `fromTap` flag — OS-tap paths (`getInitialMessage`, `onMessageOpenedApp`, local-notification tap) all pass `fromTap: true` and route directly through `AppLinkService.instance.openLive(liveSellingHistoryId)`. Previously the tap routed to `/LiveSellingConsumer` with `sellerId`, which is a different page than the broadcast viewer.
+- Foreground in-app messages keep the snackbar; its onTap also calls `openLive` so behaviour is consistent.
+- `AppLinkService._openLive` is now public `openLive` so other entry points (push notification, future deep-link types) can reuse the same fetch + push flow with the live-ended snackbar, seller-of-this-live snackbar, network error fallback, and replace-vs-stack on existing `/LivePage`.
+
+**Live chat history visible to late joiners**
+- New `LiveChat` Mongo collection with TTL index (auto-deletes rows older than 30 days). Indexed on `liveSellingHistoryId + createdAt`.
+- Socket "comment" handler now `LiveChat.create({...})` fire-and-forget alongside the existing comment-count update + room broadcast. The broadcast path is never blocked.
+- New endpoint `GET /liveSeller/chatHistory/:liveSellingHistoryId?limit=50` returns the backlog in chronological order using the same JSON shape the socket emits, so the Flutter renderer needs zero changes.
+- `LivePageView.initState` fires `FetchLiveChatHistoryService.fetch(...)` for buyers; result is appended to `mainLiveComments` before/while the socket starts streaming new comments.
+
+**Live share copies the URL alone**
+- `_handleShare` in `live_widget.dart` switched from `CustomShare.onShareApp(context: "Watch X live on Waxxapp", link: liveUrl)` (which prepended the prompt line) to `CustomShare.onShareLink(link: liveUrl)`, which calls `Share.share(link)` directly.
+
+#### 🐛 Bug Fixes in v1.0.7
+
+| Issue | Fix |
+|---|---|
+| Live-start FCM was silently skipping a class of followers | Removed the `User.isSeller: { $ne: true }` filter from `notifyFollowersLiveStarted`. In Waxxapp every account that has touched a seller surface has `User.isSeller=true`, so the filter dropped buyer-also-sellers (the most common test setup) silently. The explicit Follow tap is the opt-in regardless of the user's seller flag. Also added diagnostic `console.log` lines at every early-return path so the next silent skip is visible in the server log. (Backend `1.11.1` — already deployed.) |
+
+#### 📁 Files Changed
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.0.6+9` → `1.0.7+10`) |
+| Backend version | `waxxapp_admin/backend/package.json` (`1.11.1` → `1.12.0`) |
+| Push routing | `backend/server/scheduledLive/scheduledLive.controller.js`, `lib/services/push_notification_service.dart`, `lib/services/app_link_service.dart` |
+| Chat history | `backend/server/liveChat/liveChat.model.js` (new), `backend/socket.js`, `backend/server/liveSeller/{liveSeller.controller.js,liveSeller.route.js}`, `lib/ApiService/user/fetch_live_chat_history_service.dart` (new), `lib/utils/api_url.dart`, `lib/seller_pages/live_page/view/live_view.dart` |
+| Share text | `lib/seller_pages/live_page/widget/live_widget.dart` |
+
+#### ✅ Testing Verification (v1.0.7)
+
+| Target | Method | Status |
+|---|---|---|
+| `flutter analyze` on touched files | All slices clean (only pre-existing infos / deprecations) | ✅ |
+| Bundle size | `app-release.aab` | (see build output) |
+| Push tap (cold start) | Kill app → send LIVE_STARTED FCM → tap OS notification → lands on `LivePageView` for the right show | ⏳ Manual |
+| Push tap (warm) | Background app → send FCM → tap → same as above | ⏳ Manual |
+| Foreground push | Receive while app open → snackbar appears → tap → opens broadcast | ⏳ Manual |
+| Chat history late-join | Buyer A says "hello"; 30 s later buyer B taps the live → B sees "hello" already in panel | ⏳ Manual |
+| Backend smoke | `curl /liveSeller/chatHistory/<id>?limit=50 -H "key: <secret>"` returns `{ status:true, comments: [...] }` | ⏳ Manual |
+| Share copy | Tap Share → paste → URL only, no prefix line | ⏳ Manual |
+
+---
+
+### 🌍 Localized "What's New" Text (v1.0.7)
+
+**Spanish:**
+```
+🔧 Actualización — v1.0.7
+
+🔔 Toca la notificación "en vivo" → abre la transmisión directamente
+💬 Los espectadores que entran tarde ven el historial del chat
+🔗 Compartir el enlace en vivo copia solo la URL — sin línea adicional
+🐛 La notificación llega a todos los seguidores, sin omisiones silenciosas
+```
+
+**French:**
+```
+🔧 Mise à jour — v1.0.7
+
+🔔 Touchez la notif "en direct" → ouvre la diffusion directement
+💬 Les spectateurs en retard voient l'historique du chat
+🔗 Le partage du lien copie uniquement l'URL — plus de ligne ajoutée
+🐛 La notif atteint tous les abonnés, sans saut silencieux
+```
+
+**Arabic:**
+```
+🔧 تحديث — v1.0.7
+
+🔔 انقر إشعار "بث الآن" → يفتح البث مباشرة
+💬 المنضمون المتأخرون يرون سجل الدردشة
+🔗 مشاركة الرابط تنسخ الرابط فقط — بدون سطر إضافي
+🐛 الإشعار يصل إلى جميع المتابعين دون تخطّي صامت
+```
+
+**German:**
+```
+🔧 Update — v1.0.7
+
+🔔 Tippe auf "Live jetzt"-Push → öffnet die Übertragung direkt
+💬 Spät beitretende Zuschauer sehen den Chat-Verlauf
+🔗 Teilen-Link kopiert nur die URL — ohne extra Textzeile
+🐛 Push erreicht alle Follower, keine stillen Auslassungen
+```
+
+**Turkish:**
+```
+🔧 Güncelleme — v1.0.7
+
+🔔 "Şimdi canlı" bildirimine dokun → yayını doğrudan açar
+💬 Sonradan katılanlar artık sohbet geçmişini görüyor
+🔗 Canlı bağlantı paylaşımı sadece URL'yi kopyalar — fazladan satır yok
+🐛 Bildirim tüm takipçilere ulaşıyor, sessiz atlanma yok
+```
+
+---
 ## 🇬🇭 Version 1.0.6 — Mobile Money payouts + Live links + Promo codes + Mid-stream Shop
 *(Play Store: What's New)*
 
