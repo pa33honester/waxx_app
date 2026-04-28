@@ -106,7 +106,7 @@ class AppLinkService {
         if (remainingSegments.isNotEmpty) _openShort(remainingSegments.first);
         break;
       case 'live':
-        if (remainingSegments.isNotEmpty) _openLive(remainingSegments.first);
+        if (remainingSegments.isNotEmpty) openLive(remainingSegments.first);
         break;
       // Future:
       // case 'seller': _openSeller(remainingSegments.first); break;
@@ -128,7 +128,12 @@ class AppLinkService {
     log('AppLinkService → opened Reels tab for short $reelId');
   }
 
-  Future<void> _openLive(String liveSellingHistoryId) async {
+  // Public so other entry points (push-notification taps, in particular)
+  // can route to a live broadcast through the same flow that handles the
+  // share-link path: loading dialog → fetch LiveSeller doc → push (or
+  // replace) the LivePageView, with snackbars for live-ended / network
+  // error / "you are the broadcaster" cases.
+  Future<void> openLive(String liveSellingHistoryId) async {
     log('AppLinkService → opening live $liveSellingHistoryId');
 
     // Show a brief loading dialog so the user gets immediate feedback

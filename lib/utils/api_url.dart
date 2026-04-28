@@ -43,6 +43,9 @@ class Api {
   static const addProductToLive = "liveSeller/addProductToLive";
   // Backend appends the liveSellingHistoryId as a path segment.
   static const liveByHistoryId = "liveSeller/byHistoryId";
+  // Replay the chat-comment backlog for a live show. Path segment:
+  // /liveSeller/chatHistory/<liveSellingHistoryId>?limit=50
+  static const liveChatHistory = "liveSeller/chatHistory";
   static const uploadShort = "reel/uploadReel";
 
   /// **************** QUERY(params) URL ********************

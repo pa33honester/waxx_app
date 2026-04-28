@@ -583,13 +583,13 @@ class LiveUi extends StatelessWidget {
   }
 
   Future<void> _handleShare(LiveController controller) async {
-    final sellerName = controller.businessName;
-    final context = sellerName.isNotEmpty
-        ? "Watch $sellerName live on Waxxapp"
-        : "Watch this live show on Waxxapp";
     final liveId = controller.roomId;
-    final link = liveId.isNotEmpty ? "https://www.waxxapp.com/live/$liveId" : null;
-    await CustomShare.onShareApp(context: context, link: link);
+    if (liveId.isEmpty) return;
+    // URL only — the previous `onShareApp(context: ..., link: ...)` path
+    // prepended "Watch this live show on Waxxapp\n", which the user
+    // didn't want in the copied share text.
+    final link = "https://www.waxxapp.com/live/$liveId";
+    await CustomShare.onShareLink(link: link);
   }
 }
 

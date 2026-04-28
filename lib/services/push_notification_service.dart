@@ -10,6 +10,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:waxxapp/ApiService/login/profile_edit_service.dart';
 import 'package:waxxapp/View/MyApp/AppPages/dialog/payment_dialog.dart';
+import 'package:waxxapp/services/app_link_service.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/database.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
@@ -68,11 +69,11 @@ class PushNotificationService {
 
     final initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
-      await handleRemoteMessage(initialMessage);
+      await handleRemoteMessage(initialMessage, fromTap: true);
     }
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) async {
-      await handleRemoteMessage(message);
+      await handleRemoteMessage(message, fromTap: true);
     });
 
     FirebaseMessaging.onMessage.listen((message) async {
@@ -83,7 +84,13 @@ class PushNotificationService {
     _interactionHandlersRegistered = true;
   }
 
-  Future<void> handleRemoteMessage(RemoteMessage message) async {
+  // [fromTap] is true when the user actively tapped a notification
+  // (cold-start `getInitialMessage`, warm `onMessageOpenedApp`, or a tap on
+  // the in-app local notification surfaced via flutter_local_notifications).
+  // For tap-driven invocations LIVE_STARTED routes straight to the
+  // broadcast — showing a snackbar that asks the user to tap again would
+  // be a worse experience for someone who already tapped.
+  Future<void> handleRemoteMessage(RemoteMessage message, {bool fromTap = false}) async {
     if (message.data.isEmpty) {
       return;
     }
@@ -148,8 +155,21 @@ class PushNotificationService {
         },
       );
     } else if (type == 'LIVE_STARTED' || type == 'LIVE') {
-      final sellerId = message.data['sellerId'];
       final sellerName = message.data['sellerName'] ?? 'A seller';
+      // The new `notifyFollowersLiveStarted` helper and the legacy
+      // path inside `liveSeller.controller.js` both emit
+      // `liveSellingHistoryId` in the data payload — that's what the
+      // tap handler routes on. `sellerId` is kept for diagnostics.
+      final liveSellingHistoryId =
+          (message.data['liveSellingHistoryId'] as String? ?? '').trim();
+
+      if (fromTap) {
+        if (liveSellingHistoryId.isNotEmpty) {
+          AppLinkService.instance.openLive(liveSellingHistoryId);
+        }
+        return;
+      }
+
       Get.snackbar(
         '$sellerName is live now!',
         'Tap to join the show',
@@ -158,8 +178,8 @@ class PushNotificationService {
         icon: Icon(Icons.live_tv_rounded, color: AppColors.primary),
         duration: const Duration(seconds: 6),
         onTap: (_) {
-          if (sellerId != null) {
-            Get.toNamed('/LiveSellingConsumer', arguments: {'sellerId': sellerId});
+          if (liveSellingHistoryId.isNotEmpty) {
+            AppLinkService.instance.openLive(liveSellingHistoryId);
           }
         },
       );
@@ -253,7 +273,7 @@ class PushNotificationService {
 
         try {
           final data = Map<String, dynamic>.from(jsonDecode(response.payload!));
-          await handleRemoteMessage(RemoteMessage(data: data));
+          await handleRemoteMessage(RemoteMessage(data: data), fromTap: true);
         } catch (e) {
           log('Failed to handle local notification tap: $e');
         }

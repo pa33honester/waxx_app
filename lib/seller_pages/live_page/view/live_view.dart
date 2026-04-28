@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:waxxapp/ApiModel/user/GetLiveSellerListModel.dart';
 import 'package:waxxapp/ApiService/seller/live_seller_for_selling_service.dart';
+import 'package:waxxapp/ApiService/user/fetch_live_chat_history_service.dart';
 import 'package:waxxapp/custom/loading_ui.dart';
 import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
 import 'package:waxxapp/seller_pages/live_page/widget/live_widget.dart';
@@ -73,6 +74,18 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
     super.initState();
     if (SocketServices.mainLiveComments.isNotEmpty) {
       SocketServices.mainLiveComments.clear();
+    }
+
+    // Replay any persisted chat backlog so a buyer joining mid-stream
+    // sees what was already said. Fire-and-forget; the socket starts
+    // appending new comments shortly after, and chronological order is
+    // preserved because the history is sorted oldest-first server-side.
+    final historyId = widget.liveUserList.liveSellingHistoryId ?? "";
+    if (historyId.isNotEmpty && !widget.isHost) {
+      FetchLiveChatHistoryService.fetch(liveSellingHistoryId: historyId).then((rows) {
+        if (!mounted || rows.isEmpty) return;
+        SocketServices.mainLiveComments.addAll(rows);
+      });
     }
 
     _setupController();
