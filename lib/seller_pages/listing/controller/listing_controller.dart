@@ -67,6 +67,10 @@ class ListingController extends GetxController {
       fetchCategorySubAttr();
     }
 
+    // Fire-and-forget so the summary card can render selected promo code
+    // names without waiting for the seller to open the picker sheet.
+    loadPromoCodes();
+
     super.onInit();
   }
 

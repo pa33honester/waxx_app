@@ -41,27 +41,36 @@ class CategoryWidget extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                       child: Row(
                         children: [
-                          Text(
-                            (controller.selectedCategoryName?.isNotEmpty ?? false)
-                                ? controller.selectedCategoryName!
-                                : (controller.selectedSubCategoryName?.isNotEmpty ?? false)
-                                    ? "-"
-                                    : "-",
-                            style: AppFontStyle.styleW500(AppColors.white, 14),
+                          Flexible(
+                            child: Text(
+                              (controller.selectedCategoryName?.isNotEmpty ?? false)
+                                  ? controller.selectedCategoryName!
+                                  : (controller.selectedSubCategoryName?.isNotEmpty ?? false)
+                                      ? "-"
+                                      : "-",
+                              style: AppFontStyle.styleW500(AppColors.white, 14),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                           if ((controller.selectedCategoryName?.isNotEmpty ?? false) && (controller.selectedSubCategoryName?.isNotEmpty ?? false)) ...[
                             Text(
                               " > ",
                               style: AppFontStyle.styleW500(AppColors.white, 14),
                             ),
-                            Text(
-                              controller.selectedSubCategoryName!,
-                              style: AppFontStyle.styleW500(AppColors.white, 14),
+                            Flexible(
+                              child: Text(
+                                controller.selectedSubCategoryName!,
+                                style: AppFontStyle.styleW500(AppColors.white, 14),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ] else if (controller.selectedSubCategoryName?.isNotEmpty ?? false) ...[
-                            Text(
-                              controller.selectedSubCategoryName!,
-                              style: AppFontStyle.styleW500(AppColors.white, 14),
+                            Flexible(
+                              child: Text(
+                                controller.selectedSubCategoryName!,
+                                style: AppFontStyle.styleW500(AppColors.white, 14),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ],
                         ],

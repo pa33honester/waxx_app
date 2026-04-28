@@ -7,6 +7,7 @@ import 'package:waxxapp/seller_pages/listing/widget/item_specific_widget.dart';
 import 'package:waxxapp/seller_pages/listing/widget/photos_widget.dart';
 import 'package:waxxapp/seller_pages/listing/widget/preferences_widget.dart';
 import 'package:waxxapp/seller_pages/listing/widget/pricing_widget.dart';
+import 'package:waxxapp/seller_pages/listing/widget/promo_codes_widget.dart';
 import 'package:waxxapp/seller_pages/listing/widget/title_widget.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
@@ -81,6 +82,7 @@ class ListingSummary extends StatelessWidget {
             ItemSpecificWidget(),
             DescriptionWidget(),
             PricingWidget(),
+            PromoCodesWidget(),
             PreferencesWidget(),
             GetBuilder<ListingController>(builder: (controller) {
               return MainButtonWidget(
