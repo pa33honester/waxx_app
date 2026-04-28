@@ -57,6 +57,12 @@ class ListingController extends GetxController {
       prefillPricingData(product);
       prefillPreferencesData(product);
       productCode = product.productCode ?? '';
+      // Pre-select the promo codes already attached to the product so the
+      // edit submission carries the current state forward instead of
+      // silently clearing it.
+      selectedPromoCodeIds
+        ..clear()
+        ..addAll((product.promoCodes ?? []).whereType<String>());
     } else {
       fetchCategorySubAttr();
     }
@@ -1318,6 +1324,7 @@ class ListingController extends GetxController {
         processingTime: selectedBusinessDays ?? '',
         recipientAddress: recipientAddress,
         isImmediatePaymentRequired: isImmediatePaymentEnabled,
+        promoCodes: selectedPromoCodeIds.toList(),
       );
       Get.back();
       if (result.status == true) {

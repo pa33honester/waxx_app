@@ -52,6 +52,7 @@ class Product {
   bool? isImmediatePaymentRequired;
   String? mainImage;
   List<String>? images;
+  List<String>? promoCodes;
   List<Attributes>? attributes;
   int? quantity;
   int? review;
@@ -95,6 +96,7 @@ class Product {
     this.isImmediatePaymentRequired,
     this.mainImage,
     this.images,
+    this.promoCodes,
     this.attributes,
     this.quantity,
     this.review,
@@ -139,6 +141,7 @@ class Product {
         isImmediatePaymentRequired: json["isImmediatePaymentRequired"],
         mainImage: json["mainImage"],
         images: json["images"] == null ? [] : List<String>.from(json["images"]!.map((x) => x)),
+        promoCodes: json["promoCodes"] == null ? [] : List<String>.from(json["promoCodes"]!.map((x) => x.toString())),
         attributes: json["attributes"] == null ? [] : List<Attributes>.from(json["attributes"]!.map((x) => Attributes.fromJson(x))),
         quantity: json["quantity"],
         review: json["review"],
@@ -183,6 +186,7 @@ class Product {
         "isImmediatePaymentRequired": isImmediatePaymentRequired,
         "mainImage": mainImage,
         "images": images == null ? [] : List<dynamic>.from(images!.map((x) => x)),
+        "promoCodes": promoCodes == null ? [] : List<dynamic>.from(promoCodes!.map((x) => x)),
         "attributes": attributes == null ? [] : List<dynamic>.from(attributes!.map((x) => x.toJson())),
         "quantity": quantity,
         "review": review,
