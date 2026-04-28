@@ -93,6 +93,9 @@ class _ShortsViewState extends State<ShortsView> {
               likeCount: getReelsForUserController.likeCounts[index]!,
               currentPageIndex: getReelsForUserController.currentPageIndex,
               index: index,
+              // Pass the full product list so multi-product reels can
+              // render the Shop pill in the viewer's right-side column.
+              additionalProducts: shorts.productId,
             );
           },
         );

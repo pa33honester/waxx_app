@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chewie/chewie.dart';
+import 'package:waxxapp/ApiModel/seller/GetReelsForUserModel.dart';
 import 'package:waxxapp/custom/custom_share.dart';
 import 'package:waxxapp/custom/live_now_chip.dart';
 import 'package:waxxapp/utils/app_colors.dart';
@@ -30,6 +31,13 @@ class ShowShorts extends StatefulWidget {
   final int likeCount;
   final int index;
   final int currentPageIndex;
+  /// Full list of products attached to this reel. The single-product
+  /// fields above always describe `additionalProducts[0]` (when supplied)
+  /// for backward compatibility with old call sites that pre-date
+  /// multi-product reels. When this list has more than one product,
+  /// the viewer surfaces a "Shop" pill that opens a bottom-sheet of
+  /// every attached product so buyers can swipe between them.
+  final List<ProductId>? additionalProducts;
 
   const ShowShorts(
       {Key? key,
@@ -47,7 +55,8 @@ class ShowShorts extends StatefulWidget {
       required this.selectedIndex,
       required this.likeCount,
       required this.index,
-      required this.currentPageIndex})
+      required this.currentPageIndex,
+      this.additionalProducts})
       : super(key: key);
 
   @override
@@ -195,6 +204,95 @@ class _ShowShortsState extends State<ShowShorts> with TickerProviderStateMixin {
     // _musicRotateAnimationController.dispose();
     // videoPlayerController?.dispose();
     super.dispose();
+  }
+
+  /// Opens a bottom sheet listing every product attached to the reel.
+  /// Tapping a row jumps to that product's detail page (and pauses the
+  /// reel video so it doesn't keep playing in the background).
+  void _openShopSheet() {
+    final products = widget.additionalProducts ?? const <ProductId>[];
+    if (products.isEmpty) return;
+    videoPlayerController?.pause();
+
+    Get.bottomSheet(
+      Container(
+        decoration: BoxDecoration(
+          color: AppColors.black,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.shopping_bag_rounded, color: AppColors.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Featured in this video',
+                    style: GoogleFonts.poppins(
+                      color: AppColors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Get.back(),
+                    child: Icon(Icons.close_rounded, color: AppColors.white),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: Get.height * 0.55),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: products.length,
+                  separatorBuilder: (_, __) => const Divider(color: Colors.white10, height: 1),
+                  itemBuilder: (_, i) {
+                    final p = products[i];
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: CachedNetworkImage(
+                          imageUrl: p.mainImage ?? '',
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.cover,
+                          errorWidget: (_, __, ___) => Container(width: 56, height: 56, color: AppColors.tabBackground),
+                        ),
+                      ),
+                      title: Text(
+                        p.productName ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.poppins(color: AppColors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: Text(
+                        '$currencySymbol${p.price ?? ''}',
+                        style: GoogleFonts.poppins(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w700),
+                      ),
+                      trailing: Icon(Icons.arrow_forward_ios_rounded, color: AppColors.white, size: 14),
+                      onTap: () {
+                        Get.back();
+                        productId = p.id ?? '';
+                        Get.toNamed('/ProductDetail');
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+    );
   }
 
   @override
@@ -504,6 +602,40 @@ class _ShowShortsState extends State<ShowShorts> with TickerProviderStateMixin {
                       //       );
                       //     },
                       //     child: Image.asset("assets/icons/reels_messege.png", height: 33)),
+                      // Shop pill — only shown when the reel has more than
+                      // one attached product (the single-product case is
+                      // already covered by the inline product card to the
+                      // left). Tapping opens a sheet listing every product
+                      // with a Buy Now action per row.
+                      if ((widget.additionalProducts?.length ?? 0) > 1) ...[
+                        GestureDetector(
+                          onTap: () => _openShopSheet(),
+                          child: Container(
+                            height: 36,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.shopping_bag_rounded, size: 16, color: AppColors.black),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Shop ${widget.additionalProducts!.length}',
+                                  style: TextStyle(
+                                    color: AppColors.black,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
                       GestureDetector(
                           onTap: () async {
                             final context = widget.businessName.isNotEmpty
