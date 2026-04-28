@@ -353,28 +353,40 @@ class LiveUi extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Host profile section
+        // Host profile + follow pill grouped together so the spaceBetween
+        // distribution gives the views badge to the right a real gap. The
+        // pill used to live inside the 178-wide profile container and
+        // overflowed visually against the views badge.
         GetBuilder<LiveController>(
-          builder: (controller) => GestureDetector(
-            child: Container(
-              height: 50,
-              width: 178,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(56),
-                border: Border.all(color: AppColors.grayLight.withValues(alpha: 0.3)),
-                color: AppColors.black.withValues(alpha: 0.45),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Row(
-                  children: [
-                    _buildHostAvatar(controller),
-                    5.width,
-                    _buildHostInfo(controller),
-                  ],
+          builder: (controller) => Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                child: Container(
+                  height: 50,
+                  width: 178,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(56),
+                    border: Border.all(color: AppColors.grayLight.withValues(alpha: 0.3)),
+                    color: AppColors.black.withValues(alpha: 0.45),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: Row(
+                      children: [
+                        _buildHostAvatar(controller),
+                        5.width,
+                        _buildHostInfo(controller),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
+              if (!controller.isHost && controller.sellerId.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                FollowPill(sellerId: controller.sellerId),
+              ],
+            ],
           ),
         ),
         BlurryContainer(
@@ -474,10 +486,10 @@ class LiveUi extends StatelessWidget {
                 style: AppFontStyle.styleW600(AppColors.white, 12),
               ),
             ),
-            if (!controller.isHost && controller.sellerId.isNotEmpty) ...[
-              const SizedBox(width: 8),
-              FollowPill(sellerId: controller.sellerId),
-            ],
+            // FollowPill used to live here but the parent profile container
+            // has a fixed width of 178 — it overflowed into the views badge
+            // and made the two look glued together. Moved out to be a peer
+            // Row child in _buildUserTopBar with explicit gaps.
           ],
         ),
         Stack(

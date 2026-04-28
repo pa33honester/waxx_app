@@ -980,7 +980,10 @@ class _ProductDetailState extends State<ProductDetail> {
                                           final controller = Get.isRegistered<BottomBarController>()
                                               ? Get.find<BottomBarController>()
                                               : Get.put(BottomBarController());
-                                          controller.onChangeBottomBar(2);
+                                          // Cart is at index 3 (Home · Live · Reels · Cart · Profile).
+                                          // Was 2 before Live was inserted at index 1; the patch
+                                          // missed this site and "Go to cart" landed users on Reels.
+                                          controller.onChangeBottomBar(3);
                                         },
                                       ),
                                     ),
@@ -1550,7 +1553,8 @@ class _ProductDetailState extends State<ProductDetail> {
     } else {
       controller = Get.put(BottomBarController());
     }
-    controller.onChangeBottomBar(2);
+    // Cart is at index 3 (Home · Live · Reels · Cart · Profile).
+    controller.onChangeBottomBar(3);
   }
 
   void _handleButtonPress() async {
