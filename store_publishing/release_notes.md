@@ -1,6 +1,191 @@
 # Release Notes — Waxx App
 
 ---
+## 🇬🇭 Version 1.0.6 — Mobile Money payouts + Live links + Promo codes + Mid-stream Shop
+*(Play Store: What's New)*
+
+**Version:** 1.0.6
+**Build Number:** 9
+**Release Date:** April 2026
+**Type:** Feature drop + stability
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🚀 Update — v1.0.6
+
+💳 Mobile Money payouts (Momo Number, Network, Name) replace bank fields
+🔗 Share a live show → tap opens the broadcast directly
+🛒 Hosts can add products mid-stream without ending the show
+🎟️ Sellers attach promo codes to listings (new + edit)
+🎬 Reels Shop pill — see every product linked to a video
+🔔 "Live now" push reaches followers + reel likers (no more silent skips)
+💬 Fixed duplicated chat + chat-history clearing on rejoin
+🐛 Many small live-streaming fixes
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🆕 New Features in v1.0.6
+
+**Mobile Money payouts (Ghana-market rebuild of payout fields)**
+- Bank Name / Account Number / IFSC Code / Branch Name → **Momo Number / Network Name / Momo Name** across the seller add-shop, edit-shop, profile-completion, and admin Shop view.
+- `Network Name` is a fixed enum (`MTN`, `Vodafone`, `AirtelTigo`, `Telecel Cash`).
+- All 18 language files updated; admin React panel relabeled.
+- Backend `Seller.bankDetails` schema migrated (`bankBusinessName`, `bankName`, `momoNumber`, `momoName`, `networkName`).
+
+**Live-show deep links — `/live/<liveSellingHistoryId>`**
+- New backend `GET /liveSeller/byHistoryId/:id` returns the same flattened shape as `getliveSellerList` for a single live.
+- Tapping a shared `https://www.waxxapp.com/live/<id>` link launches the app and pushes the buyer **straight into the broadcast** instead of dropping them on the Live tab. Falls back to the Live tab with a snackbar if the show ended; routes to the Live tab for the broadcasting seller themselves.
+- New `live_now_chip.dart` deep-link share entry from the Whatnot-style live action column.
+
+**Mid-stream "Add Product" for hosts**
+- New host-only `+ Add product` button at the top of the live Shop sheet — opens a product picker that excludes the products already in the show.
+- New backend `POST /liveSeller/addProductToLive` mutates `LiveSeller.selectedProducts` and emits a socket `selectedProductsUpdated` event so every viewer's Shop sheet reflects the addition without a page reload.
+
+**Multi-product reels + Shop pill**
+- `Reel.productId` is now an array (`[ObjectId]`); each reel can surface multiple linked products.
+- New **Shop** pill in the home shorts viewer's right-side action column appears when a reel has more than one product. Tapping opens a bottom sheet listing every product (image / name / price). The previously-existing single-product card stays for the primary product.
+
+**Promo Codes on listings (admin-managed → seller-attached)**
+- New `PromoCode` collection (admin manages globally) with `Product.promoCodes` reference list.
+- New seller multi-select picker on the **listing summary** page — lives as its own card alongside Pricing / Preferences. Select once on create; pre-fills from the current state on edit so a seller editing an unrelated field doesn't silently clear their existing attachments.
+- Edit path goes through the same `ProductRequest` queue used by other field edits — `acceptUpdateRequest` copies `promoCodes` onto the live Product.
+
+**Auction + Offer features removed from the UI**
+- The seller-side and buyer-side entry points for time-boxed auctions and "Make an Offer" were removed for v1.0.6 to focus the experience on Buy-Now and live shopping. Backend code remains in place for now (no data migration), so the toggles can be brought back without an app reissue.
+
+**Live-start notification audience expanded + bugfix**
+- `notifyFollowersLiveStarted` now pushes to followers **AND** every user who liked one of the seller's reels — deduped against each other and against the scheduled-show reminder list. A buyer who liked a short is showing intent equivalent to a follow.
+- **Critical bugfix:** the recipient query was filtering on `User.isSeller: { $ne: true }`, but every Waxxapp account that has touched a seller surface has `User.isSeller=true`. This silently dropped the most common test setup (a seller-also-buyer following another seller). Filter removed; explicit follow tap is the opt-in regardless of seller flag. Diagnostic `console.log` added at every early-return so the next silent skip is visible.
+
+**Schedule Show cover image**
+- Optional cover image on the Create-a-Show form (multipart `image`). Stored on the `ScheduledLive` doc, served on the upcoming-show cards and the Live tab.
+
+**Email at phone signup + editable contact fields**
+- Phone-OTP signup now collects an email; the existing profile screen exposes both email and phone as editable fields instead of read-only. Backend `User.email` schema gains a partial unique index that ignores empty strings.
+
+**App Link plumbing**
+- Custom `waxxapp://` scheme registered for the web-preview "Open in app" handoff (covers cases where the App-Link verified domain hasn't been claimed yet by the OS).
+- AndroidManifest forces Impeller renderer (`io.flutter.embedding.android.EnableImpeller=true`) for LDPlayer / older emulator GPU compatibility.
+
+#### 🐛 Bug Fixes in v1.0.6
+
+| Issue | Fix |
+|---|---|
+| **Buyer chat duplicated 2×, 3×, 4× per send** | socket.io's auto-reconnect keeps the same Socket instance; listeners attached via `.on()` persist across reconnects, but `_isListenersSetup` was reset to false on every disconnect — every reconnect's `onConnect` re-ran `_setupEventListeners` and stacked another copy of every handler. Made `_setupEventListeners` idempotent (clears first, then re-attaches). Added `selectedProductsUpdated` to the clear list. |
+| **Share-link tap left buyer on a black-screen loading spinner** | `app_links` fires `getInitialLink` AND `uriLinkStream` for the same launching Intent → `_handleUri` ran twice → two `LivePageView` mounts → `loginRoom #2` returned `1002001` ("already logged in") and the textures leaked. Added a 3-second same-URI dedup at the top of `_handleUri`; the deep-link path replaces an existing `/LivePage` instead of stacking. |
+| **Buyer exit/rejoin → blank screen + emulator audio HAL spam** | `_cleanupZego` only logged out of the room. `stopPlayingStream` and `destroyCanvasView` were never called for the buyer's playback, leaving the native player and audio sink alive. Tracked `remoteStreamID` and tear it down before `logoutRoom`. Plus defensive `logoutRoom(roomID)` before `loginRoom` in `_loginRoom` so any stale Zego state from a prior session can't bounce the new login with `1002001`. |
+| **Live-page top bar overflowed by ~24 px on narrower phones** (Close button clipped, Follow glued against Views) | The Row had three rigid children (profile group + views + close) whose combined width exceeded the screen on ~360px devices, so `MainAxisAlignment.spaceBetween` distributed zero gap. Wrapped the profile + Follow group in `Flexible`, dropped the fixed 178-px width on the inner profile container so it sizes to its content. The Row now redistributes leftover space normally. |
+| **Reel product picker showed every product twice on second visit** | `ShowCatalogController` is a Get singleton shared with the seller catalog screen, and its `start` + `catalogItems` carried over between page entries. Reset on `initState` before re-fetching. |
+| **Listing Summary > Category row overflowed by 20 px on long category names** | Wrapped category and subcategory `Text` widgets in `Flexible` with `overflow: TextOverflow.ellipsis`. |
+| **Listing Summary had no UI for promo codes** | Picker was only reachable from a sub-screen. Added a dedicated `PromoCodesWidget` at the summary level matching the other section cards (Category / Pricing / Preferences). The picker bottom sheet was extracted to a shared helper so the summary card and the sub-screen stay in sync. |
+| **`Go to cart` from successful order routed to Reels tab** | The cart route was hardcoded to the wrong bottom-bar index after the v1.0.4 tab reshuffle. Now routes to Cart (index 3). |
+| **Seller-edit profile controller still used `accountNumber / IFSCCode / branchName` parameter names after the Momo migration** | Stray param names renamed to `momoNumber / networkName / momoName`, aligning the controller with the rest of the seller-edit pipeline. |
+
+#### 📁 Files Changed
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.0.5+8` → `1.0.6+9`) |
+| Backend version | `waxxapp_admin/backend/package.json` (`1.6.0` → `1.11.1`) |
+| Mobile Money rebuild | `backend/server/seller/seller.model.js`, every seller-side controller touching `bankDetails`, all 18 `lib/localization/language/*.dart`, admin `Component/Table/seller/Profile/Shop.js`, the seller add/edit/profile-completion forms in `lib/seller_pages/...` |
+| Live deep links | `backend/server/liveSeller/{liveSeller.controller.js,liveSeller.route.js}` (new `getLiveByHistoryId` + `liveType` projection), `lib/services/app_link_service.dart` (`_openLive`), `lib/ApiService/user/fetch_live_by_history_id_service.dart` (new), `lib/utils/api_url.dart` |
+| Mid-stream Add Product | `backend/server/liveSeller/liveSeller.controller.js` (`addProductToLive`), `backend/socket.js`, `lib/seller_pages/live_page/widget/live_widget.dart`, `lib/seller_pages/live_page/controller/live_controller.dart` |
+| Multi-product reels + Shop | `backend/server/reel/reel.model.js` (productId → array), `lib/utils/CoustomWidget/Page_devided/show_reels.dart` (Shop pill), `lib/View/MyApp/AppPages/shorts_view.dart` |
+| Promo Codes | `backend/server/promoCode/*` (new), `backend/server/product/{product.model.js,product.controller.js}` (`promoCodes` field + `parsePromoCodeIds`), `backend/server/productRequest/{productRequest.model.js,productRequest.controller.js}` (queued + direct + accept paths), `lib/ApiService/seller/{add_product_service,product_edit_service,promo_code_list_service}.dart`, `lib/seller_pages/listing/widget/{promo_code_picker,promo_codes_widget}.dart` (new), `lib/seller_pages/listing/view/{listing_summary,pricing_screen}.dart` |
+| Live-start notifications | `backend/server/scheduledLive/scheduledLive.controller.js` (followers + reel-likers, dropped `isSeller` filter, diagnostic logs), `backend/server/liveSeller/liveSeller.route.js` (response-finish hook) |
+| Live stream stability | `lib/utils/socket_services.dart` (idempotent listeners), `lib/services/app_link_service.dart` (URI dedup + `Get.off` over `Get.to`), `lib/seller_pages/live_page/view/live_view.dart` (defensive logoutRoom + viewer cleanup), `lib/seller_pages/live_page/widget/live_widget.dart` (overflow), `lib/utils/CoustomWidget/Page_devided/select_product_when_create_reels.dart` (catalog reset) |
+| Auction + Offer removal | listing form, product detail, live page (entry points only — backend untouched) |
+| Schedule Show cover | `backend/server/scheduledLive/{scheduledLive.model.js,scheduledLive.controller.js}` (multipart upload), `backend/server/liveSeller/liveSeller.route.js`, the seller schedule form |
+| Email at signup | `backend/server/user/user.model.js` (partial unique index), `lib/View/UserLogin/...`, `lib/user_pages/profile/...` |
+| Native config | `android/app/src/main/AndroidManifest.xml` (`EnableImpeller=true`, `waxxapp://` scheme already added) |
+
+#### ✅ Testing Verification (v1.0.6)
+
+| Target | Method | Status |
+|---|---|---|
+| `flutter analyze` | All slice files clean (only pre-existing `avoid_print` / deprecation infos) | ✅ |
+| Bundle size | `app-release.aab` | (see build output below) |
+| Live deep link cold-start | Tap shared `/live/<id>` from a killed app — opens broadcast directly | ⏳ Manual verification |
+| Live deep link warm-start | Tap shared `/live/<id>` while app is on home — replaces, doesn't stack | ⏳ Manual verification |
+| Buyer chat | Send 1 message after a socket reconnect — should appear once, not multiple times | ⏳ Manual verification |
+| Live-start push | Seller with 1+ followers goes live → followers receive push (incl. seller-also-buyer accounts) | ⏳ Manual verification |
+| Mobile Money seller-onboarding | Add Shop with momoNumber + networkName + momoName → values stored and visible in admin Shop tab | ⏳ Manual verification |
+
+> ⚠️ Build number 9 is the same as the previously-uploaded v1.0.6+9 from the Promo-Codes commit. If uploading to Play Console, bump `pubspec.yaml` to `1.0.6+10` (or higher) before `flutter build appbundle --release` to avoid the `versionCode already exists` rejection.
+
+---
+
+### 🌍 Localized "What's New" Text (v1.0.6)
+
+**Spanish:**
+```
+🚀 Actualización — v1.0.6
+
+💳 Pagos por Mobile Money (número Momo, red, nombre) reemplazan los campos bancarios
+🔗 Compartir un show en vivo → al tocar abre la transmisión directamente
+🛒 Los anfitriones pueden añadir productos durante el show sin terminarlo
+🎟️ Los vendedores pueden adjuntar códigos promocionales a sus productos
+🎬 Pestaña Tienda en los reels — todos los productos vinculados a un video
+🔔 La notificación "ahora en vivo" llega a seguidores y a quienes dan like a reels
+💬 Arreglado el chat duplicado y el historial al volver a entrar
+```
+
+**French:**
+```
+🚀 Mise à jour — v1.0.6
+
+💳 Paiements Mobile Money (numéro Momo, réseau, nom) remplacent les champs bancaires
+🔗 Partager un show en direct → l'appui ouvre la diffusion directement
+🛒 Les hôtes peuvent ajouter des produits en plein show sans l'arrêter
+🎟️ Les vendeurs attachent des codes promo à leurs produits
+🎬 Pastille Boutique dans les reels — voir tous les produits liés à une vidéo
+🔔 La notif "en direct" atteint abonnés et likers de reels
+💬 Chat dupliqué et historique au re-entrée corrigés
+```
+
+**Arabic:**
+```
+🚀 تحديث — v1.0.6
+
+💳 مدفوعات Mobile Money (رقم Momo، الشبكة، الاسم) بدل حقول البنك
+🔗 مشاركة بث مباشر → النقر يفتح البث مباشرة
+🛒 يمكن للمضيفين إضافة منتجات أثناء البث دون إنهائه
+🎟️ يربط البائعون أكواد الخصم بمنتجاتهم
+🎬 شارة المتجر في الريلز — كل المنتجات المرتبطة بالفيديو
+🔔 إشعار "بث مباشر الآن" يصل للمتابعين ومن يعجبه الريلز
+💬 إصلاح ازدواج الدردشة وفقدان السجل عند إعادة الدخول
+```
+
+**German:**
+```
+🚀 Update — v1.0.6
+
+💳 Mobile-Money-Auszahlungen (Momo-Nummer, Netz, Name) ersetzen die Bankfelder
+🔗 Live-Show teilen → ein Tap öffnet die Übertragung direkt
+🛒 Hosts können Produkte mitten im Stream hinzufügen
+🎟️ Verkäufer hängen Promo-Codes an ihre Artikel
+🎬 Shop-Chip in Reels — alle verknüpften Produkte sichtbar
+🔔 "Jetzt live"-Push erreicht Follower und Reel-Liker
+💬 Doppelter Chat und fehlender Verlauf beim Wieder-Eintritt behoben
+```
+
+**Turkish:**
+```
+🚀 Güncelleme — v1.0.6
+
+💳 Mobile Money ödemeleri (Momo numarası, ağ, isim) banka alanlarının yerini aldı
+🔗 Canlı yayını paylaş → dokun, doğrudan yayın açılsın
+🛒 Sunucular yayını sonlandırmadan ürün ekleyebiliyor
+🎟️ Satıcılar ürünlerine promosyon kodu ekliyor
+🎬 Reels'te Mağaza rozeti — videoya bağlı her ürün görünür
+🔔 "Şu anda canlı" bildirimi takipçilere ve reels beğenenlere de gidiyor
+💬 Tekrarlayan sohbet ve yeniden girişte kaybolan geçmiş düzeltildi
+```
+
+---
 ## 🔧 Version 1.0.5 — Live reliability + Deep Links + Reels polish
 *(Play Store: What's New)*
 
