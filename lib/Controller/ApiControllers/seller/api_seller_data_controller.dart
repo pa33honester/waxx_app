@@ -31,9 +31,9 @@ class SellerDataController extends GetxController {
         editState = sellerAllData?.seller?.address?.state ?? '';
         editCountry = sellerAllData?.seller?.address?.country ?? '';
         editBankName = sellerAllData?.seller?.bankDetails?.bankName ?? '';
-        editAccNumber = sellerAllData?.seller?.bankDetails?.accountNumber.toString() ?? '';
-        editIfsc = sellerAllData?.seller?.bankDetails?.iFSCCode ?? '';
-        editBranch = sellerAllData?.seller?.bankDetails?.branchName ?? '';
+        editMomoNumber = sellerAllData?.seller?.bankDetails?.momoNumber ?? '';
+        editNetworkName = sellerAllData?.seller?.bankDetails?.networkName ?? '';
+        editMomoName = sellerAllData?.seller?.bankDetails?.momoName ?? '';
         //--------------------------------------------------------------------------
         sellerId = sellerAllData!.seller!.id.toString();
         Database.onSetSellerId(sellerAllData?.seller?.id ?? "");
@@ -65,9 +65,9 @@ class SellerDataController extends GetxController {
         editState = sellerAllData!.seller!.address!.state.toString();
         editCountry = sellerAllData!.seller!.address!.country.toString();
         editBankName = sellerAllData!.seller!.bankDetails!.bankName.toString();
-        editAccNumber = sellerAllData!.seller!.bankDetails!.accountNumber.toString();
-        editIfsc = sellerAllData!.seller!.bankDetails!.iFSCCode.toString();
-        editBranch = sellerAllData!.seller!.bankDetails!.branchName.toString();
+        editMomoNumber = sellerAllData!.seller!.bankDetails!.momoNumber ?? '';
+        editNetworkName = sellerAllData!.seller!.bankDetails!.networkName ?? '';
+        editMomoName = sellerAllData!.seller!.bankDetails!.momoName ?? '';
         //--------------------------------------------------------------------------
         sellerId = sellerAllData!.seller!.id.toString();
         Database.onSetSellerId(sellerAllData?.seller?.id ?? "");

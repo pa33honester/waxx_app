@@ -36,9 +36,9 @@ class SellerProfileEditApi extends GetxService {
     required String state,
     required String country,
     required String bankName,
-    required String accountNumber,
-    required String IFSCCode,
-    required String branchName,
+    required String momoNumber,
+    required String networkName,
+    required String momoName,
   }) async {
     // String uri = Api.getDomainFromURL(Api.baseUrl);
     try {
@@ -51,9 +51,9 @@ class SellerProfileEditApi extends GetxService {
       log("state = $state");
       log("country = $country");
       log("bankName = $bankName");
-      log("accountNumber = $accountNumber");
-      log("IFSCCode = $IFSCCode");
-      log("branchName = $branchName");
+      log("momoNumber = $momoNumber");
+      log("networkName = $networkName");
+      log("momoName = $momoName");
       // final params = {
       //   "sellerId": sellerId,
       // };
@@ -91,9 +91,9 @@ class SellerProfileEditApi extends GetxService {
         "state": state,
         "country": country,
         "bankName": bankName,
-        "accountNumber": accountNumber,
-        "IFSCCode": IFSCCode,
-        "branchName": branchName,
+        "momoNumber": momoNumber,
+        "networkName": networkName,
+        "momoName": momoName,
       };
 
       log("<<<<<<<< request$requestBody");

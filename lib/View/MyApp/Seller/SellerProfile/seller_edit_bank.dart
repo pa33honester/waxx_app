@@ -167,17 +167,18 @@ class SellerEditBank extends StatelessWidget {
                 // ),
                 SellerItemWidget(
                   title: St.accountNumTitle.tr,
-                  controller: sellerEditProfileController.editAccNumberController,
+                  controller: sellerEditProfileController.editMomoNumberController,
                 ),
                 15.height,
-                SellerItemWidget(
-                  title: St.ifscText.tr,
-                  controller: sellerEditProfileController.editIfscController,
-                ),
+                // Network Name is a fixed enum (MTN / Vodafone / AirtelTigo).
+                // The dropdown writes its value into the same TextEditingController
+                // the SellerItemWidget pattern expects, so the rest of the
+                // submit flow doesn't need to change.
+                _NetworkNameField(controller: sellerEditProfileController.editNetworkNameController),
                 15.height,
                 SellerItemWidget(
                   title: St.branchText.tr,
-                  controller: sellerEditProfileController.editBranchController,
+                  controller: sellerEditProfileController.editMomoNameController,
                 ),
                 const SizedBox(height: 15),
               ],
@@ -243,6 +244,79 @@ class SellerItemWidget extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Dropdown for Mobile-money provider — restricted to {MTN, Vodafone,
+/// AirtelTigo}. Writes the chosen value into [controller].text so the
+/// existing submit pipeline (which reads from controllers and POSTs as
+/// `networkName`) doesn't need any other changes.
+class _NetworkNameField extends StatefulWidget {
+  const _NetworkNameField({required this.controller});
+
+  final TextEditingController controller;
+
+  @override
+  State<_NetworkNameField> createState() => _NetworkNameFieldState();
+}
+
+class _NetworkNameFieldState extends State<_NetworkNameField> {
+  static const _options = ['MTN', 'Vodafone', 'AirtelTigo'];
+
+  String? get _current {
+    final v = widget.controller.text.trim();
+    return _options.contains(v) ? v : null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 7, left: 4),
+          child: Text(
+            'Network',
+            style: AppFontStyle.styleW500(AppColors.unselected, 12),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: AppColors.tabBackground,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton2<String>(
+              isExpanded: true,
+              value: _current,
+              hint: Text(
+                'Select your network',
+                style: AppFontStyle.styleW500(AppColors.unselected, 13),
+              ),
+              items: _options
+                  .map((o) => DropdownMenuItem<String>(
+                        value: o,
+                        child: Text(o, style: AppFontStyle.styleW600(AppColors.white, 14)),
+                      ))
+                  .toList(),
+              onChanged: (val) {
+                if (val == null) return;
+                widget.controller.text = val;
+                setState(() {});
+              },
+              buttonStyleData: const ButtonStyleData(height: 48, padding: EdgeInsets.zero),
+              dropdownStyleData: DropdownStyleData(
+                decoration: BoxDecoration(
+                  color: AppColors.tabBackground,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
           ),
         ),
       ],

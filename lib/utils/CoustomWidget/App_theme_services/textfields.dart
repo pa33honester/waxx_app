@@ -521,11 +521,11 @@ class PrimaryTextField extends StatelessWidget {
                                                             : (controllerType == "EditPinCode")
                                                                 ? sellerEditProfileController.editPinCodeController
                                                                 : (controllerType == "EditBankAccNum")
-                                                                    ? sellerEditProfileController.editAccNumberController
+                                                                    ? sellerEditProfileController.editMomoNumberController
                                                                     : (controllerType == "EditIFSC")
-                                                                        ? sellerEditProfileController.editIfscController
+                                                                        ? sellerEditProfileController.editNetworkNameController
                                                                         : (controllerType == "EditBranch")
-                                                                            ? sellerEditProfileController.editBranchController
+                                                                            ? sellerEditProfileController.editMomoNameController
                                                                             : (controllerType == "ProductName")
                                                                                 ? addProductController.nameController
                                                                                 : (controllerType == "ProductPrice")

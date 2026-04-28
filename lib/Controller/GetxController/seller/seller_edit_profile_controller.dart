@@ -26,9 +26,12 @@ class SellerEditProfileController extends GetxController {
   TextEditingController editCountryController = TextEditingController(text: editCountry);
   // final TextEditingController editBankBusinessNameController = TextEditingController();
   TextEditingController editBankNameController = TextEditingController(text: editBankName);
-  TextEditingController editAccNumberController = TextEditingController(text: editAccNumber);
-  TextEditingController editIfscController = TextEditingController(text: editIfsc);
-  TextEditingController editBranchController = TextEditingController(text: editBranch);
+  // Mobile-money payout fields. networkName is held as a String here but
+  // the seller_edit_bank screen drives it through a dropdown limited to
+  // {MTN, Vodafone, AirtelTigo}.
+  TextEditingController editMomoNumberController = TextEditingController(text: editMomoNumber);
+  TextEditingController editNetworkNameController = TextEditingController(text: editNetworkName);
+  TextEditingController editMomoNameController = TextEditingController(text: editMomoName);
 
   final UserAddAddressController userAddAddressController = Get.put(UserAddAddressController());
 
@@ -64,9 +67,9 @@ class SellerEditProfileController extends GetxController {
     editState = stateCountroller.text;
     editCountry = countryController.text;
     editBankName = editBankNameController.text;
-    editAccNumber = editAccNumberController.text;
-    editIfsc = editIfscController.text;
-    editBranch = editBranchController.text;
+    editMomoNumber = editMomoNumberController.text;
+    editNetworkName = editNetworkNameController.text;
+    editMomoName = editMomoNameController.text;
     displayToast(message: St.pleaseWaitToast.tr);
 
     await sellerEditController.getEditProfileData(
@@ -80,9 +83,9 @@ class SellerEditProfileController extends GetxController {
         state: editState,
         country: editCountry,
         bankName: editBankName,
-        accountNumber: editAccNumber,
-        IFSCCode: editIfsc,
-        branchName: editBranch);
+        momoNumber: editMomoNumber,
+        networkName: editNetworkName,
+        momoName: editMomoName);
     log("status:${sellerEditController.sellerEditProfileData?.status}");
     if (sellerEditController.sellerEditProfileData?.status == true) {
       // sellerEditImage = sellerEditController.sellerEditProfileData!.seller!.image.toString();

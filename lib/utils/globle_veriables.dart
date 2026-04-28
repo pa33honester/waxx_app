@@ -49,9 +49,11 @@ String editState = "";
 String editCountry = "";
 String editBankBusinessName = "";
 String editBankName = "";
-String editAccNumber = "";
-String editIfsc = "";
-String editBranch = "";
+// Mobile-money payout details (replaces editAccNumber/editIfsc/editBranch).
+// networkName is one of: MTN, Vodafone, AirtelTigo (or empty).
+String editMomoNumber = "";
+String editNetworkName = "";
+String editMomoName = "";
 
 ///------- Setting Api Data ------------\\\
 

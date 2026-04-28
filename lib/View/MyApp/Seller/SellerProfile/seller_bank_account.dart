@@ -53,7 +53,7 @@ class SellerBankAccount extends StatelessWidget {
               height: 7,
             ),
             Text(
-              editAccNumber,
+              editMomoNumber,
               style: AppFontStyle.styleW700(AppColors.white, 13),
             ),
             const SizedBox(
@@ -67,7 +67,7 @@ class SellerBankAccount extends StatelessWidget {
               height: 7,
             ),
             Text(
-              editIfsc,
+              editNetworkName,
               style: AppFontStyle.styleW700(AppColors.white, 13),
             ),
             const SizedBox(
@@ -81,7 +81,7 @@ class SellerBankAccount extends StatelessWidget {
               height: 7,
             ),
             Text(
-              editBranch,
+              editMomoName,
               style: AppFontStyle.styleW700(AppColors.white, 13),
             ),
           ],

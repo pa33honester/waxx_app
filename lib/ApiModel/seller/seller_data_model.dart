@@ -1218,60 +1218,64 @@ class Seller {
 BankDetails bankDetailsFromJson(String str) => BankDetails.fromJson(json.decode(str));
 String bankDetailsToJson(BankDetails data) => json.encode(data.toJson());
 
+/// Mobile-money payout details. The legacy fields (accountNumber/IFSCCode/
+/// branchName) were renamed to (momoNumber/networkName/momoName) when the
+/// app was localised for Ghana. networkName is one of MTN/Vodafone/AirtelTigo
+/// (validated by the backend; the Flutter side just round-trips the string).
 class BankDetails {
   BankDetails({
     String? bankBusinessName,
     String? bankName,
-    num? accountNumber,
-    String? iFSCCode,
-    String? branchName,
+    String? momoNumber,
+    String? networkName,
+    String? momoName,
   }) {
     _bankBusinessName = bankBusinessName;
     _bankName = bankName;
-    _accountNumber = accountNumber;
-    _iFSCCode = iFSCCode;
-    _branchName = branchName;
+    _momoNumber = momoNumber;
+    _networkName = networkName;
+    _momoName = momoName;
   }
 
   BankDetails.fromJson(dynamic json) {
     _bankBusinessName = json['bankBusinessName'];
     _bankName = json['bankName'];
-    _accountNumber = json['accountNumber'];
-    _iFSCCode = json['IFSCCode'];
-    _branchName = json['branchName'];
+    _momoNumber = json['momoNumber']?.toString();
+    _networkName = json['networkName'];
+    _momoName = json['momoName'];
   }
   String? _bankBusinessName;
   String? _bankName;
-  num? _accountNumber;
-  String? _iFSCCode;
-  String? _branchName;
+  String? _momoNumber;
+  String? _networkName;
+  String? _momoName;
   BankDetails copyWith({
     String? bankBusinessName,
     String? bankName,
-    num? accountNumber,
-    String? iFSCCode,
-    String? branchName,
+    String? momoNumber,
+    String? networkName,
+    String? momoName,
   }) =>
       BankDetails(
         bankBusinessName: bankBusinessName ?? _bankBusinessName,
         bankName: bankName ?? _bankName,
-        accountNumber: accountNumber ?? _accountNumber,
-        iFSCCode: iFSCCode ?? _iFSCCode,
-        branchName: branchName ?? _branchName,
+        momoNumber: momoNumber ?? _momoNumber,
+        networkName: networkName ?? _networkName,
+        momoName: momoName ?? _momoName,
       );
   String? get bankBusinessName => _bankBusinessName;
   String? get bankName => _bankName;
-  num? get accountNumber => _accountNumber;
-  String? get iFSCCode => _iFSCCode;
-  String? get branchName => _branchName;
+  String? get momoNumber => _momoNumber;
+  String? get networkName => _networkName;
+  String? get momoName => _momoName;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['bankBusinessName'] = _bankBusinessName;
     map['bankName'] = _bankName;
-    map['accountNumber'] = _accountNumber;
-    map['IFSCCode'] = _iFSCCode;
-    map['branchName'] = _branchName;
+    map['momoNumber'] = _momoNumber;
+    map['networkName'] = _networkName;
+    map['momoName'] = _momoName;
     return map;
   }
 }
