@@ -35,8 +35,14 @@ class _SelectProductWhenCreateReelsState extends State<SelectProductWhenCreateRe
     // scrollController.addListener(_scrollListener);
     // _searchController.addListener(_onSearchChanged);
 
-    // Load initial data
+    // Load initial data. ShowCatalogController is a Get singleton shared
+    // with the seller catalog screen, so we have to reset its pagination
+    // and clear the cached page before re-fetching — otherwise re-entering
+    // this picker addAll's a fresh page on top of the previous one and the
+    // products appear duplicated.
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      showCatalogController.start = 1;
+      showCatalogController.catalogItems.clear();
       showCatalogController.getCatalogData(saleType: 'All', search: '');
     });
 

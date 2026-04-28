@@ -92,6 +92,13 @@ class SocketServices {
 
     log("Setting up socket event listeners");
 
+    // socket.io's auto-reconnect keeps the same Socket instance and any
+    // listeners attached via `socket!.on(...)` persist across reconnects.
+    // onConnect fires again on every reconnect, so without this guard each
+    // reconnect would stack another copy of every handler — buyer chats
+    // would then render 2×, 3×, 4× per send. Detach first, then reattach.
+    _clearAllListeners();
+
     // >>>>> >>>>> >>>>> >>>>> Socket Listen Method <<<<< <<<<< <<<<< <<<<<
 
     socket!.on("liveRoomConnect", (liveRoomConnectData) {
@@ -282,6 +289,7 @@ class SocketServices {
     socket!.off("lessView");
     socket!.off("comment");
     socket!.off("endLiveSeller");
+    socket!.off("selectedProductsUpdated");
     socket!.off("initiateAuction");
     socket!.off("auctionError");
     socket!.off("announceTopBidPlaced");

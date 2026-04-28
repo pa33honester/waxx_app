@@ -58,6 +58,11 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
   int? localViewID;
   Widget? remoteView;
   int? remoteViewID;
+  // Stream id we asked the engine to play. Persisted so the buyer-side
+  // exit path can stopPlayingStream + destroyCanvasView; without that
+  // teardown the native audio/video pipeline leaks for the rest of the
+  // process and the next loginRoom often can't attach a fresh stream.
+  String? remoteStreamID;
 
   @override
   void initState() {
@@ -249,6 +254,14 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
   void _cleanupZego() {
     try {
       _stopListenEvent();
+      // Buyer-side: tear down the play stream + canvas BEFORE logoutRoom.
+      // logoutRoom alone leaves the native player/audio sink alive, which
+      // (a) leaks the emulator audio HAL into a `pcm_writei ... I/O error`
+      // spam at ~10 Hz, and (b) makes a subsequent loginRoom unable to
+      // attach a fresh stream — buyers exit/rejoin and see a black page.
+      if (!widget.isHost && remoteStreamID != null) {
+        _stopPlayStream(remoteStreamID!);
+      }
       _logoutRoom();
       SocketServices.onLiveRoomExit(isHost: widget.isHost, liveHistoryId: roomID);
       liveController.isLivePage = false;
@@ -296,6 +309,16 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
   Future<ZegoRoomLoginResult> _loginRoom() async {
     final user = ZegoUser(localUserID, localUserName);
     ZegoRoomConfig roomConfig = ZegoRoomConfig.defaultConfig()..isUserStatusNotify = true;
+
+    // Defensive logout. The Zego engine is a singleton and remembers the
+    // last room it was logged into across LivePageView instances (deep-link
+    // taps from a backgrounded app, route stacks where the previous live
+    // page didn't dispose, etc). Calling loginRoom again for the same
+    // roomID without logging out first returns errorCode 1002001 and the
+    // viewer never receives a stream — the buyer gets stuck on the
+    // loading spinner. Awaiting logoutRoom is a no-op when we weren't
+    // logged in, so it's safe in the cold-start path too.
+    await ZegoExpressEngine.instance.logoutRoom(roomID);
 
     return ZegoExpressEngine.instance.loginRoom(roomID, user, config: roomConfig).then((ZegoRoomLoginResult loginRoomResult) {
       debugPrint('loginRoom: errorCode:${loginRoomResult.errorCode}, extendedData:${loginRoomResult.extendedData}');
@@ -394,6 +417,7 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
   }
 
   Future<void> _startPlayStream(String streamID) async {
+    remoteStreamID = streamID;
     await ZegoExpressEngine.instance.createCanvasView((viewID) {
       remoteViewID = viewID;
       ZegoCanvas canvas = ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFill);
@@ -410,6 +434,9 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
 
   Future<void> _stopPlayStream(String streamID) async {
     ZegoExpressEngine.instance.stopPlayingStream(streamID);
+    if (remoteStreamID == streamID) {
+      remoteStreamID = null;
+    }
     if (remoteViewID != null) {
       ZegoExpressEngine.instance.destroyCanvasView(remoteViewID!);
       if (mounted) {

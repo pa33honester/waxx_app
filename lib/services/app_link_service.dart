@@ -29,6 +29,14 @@ class AppLinkService {
   StreamSubscription<Uri>? _subscription;
   bool _initialized = false;
 
+  // The OS often hands the same URL to BOTH `getInitialLink()` (cold
+  // start) and `uriLinkStream` (the warm-start listener fires once the
+  // launching Intent is processed). Without this guard we'd route the
+  // user twice — pushing two LivePageView widgets that race for the
+  // singleton Zego engine, leaving the first one with a dead canvas.
+  String? _lastHandledUri;
+  DateTime? _lastHandledAt;
+
   /// Call once from main() after Flutter binding is ready. Idempotent.
   Future<void> init() async {
     if (_initialized) return;
@@ -59,6 +67,17 @@ class AppLinkService {
   }
 
   void _handleUri(Uri uri) {
+    final now = DateTime.now();
+    final uriStr = uri.toString();
+    if (_lastHandledUri == uriStr &&
+        _lastHandledAt != null &&
+        now.difference(_lastHandledAt!) < const Duration(seconds: 3)) {
+      log('AppLinkService dedup: ignoring duplicate $uri');
+      return;
+    }
+    _lastHandledUri = uriStr;
+    _lastHandledAt = now;
+
     log('AppLinkService received: $uri');
 
     // Accept both forms:
@@ -152,15 +171,24 @@ class AppLinkService {
     // Make sure BottomBar is up so the back-button stack is sane.
     if (!Get.isRegistered<BottomBarController>()) Get.put(BottomBarController());
 
-    Get.to(
-      () => LivePageView(
-        key: ValueKey('live_${live.liveSellingHistoryId}'),
-        liveUserList: live,
-        isHost: false,
-        isActive: true,
-      ),
-      routeName: '/LivePage',
-    );
+    // If a live page is already on top of the stack — most commonly the
+    // user was watching a live, backgrounded the app, then tapped a
+    // share link — replace it rather than stack a new one. Two
+    // LivePageView instances would race for the singleton Zego engine
+    // (loginRoom returns 1002001 on the second one, the first one's
+    // dispose later kicks the second one out of the room).
+    LivePageView buildLivePage() => LivePageView(
+          key: ValueKey('live_${live.liveSellingHistoryId}'),
+          liveUserList: live,
+          isHost: false,
+          isActive: true,
+        );
+
+    if (Get.currentRoute == '/LivePage') {
+      Get.off(buildLivePage, routeName: '/LivePage');
+    } else {
+      Get.to(buildLivePage, routeName: '/LivePage');
+    }
   }
 
   void _gotoLiveTab() {

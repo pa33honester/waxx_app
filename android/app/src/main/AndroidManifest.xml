@@ -87,6 +87,13 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- Force-enable the Impeller renderer on Android. Required for
+             LDPlayer / older emulator GPU drivers that crash or render
+             black on the legacy Skia OpenGL backend. -->
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableImpeller"
+            android:value="true" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

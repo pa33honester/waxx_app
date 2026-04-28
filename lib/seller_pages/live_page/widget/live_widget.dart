@@ -251,40 +251,47 @@ class LiveUi extends StatelessWidget {
       children: [
         // Host profile + follow pill grouped together so the spaceBetween
         // distribution gives the views badge to the right a real gap. The
-        // pill used to live inside the 178-wide profile container and
-        // overflowed visually against the views badge.
-        GetBuilder<LiveController>(
-          builder: (controller) => Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              GestureDetector(
-                child: Container(
-                  height: 50,
-                  width: 178,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(56),
-                    border: Border.all(color: AppColors.grayLight.withValues(alpha: 0.3)),
-                    color: AppColors.black.withValues(alpha: 0.45),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: Row(
-                      children: [
-                        _buildHostAvatar(controller),
-                        5.width,
-                        _buildHostInfo(controller),
-                      ],
+        // group is Flexible so it shrinks (rather than overflows + glues
+        // itself to the views badge) when the screen is too narrow to fit
+        // the natural width of profile + follow + views + close.
+        Flexible(
+          child: GetBuilder<LiveController>(
+            builder: (controller) => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: GestureDetector(
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(56),
+                        border: Border.all(color: AppColors.grayLight.withValues(alpha: 0.3)),
+                        color: AppColors.black.withValues(alpha: 0.45),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(3.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildHostAvatar(controller),
+                            5.width,
+                            Flexible(child: _buildHostInfo(controller)),
+                            5.width,
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              if (!controller.isHost && controller.sellerId.isNotEmpty) ...[
-                const SizedBox(width: 8),
-                FollowPill(sellerId: controller.sellerId),
+                if (!controller.isHost && controller.sellerId.isNotEmpty) ...[
+                  const SizedBox(width: 8),
+                  FollowPill(sellerId: controller.sellerId),
+                ],
               ],
-            ],
+            ),
           ),
         ),
+        const SizedBox(width: 8),
         BlurryContainer(
           height: 40,
           blur: 2,
