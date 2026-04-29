@@ -61,6 +61,9 @@ class Setting {
   PrivateKey? privateKey;
   String? flutterWaveId;
   bool? flutterWaveSwitch;
+  String? paystackPublicKey;
+  String? paystackSecretKey;
+  bool? paystackSwitch;
   String? resendApiKey;
   int? minPayout;
   int? paymentReminderForLiveAuction;
@@ -98,6 +101,9 @@ class Setting {
     this.privateKey,
     this.flutterWaveId,
     this.flutterWaveSwitch,
+    this.paystackPublicKey,
+    this.paystackSecretKey,
+    this.paystackSwitch,
     this.resendApiKey,
     this.minPayout,
     this.paymentReminderForLiveAuction,
@@ -136,6 +142,9 @@ class Setting {
         privateKey: json["privateKey"] == null ? null : PrivateKey.fromJson(json["privateKey"]),
         flutterWaveId: json["flutterWaveId"],
         flutterWaveSwitch: json["flutterWaveSwitch"],
+        paystackPublicKey: json["paystackPublicKey"],
+        paystackSecretKey: json["paystackSecretKey"],
+        paystackSwitch: json["paystackSwitch"],
         resendApiKey: json["resendApiKey"],
         minPayout: json["minPayout"],
         paymentReminderForLiveAuction: json["paymentReminderForLiveAuction"],
@@ -174,6 +183,9 @@ class Setting {
         "privateKey": privateKey?.toJson(),
         "flutterWaveId": flutterWaveId,
         "flutterWaveSwitch": flutterWaveSwitch,
+        "paystackPublicKey": paystackPublicKey,
+        "paystackSecretKey": paystackSecretKey,
+        "paystackSwitch": paystackSwitch,
         "resendApiKey": resendApiKey,
         "minPayout": minPayout,
         "paymentReminderForLiveAuction": paymentReminderForLiveAuction,

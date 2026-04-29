@@ -80,6 +80,11 @@ bool isShowRazorPayPaymentMethod = false;
 bool isShowStripePaymentMethod = false;
 bool isShowFlutterWavePaymentMethod = false;
 bool isShowCashOnDelivery = false;
+
+/// ====== Paystack ======== \\\
+String paystackPublicKey = "";
+String paystackSecretKey = "";
+bool isShowPaystackPaymentMethod = false;
 int minPayout = 0;
 int paymentReminderForLiveAuction = 0;
 int paymentReminderForManualAuction = 0;

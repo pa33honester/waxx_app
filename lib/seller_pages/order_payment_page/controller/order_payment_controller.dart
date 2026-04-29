@@ -1,6 +1,7 @@
 import 'package:waxxapp/ApiModel/user/CreateOrderByUserModel.dart';
 import 'package:waxxapp/ApiService/user/create_order_by_user_service.dart';
 import 'package:waxxapp/PaymentMethod/flutter_wave/flutter_wave_services.dart';
+import 'package:waxxapp/PaymentMethod/paystack/paystack_service.dart';
 import 'package:waxxapp/PaymentMethod/razor_pay/razor_pay_view.dart';
 import 'package:waxxapp/PaymentMethod/stripe/stripe_service.dart';
 import 'package:waxxapp/View/MyApp/AppPages/cheak_out.dart';
@@ -49,6 +50,7 @@ class OrderPaymentController extends GetxController {
     {"icon": AppAsset.icStripe, "title": "Stripe", "size": "35.0"},
     {"icon": AppAsset.icFlutterWave, "title": "Flutter Wave", "size": "30"},
     {"icon": AppAsset.icCashOnDelivery, "title": "Cash on Delivery", "size": "30"},
+    {"icon": AppAsset.icPaystack, "title": "Paystack", "size": "30"},
   ];
 
   int selectedPaymentMethod = 0;
@@ -189,6 +191,23 @@ class OrderPaymentController extends GetxController {
           await handlePaymentSuccess("Cash On Delivery", paymentStatus);
         },
       );
+    }
+
+    // >>>>> >>>>> >>>>> Paystack Payment <<<<< <<<<< <<<<<
+    if (selectedPaymentMethod == 4) {
+      Utils.showLog("Paystack Payment Working....");
+      Utils.showLog("Is Auction Payment: $isAuctionPayment");
+      try {
+        await PaystackService().pay(
+          amount: finalTotal.toInt(),
+          callback: () async {
+            Utils.showLog("Paystack Payment verified by backend");
+            await handlePaymentSuccess("Paystack", paymentStatus);
+          },
+        );
+      } catch (e) {
+        Utils.showLog("Paystack Payment Failed => $e");
+      }
     }
   }
 }

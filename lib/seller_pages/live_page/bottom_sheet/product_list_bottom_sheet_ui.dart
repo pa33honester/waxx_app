@@ -55,10 +55,14 @@ class ProductListBottomSheetUi {
                           style: AppFontStyle.styleW700(AppColors.white, 16),
                         ),
                         const Spacer(),
-                        if (isHost)
-                          // Host-only "+ Add" pill — opens a catalog picker so the
-                          // seller can append products to the live show without
-                          // leaving the broadcast.
+                        // Host-only "+ Add" pill — opens a catalog picker so the
+                        // seller can append products to the live show without
+                        // leaving the broadcast. Gate on both the upstream
+                        // isHost flag AND a fresh check that the logged-in
+                        // user is actually the seller of this stream, so a
+                        // viewer can never see this even if isHost is wired
+                        // wrong on a future entry path.
+                        if (isHost && Database.sellerId.isNotEmpty && Database.sellerId == logic.sellerId)
                           GestureDetector(
                             onTap: () => ProductListBottomSheetUi._openAddProductPicker(context, logic),
                             child: Container(

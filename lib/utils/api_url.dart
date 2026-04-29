@@ -148,6 +148,12 @@ class Api {
   static const sellerGiveawayHistory = "giveaway/sellerHistory";
   static const myGiveawayWins = "giveaway/myWins";
 
+  // Paystack — server-side transaction verification.
+  // POST /payment/paystack/verify with body { reference, expectedAmount? }
+  // Backend hits Paystack's GET /transaction/verify/:reference with the
+  // admin-configured secret key and confirms status === "success".
+  static const paystackVerify = "payment/paystack/verify";
+
   // Live scheduling
   static const scheduleLive = "liveSeller/schedule";
   static const getScheduledLivesBySeller = "liveSeller/scheduledBySeller";

@@ -1,10 +1,7 @@
 // ignore_for_file: must_be_immutable
 
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:waxxapp/custom/simple_app_bar_widget.dart';
-import 'package:waxxapp/utils/CoustomWidget/App_theme_services/textfields.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/font_style.dart';
@@ -182,72 +179,9 @@ class OrderConfirmBySeller extends StatelessWidget {
                               ],
                             ),
                           ),
-                          26.height,
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: Row(
-                              children: [
-                                Text(
-                                  St.deliveryBy.tr,
-                                  style: AppFontStyle.styleW500(AppColors.unselected, 14),
-                                ),
-                              ],
-                            ),
-                          ),
-                          DropdownButtonFormField<String>(
-                            dropdownColor: AppColors.tabBackground,
-                            style: AppFontStyle.styleW500(AppColors.unselected, 14),
-                            decoration: InputDecoration(
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                filled: true,
-                                fillColor: AppColors.tabBackground,
-                                hintStyle: AppFontStyle.styleW500(AppColors.unselected, 14),
-                                enabledBorder: OutlineInputBorder(borderSide: isDark.value ? BorderSide(color: Colors.grey.shade800) : BorderSide.none, borderRadius: BorderRadius.circular(12)),
-                                border: OutlineInputBorder(borderSide: BorderSide(color: AppColors.primaryPink), borderRadius: BorderRadius.circular(12))),
-                            hint: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                St.fedEx.tr,
-                                style: AppFontStyle.styleW500(AppColors.unselected, 14),
-                              ),
-                            ),
-                            icon: const Icon(Icons.expand_more_outlined),
-                            alignment: Alignment.center,
-                            isExpanded: true,
-                            items: <String>[
-                              'Delhivery',
-                              "DTDC",
-                              "Blue Dart",
-                              'Ecom Express',
-                              'Safe Express',
-                              "Shadowfax",
-                              "Xpressbess",
-                            ].map((String value) {
-                              return DropdownMenuItem(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: AppFontStyle.styleW500(AppColors.white, 14),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              updateStatusWiseOrderController.deliveredServiceName = value;
-                              log("$value");
-                            },
-                          ),
-                          const SizedBox(height: 18),
-                          PrimaryTextField(
-                            titleText: St.trackingId.tr,
-                            hintText: "TRA987654",
-                            controllerType: "TrackingId",
-                          ),
-                          const SizedBox(height: 18),
-                          PrimaryTextField(
-                            titleText: St.trackingLink.tr,
-                            hintText: "http://tracker.com",
-                            controllerType: "TrackingLink",
-                          ),
+                          // Delivery-by / Tracking Id / Tracking Link inputs were
+                          // removed from the seller's confirm view per product
+                          // direction; Submit now just flips the order status.
                         ],
                       ),
                     ),
@@ -258,19 +192,12 @@ class OrderConfirmBySeller extends StatelessWidget {
                       onTap: isDemoSeller == true
                           ? () => displayToast(message: St.thisIsDemoUser.tr)
                           : () async {
-                              if (updateStatusWiseOrderController.trackingLinkController.text.isBlank == false ||
-                                  updateStatusWiseOrderController.trackingIdController.text.isBlank == false ||
-                                  updateStatusWiseOrderController.trackingIdController.text.isBlank == false) {
-                                await updateStatusWiseOrderController.updateOrderStatus(userId: "$userId");
-                                if (updateStatusWiseOrderController.updateStatusWiseOrder!.status == true) {
-                                  displayToast(message: St.orderOutOfDelivery.tr);
-                                  Get.back();
-                                  // Get.back();
-                                } else {
-                                  displayToast(message: St.thisOrderIsAlreadyConfirmed.tr);
-                                }
+                              await updateStatusWiseOrderController.updateOrderStatus(userId: "$userId");
+                              if (updateStatusWiseOrderController.updateStatusWiseOrder!.status == true) {
+                                displayToast(message: St.orderOutOfDelivery.tr);
+                                Get.back();
                               } else {
-                                displayToast(message: St.allFieldFillAreRequired.tr);
+                                displayToast(message: St.thisOrderIsAlreadyConfirmed.tr);
                               }
                             },
                       child: Container(

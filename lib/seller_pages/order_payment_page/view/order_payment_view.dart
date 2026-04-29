@@ -47,6 +47,7 @@ class OrderPaymentView extends StatelessWidget {
                     Visibility(visible: isShowStripePaymentMethod, child: PaymentItemUi(1)),
                     Visibility(visible: isShowFlutterWavePaymentMethod, child: PaymentItemUi(2)),
                     Visibility(visible: isShowCashOnDelivery, child: PaymentItemUi(3)),
+                    Visibility(visible: isShowPaystackPaymentMethod, child: PaymentItemUi(4)),
                   ],
                 ),
               ),

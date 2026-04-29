@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:waxxapp/ApiModel/user/RemoveProductToCartModel.dart';
 import 'package:waxxapp/ApiService/user/remove_product_to_cart_service.dart';
-import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:get/get.dart';
 
@@ -25,11 +24,11 @@ class RemoveProductToCartController extends GetxController {
       removeProductToCartModel = data;
       log("Remove product Status :: ${removeProductToCartModel?.status}");
       if (removeProductToCartModel?.status == true) {
-        displayToast(message: "Product Removed").then((value) {
-          // Get.offAll(BottomBarController());
-          final controller = Get.put(BottomBarController());
-          controller.onChangeBottomBar(2);
-        });
+        // Just toast — the cart page reloads itself via getCartProductData.
+        // The previous code force-jumped the bottom bar to index 2, which
+        // was Cart before Live was inserted at index 1 but is now Reels;
+        // pressing the minus button kicked users out to Reels.
+        displayToast(message: "Product Removed");
       } else {
         displayToast(message: "Something Wrong Please Try Again");
       }

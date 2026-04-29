@@ -109,6 +109,7 @@ abstract class AppAsset {
   static const String icRazorpay = "${getIconsPath}razorpay.png";
   static const String icFlutterWave = "${getIconsPath}flutterWave.png";
   static const String icCashOnDelivery = "${getIconsPath}cod.png";
+  static const String icPaystack = "${getIconsPath}paystack.png";
 
   static const lottieWaveAnimation = "${getLottiePath}lottie_wave_animation.json";
   static const trendingAnimation = "${getLottiePath}trending.json";

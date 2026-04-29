@@ -152,6 +152,9 @@ class SplashScreenController extends GetxController {
         isShowStripePaymentMethod = settingApiController.setting?.setting?.stripeSwitch ?? false;
         isShowFlutterWavePaymentMethod = settingApiController.setting?.setting?.flutterWaveSwitch ?? false;
         isShowCashOnDelivery = settingApiController.setting?.setting?.isCashOnDelivery ?? false;
+        paystackPublicKey = settingApiController.setting?.setting?.paystackPublicKey ?? "";
+        paystackSecretKey = settingApiController.setting?.setting?.paystackSecretKey ?? "";
+        isShowPaystackPaymentMethod = settingApiController.setting?.setting?.paystackSwitch ?? false;
         minPayout = settingApiController.setting?.setting?.minPayout ?? 0;
         openAiKey = settingApiController.setting?.setting?.openaiApiKey ?? "";
         paymentReminderForLiveAuction = settingApiController.setting?.setting?.paymentReminderForLiveAuction ?? 0;

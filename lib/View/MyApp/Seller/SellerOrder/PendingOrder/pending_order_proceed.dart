@@ -209,16 +209,22 @@ class PendingOrderProceed extends StatelessWidget {
                                         Utils.buildAddressString(shippingAddress, shippingAddressCity, shippingAddressState, shippingAddressCountry, shippingAddressZipCode),
                                         style: AppFontStyle.styleW500(AppColors.unselected, 12),
                                       ),
+                                      if ((mobileNumber ?? '').trim().isNotEmpty) ...[
+                                        8.height,
+                                        Row(
+                                          children: [
+                                            Icon(Icons.phone, size: 14, color: AppColors.primary),
+                                            6.width,
+                                            Text(
+                                              mobileNumber!,
+                                              style: AppFontStyle.styleW500(AppColors.unselected, 12),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ),
-                                /* Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 5),
-                                  child: Text(
-                                    "$mobileNumber",
-                                    style: AppFontStyle.styleW600(AppColors.white, 14.4),
-                                  ),
-                                ),*/
                                 16.height,
                                 Container(
                                   width: Get.width,
