@@ -30,7 +30,35 @@ class Notifications extends StatelessWidget {
             automaticallyImplyLeading: false,
             backgroundColor: AppColors.transparent,
             shadowColor: AppColors.black.withValues(alpha: 0.4),
-            flexibleSpace: SimpleAppBarWidget(title: St.notification.tr),
+            flexibleSpace: Stack(
+              children: [
+                SimpleAppBarWidget(title: St.notification.tr),
+                // Clear-all action — only renders when there's at least
+                // one notification to wipe. Sits at the top-right of the
+                // app bar so the back chevron + title stay centered.
+                Positioned(
+                  right: 4,
+                  top: 0,
+                  bottom: 0,
+                  child: GetBuilder<NotificationController>(
+                    builder: (controller) {
+                      if (controller.isLoading.value || controller.notificationList.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+                      return Center(
+                        child: TextButton(
+                          onPressed: () => _confirmClearAll(controller),
+                          child: Text(
+                            'Clear all',
+                            style: AppFontStyle.styleW600(AppColors.primary, 13),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         body: SafeArea(
@@ -58,39 +86,86 @@ class Notifications extends StatelessWidget {
                                 DateTime dateTime = DateFormat('M/d/yyyy, hh:mm:ss a').parse(inputDate);
                                 String formattedDate = DateFormat('d MMM, hh:mm a').format(dateTime);
 
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 15),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        height: 48,
-                                        width: 48,
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: AppColors.white),
+                                // Stable id for the Dismissible key —
+                                // falls back to the index when a row
+                                // arrives without an id (defensive).
+                                final dismissKey = ValueKey(
+                                  (notificationData.id?.isNotEmpty ?? false)
+                                      ? notificationData.id!
+                                      : 'notif-$index',
+                                );
+                                return Dismissible(
+                                  key: dismissKey,
+                                  direction: DismissDirection.endToStart,
+                                  background: Container(
+                                    margin: const EdgeInsets.only(bottom: 15),
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.red.withValues(alpha: 0.18),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: AppColors.red.withValues(alpha: 0.6)),
+                                    ),
+                                    child: Icon(Icons.delete_outline_rounded, color: AppColors.red, size: 22),
+                                  ),
+                                  onDismissed: (_) async {
+                                    final ok = await notificationController.deleteNotification(index);
+                                    if (!ok) {
+                                      Utils.showToast("Couldn't delete. Please try again.");
+                                    }
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.only(bottom: 15),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          height: 48,
+                                          width: 48,
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(color: AppColors.white),
+                                          ),
+                                          child: PreviewProfileImageWidget(size: 48, image: notificationData.image, fit: BoxFit.cover),
                                         ),
-                                        child: PreviewProfileImageWidget(size: 48, image: notificationData.image, fit: BoxFit.cover),
-                                      ),
-                                      10.width,
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              notificationData.message ?? "",
-                                              style: AppFontStyle.styleW500(AppColors.white, 14),
-                                            ),
-                                            5.height,
-                                            Text(
-                                              formattedDate,
-                                              style: AppFontStyle.styleW500(AppColors.unselected, 12),
-                                            ),
-                                          ],
+                                        10.width,
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                notificationData.message ?? "",
+                                                style: AppFontStyle.styleW500(AppColors.white, 14),
+                                              ),
+                                              5.height,
+                                              Text(
+                                                formattedDate,
+                                                style: AppFontStyle.styleW500(AppColors.unselected, 12),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                        // Trailing trash icon — duplicates the
+                                        // swipe affordance so users who don't
+                                        // know to swipe still have a clear way
+                                        // to delete a single row.
+                                        IconButton(
+                                          tooltip: 'Delete',
+                                          icon: Icon(
+                                            Icons.delete_outline_rounded,
+                                            color: AppColors.unselected,
+                                            size: 20,
+                                          ),
+                                          onPressed: () async {
+                                            final ok = await notificationController.deleteNotification(index);
+                                            if (!ok) {
+                                              Utils.showToast("Couldn't delete. Please try again.");
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 );
                                 // return Row(
@@ -147,5 +222,41 @@ class Notifications extends StatelessWidget {
         )),
       ),
     );
+  }
+
+  /// Confirmation dialog for the AppBar's Clear-all action — bulk
+  /// deletes are destructive and easy to fat-finger, so we always gate
+  /// behind a confirm step. The controller's `clearAllNotifications`
+  /// already does the optimistic-empty + restore-on-failure dance.
+  Future<void> _confirmClearAll(NotificationController controller) async {
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: AppColors.tabBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text("Clear all notifications?", style: AppFontStyle.styleW700(AppColors.white, 16)),
+        content: Text(
+          "This will remove every notification from your list. You can't undo this.",
+          style: AppFontStyle.styleW500(AppColors.unselected, 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text("Cancel", style: AppFontStyle.styleW600(AppColors.unselected, 13)),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: Text("Clear all", style: AppFontStyle.styleW700(AppColors.red, 13)),
+          ),
+        ],
+      ),
+      barrierDismissible: true,
+    );
+
+    if (confirmed != true) return;
+
+    final ok = await controller.clearAllNotifications();
+    if (!ok) {
+      Utils.showToast("Couldn't clear notifications. Please try again.");
+    }
   }
 }

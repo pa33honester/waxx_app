@@ -102,6 +102,12 @@ class Api {
   static const filterWiseProduct = "product/filterWiseProduct";
   static const getSelectedProductForUser = "liveSeller/getSelectedProducts";
   static const allNotificationList = "notification/list";
+  // Single-row delete from the user's notifications list. Backend
+  // expects DELETE /notification/:notificationId?userId=<self>; the
+  // service composes the full URL using this base path.
+  static const deleteNotification = "notification";
+  // Bulk wipe — backend expects DELETE /notification?userId=<self>.
+  static const clearAllNotifications = "notification";
   static const deleteAccount = "user/deleteUserAccount";
   static const getAllBank = "bank/getBanks";
   static const fetchCategorySubAttr = "product/fetchCatSubcatAttrData";
