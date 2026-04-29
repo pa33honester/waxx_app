@@ -168,6 +168,21 @@ class _ProductDetailState extends State<ProductDetail> {
     return addr?.state ?? addr?.country;
   }
 
+  /// Renders the seller's display name on the "About this seller" row.
+  /// Sellers without a `businessName` (which is the case for users who
+  /// signed up without filling their store profile yet) used to render
+  /// a blank line — fall back to first + last, then firstName alone,
+  /// then a generic placeholder so the row never collapses to nothing.
+  String _resolveSellerName(dynamic seller) {
+    final business = (seller?.businessName ?? '').toString().trim();
+    if (business.isNotEmpty) return business;
+    final first = (seller?.firstName ?? '').toString().trim();
+    final last = (seller?.lastName ?? '').toString().trim();
+    final composed = [first, last].where((s) => s.isNotEmpty).join(' ');
+    if (composed.isNotEmpty) return composed;
+    return St.seller.tr;
+  }
+
   /// Maps the backend's lowercase enum (`local` / `nationwide` /
   /// `international`) to the locale-aware display label. Falls back to
   /// echoing the raw key if a future enum value sneaks through.
@@ -715,7 +730,10 @@ class _ProductDetailState extends State<ProductDetail> {
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    "${userProductDetailsController.userProductDetails?.product?[0].seller?.businessName}",
+                                                    // Prefer businessName, fall back to first + last name
+                                                    // so sellers without a brand name still show up
+                                                    // (the row used to render blank in that case).
+                                                    _resolveSellerName(userProductDetailsController.userProductDetails?.product?[0].seller),
                                                     style: AppFontStyle.styleW700(AppColors.white, 14),
                                                   ),
                                                   5.height,
