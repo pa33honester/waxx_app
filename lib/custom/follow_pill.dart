@@ -27,6 +27,20 @@ class _FollowPillState extends State<FollowPill> {
   late bool _following = widget.initiallyFollowing;
   bool _inFlight = false;
 
+  @override
+  void didUpdateWidget(covariant FollowPill oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Parent may rebuild with a freshly-seeded `initiallyFollowing` (e.g.
+    // when `LiveController._startInitialization` lands and flips
+    // `controller.isFollow` from its default false to the real backend
+    // value). Mirror that into local state so the icon/text update —
+    // unless the user has an in-flight tap, in which case the optimistic
+    // flip wins until the server round-trip completes.
+    if (!_inFlight && oldWidget.initiallyFollowing != widget.initiallyFollowing) {
+      _following = widget.initiallyFollowing;
+    }
+  }
+
   Future<void> _toggle() async {
     if (_inFlight) return;
     final next = !_following;

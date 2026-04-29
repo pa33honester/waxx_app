@@ -168,6 +168,10 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
     liveController.liveSelectedProducts = liveUserList?.selectedProducts ?? [];
     liveController.businessName = liveUserList?.businessName ?? "";
     liveController.businessTag = liveUserList?.businessTag ?? "";
+    // Seed the per-viewer follow flag from the backend-projected
+    // LiveSeller.isFollow so the FollowPill renders in its real state
+    // (Following / Follow) instead of always defaulting to "Follow".
+    liveController.isFollow = liveUserList?.isFollow ?? false;
 
     log("message>>>>>>>>>${liveController.isHost}");
     log("message>>>>>>>>>liveController.liveType${liveController.liveType}");

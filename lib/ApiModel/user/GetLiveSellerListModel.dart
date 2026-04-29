@@ -58,6 +58,7 @@ class LiveSeller {
   CurrentHighestBidder? currentHighestBidder;
   int? totalRemainingTime;
   String? sellerId;
+  bool? isFollow;
 
   LiveSeller({
     this.id,
@@ -79,6 +80,7 @@ class LiveSeller {
     this.currentHighestBidder,
     this.totalRemainingTime,
     this.liveType,
+    this.isFollow,
   });
 
   factory LiveSeller.fromJson(Map<String, dynamic> json) => LiveSeller(
@@ -101,6 +103,7 @@ class LiveSeller {
         currentHighestBidder: json["currentHighestBidder"] == null ? null : CurrentHighestBidder.fromJson(json["currentHighestBidder"]),
         totalRemainingTime: json["totalRemainingTime"],
         liveType: json["liveType"],
+        isFollow: json["isFollow"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -122,7 +125,8 @@ class LiveSeller {
         "currentHighestBid": currentHighestBid,
         "currentHighestBidder": currentHighestBidder?.toJson(),
         "totalRemainingTime": totalRemainingTime,
-        "liveType": liveType
+        "liveType": liveType,
+        "isFollow": isFollow,
       };
 }
 

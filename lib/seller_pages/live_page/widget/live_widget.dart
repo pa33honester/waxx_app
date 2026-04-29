@@ -133,10 +133,20 @@ class LiveUi extends StatelessWidget {
                   onTap: controller.onSwitchMic,
                 ),
                 14.height,
+                // Display-only Like indicator on the host side — surfaces
+                // the running like total the same socket broadcasts every
+                // viewer sees. Tap is a no-op toast since a seller can't
+                // like their own broadcast.
+                Obx(() => _LiveActionButton(
+                      icon: Icons.favorite_rounded,
+                      iconColor: AppColors.red,
+                      label: CustomFormatNumber.convert(SocketServices.liveLikeCount.value),
+                      onTap: () => Utils.showToast("You can't like your own live"),
+                    )),
+                14.height,
               ],
-              // Like + Sound Mute — buyer-only. A seller can't like or
-              // report their own broadcast, and the buyer-only Sound Mute
-              // mutes the incoming Zego audio (no analogue on the host).
+              // Buyer-only: Like (interactive) and Sound Mute. The Sound
+              // Mute mutes the incoming Zego audio for this viewer only.
               if (!isHost) ...[
                 Obx(() => _LiveActionButton(
                       icon: controller.isLiveLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
@@ -153,11 +163,14 @@ class LiveUi extends StatelessWidget {
                     )),
                 14.height,
               ],
-              _LiveActionButton(
-                icon: Icons.ios_share_rounded,
-                label: 'Share',
-                onTap: () => _handleShare(controller),
-              ),
+              // Share — interactive on both sides; label is the running
+              // share count broadcast room-wide via socket so host + every
+              // viewer stay in sync.
+              Obx(() => _LiveActionButton(
+                    icon: Icons.ios_share_rounded,
+                    label: CustomFormatNumber.convert(SocketServices.liveShareCount.value),
+                    onTap: () => _handleShare(controller),
+                  )),
               if (!isHost) ...[
                 14.height,
                 _LiveActionButton(
@@ -453,7 +466,10 @@ class LiveUi extends StatelessWidget {
                 ),
                 if (!controller.isHost && controller.sellerId.isNotEmpty) ...[
                   const SizedBox(width: 8),
-                  FollowPill(sellerId: controller.sellerId),
+                  FollowPill(
+                    sellerId: controller.sellerId,
+                    initiallyFollowing: controller.isFollow,
+                  ),
                 ],
               ],
             ),
@@ -747,6 +763,10 @@ class LiveUi extends StatelessWidget {
     // prepended "Watch this live show on Waxxapp\n", which the user
     // didn't want in the copied share text.
     final link = "https://www.waxxapp.com/live/$liveId";
+    // Optimistic local +1 so the count updates immediately on tap, in
+    // step with the room broadcast that follows.
+    SocketServices.liveShareCount.value += 1;
+    SocketServices.onLiveShare(liveHistoryId: liveId);
     await CustomShare.onShareLink(link: link);
   }
 }

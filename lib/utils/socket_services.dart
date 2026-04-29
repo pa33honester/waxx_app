@@ -23,6 +23,7 @@ class SocketServices {
   static bool isLiveRunning = false;
   static RxInt liveWatchCount = 0.obs;
   static RxInt liveLikeCount = 0.obs;
+  static RxInt liveShareCount = 0.obs;
   static RxList mainLiveComments = [].obs;
   static ScrollController scrollController = ScrollController();
   static TextEditingController sellerCommentText = TextEditingController();
@@ -49,6 +50,7 @@ class SocketServices {
       socket!.connect();
       liveWatchCount.value = 0;
       liveLikeCount.value = 0;
+      liveShareCount.value = 0;
 
       socket!.onConnect((data) {
         log("Socket Connected");
@@ -125,6 +127,17 @@ class SocketServices {
         liveLikeCount.value = count.toInt();
       } else {
         liveLikeCount.value = int.tryParse(count.toString()) ?? liveLikeCount.value;
+      }
+    });
+
+    socket!.on("liveShareCount", (count) {
+      log("Socket Listen => Live Share Count : $count");
+      if (count is int) {
+        liveShareCount.value = count;
+      } else if (count is num) {
+        liveShareCount.value = count.toInt();
+      } else {
+        liveShareCount.value = int.tryParse(count.toString()) ?? liveShareCount.value;
       }
     });
 
@@ -301,6 +314,7 @@ class SocketServices {
     socket!.off("addView");
     socket!.off("lessView");
     socket!.off("liveLikeCount");
+    socket!.off("liveShareCount");
     socket!.off("comment");
     socket!.off("endLiveSeller");
     socket!.off("selectedProductsUpdated");
@@ -439,6 +453,20 @@ class SocketServices {
     final payload = jsonEncode({"liveSellingHistoryId": liveHistoryId});
     socket!.emit("liveLike", payload);
     log("Socket Emit => liveLike: $payload");
+  }
+
+  /// Either side (host or viewer) taps Share. The backend increments the
+  /// running [LiveSellingHistory.shareCount] and rebroadcasts the new
+  /// total so every open client — buyer column + host column — stays
+  /// in sync.
+  static void onLiveShare({required String liveHistoryId}) {
+    if (socket == null || !socket!.connected) {
+      log("Socket Not Connected (liveShare skipped)");
+      return;
+    }
+    final payload = jsonEncode({"liveSellingHistoryId": liveHistoryId});
+    socket!.emit("liveShare", payload);
+    log("Socket Emit => liveShare: $payload");
   }
 
   /// Host-side: kick off an auction for a product already in their selected
@@ -596,6 +624,7 @@ class SocketServices {
       isLiveRunning = false;
       liveWatchCount.value = 0;
       liveLikeCount.value = 0;
+      liveShareCount.value = 0;
 
       // Navigate back or show appropriate UI
       if (Get.context != null) {
