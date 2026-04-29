@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:waxxapp/ApiService/seller/add_product_to_live_service.dart';
+import 'package:waxxapp/ApiService/seller/remove_product_from_live_service.dart';
 import 'package:waxxapp/ApiService/seller/show_catalog_service.dart';
 import 'package:waxxapp/Controller/ApiControllers/seller/show_catalog_controller.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
@@ -310,6 +311,12 @@ class ProductsUi extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Host = the logged-in user is the seller of THIS live show. Only
+    // the host gets a delete affordance — viewers can't remove items
+    // off someone else's live, even if they're a seller themselves on a
+    // different stream.
+    final bool isHost = Database.sellerId.isNotEmpty && Database.sellerId == sellerId;
+
     return GestureDetector(
       onTap: () {
         if (Database.sellerId != sellerId) {
@@ -414,9 +421,73 @@ class ProductsUi extends StatelessWidget {
               ],
             ),
           ),
+          // Host-only mid-stream delete. Tap → confirmation dialog →
+          // RemoveProductFromLiveService.remove() → backend emits
+          // `selectedProductsUpdated`, the LiveController's listener
+          // refreshes the visible list automatically (same path the
+          // mid-stream Add flow uses).
+          if (isHost)
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _confirmRemove(context),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                child: Icon(
+                  Icons.delete_outline_rounded,
+                  color: AppColors.red,
+                  size: 22,
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 
+  /// Pulled out of [build] so the dialog body stays readable. Uses
+  /// Get.dialog (not showDialog) for consistency with the rest of the
+  /// host-side live UI (Exit live, report, etc).
+  Future<void> _confirmRemove(BuildContext context) async {
+    final pid = selectedProduct.productId?.toString() ?? "";
+    if (pid.isEmpty) return;
+
+    final productLabel = (selectedProduct.productName ?? "").trim().isNotEmpty
+        ? selectedProduct.productName!
+        : "this product";
+
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: AppColors.tabBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text("Remove from live?", style: AppFontStyle.styleW700(AppColors.white, 16)),
+        content: Text(
+          'Remove "$productLabel" from this live show? Viewers will see it disappear from the list immediately.',
+          style: AppFontStyle.styleW500(AppColors.unselected, 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text("Cancel", style: AppFontStyle.styleW600(AppColors.unselected, 13)),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: Text("Remove", style: AppFontStyle.styleW700(AppColors.red, 13)),
+          ),
+        ],
+      ),
+      barrierDismissible: true,
+    );
+
+    if (confirmed != true) return;
+
+    final result = await RemoveProductFromLiveService.remove(
+      sellerId: Database.sellerId,
+      productId: pid,
+    );
+    Utils.showToast(
+      result.message.isNotEmpty
+          ? result.message
+          : (result.ok ? "Removed from live show." : "Couldn't remove product."),
+    );
+  }
 }

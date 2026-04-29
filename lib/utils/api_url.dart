@@ -45,6 +45,10 @@ class Api {
   static const liveSeller = "liveSeller";
   static const liveHeartbeat = "liveSeller/heartbeat";
   static const addProductToLive = "liveSeller/addProductToLive";
+  // Host pulls a product off the currently-live show. Backend mirrors
+  // addProductToLive and emits the same `selectedProductsUpdated` socket
+  // event to the room so the Available Products sheet refreshes.
+  static const removeProductFromLive = "liveSeller/removeProductFromLive";
   // Backend appends the liveSellingHistoryId as a path segment.
   static const liveByHistoryId = "liveSeller/byHistoryId";
   // Replay the chat-comment backlog for a live show. Path segment:
