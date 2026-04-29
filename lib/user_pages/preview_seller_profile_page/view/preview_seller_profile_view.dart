@@ -304,9 +304,11 @@ class _PreviewSellerProfileViewState extends State<PreviewSellerProfileView> wit
                                 // divider = 73 — that's the base height. When the
                                 // Products tab is active, the [CategoryTabsWidget]
                                 // chip rail adds ~62 more (8 + ~46 Tab + 8 padding).
-                                // The previous 114 / 56 budgets were too tight and the
-                                // Column inside overflowed by ~25px on the products tab.
-                                preferredSize: Size.fromHeight(_currentTabIndex == 0 ? 140 : 78),
+                                // The previous 114 / 56 budgets were too tight; 140
+                                // also turned out to be 8px shy in some locales / font
+                                // sizes (RenderFlex overflow of 8.0). 150 leaves a
+                                // small cushion without making the bar feel chunky.
+                                preferredSize: Size.fromHeight(_currentTabIndex == 0 ? 150 : 78),
                                 child: StoreProductTabBarWidget(
                                   onTabChanged: _onTabChanged,
                                 ),
