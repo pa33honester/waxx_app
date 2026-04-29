@@ -548,8 +548,13 @@ class SocketServices {
   static Future<void> onGetUserLiveDetails({
     required String liveHistoryId,
   }) async {
+    // Include the viewer's userId so the backend can project a per-viewer
+    // `isFollow` against the followers collection — without it, the
+    // FollowPill on the live page always defaults to "Follow" even when
+    // the viewer is already following the seller.
     final liveUserData = jsonEncode({
       "liveHistoryId": liveHistoryId,
+      "userId": Database.loginUserId,
     });
 
     if (socket != null && socket!.connected) {

@@ -227,7 +227,17 @@ class LiveController extends GetxController {
 
     updatedLiveUserList = users.isNotEmpty ? users.first : null;
     log("GetLiveUserInfo Socket Listen updatedLiveUserList => ${updatedLiveUserList?.toJson()}");
+    // Sync the per-viewer follow flag the backend now projects on
+    // fetchLiveBroadcastDetails so the FollowPill renders in its real
+    // state (Following / Follow) instead of always defaulting to false.
+    if (updatedLiveUserList?.isFollow != null) {
+      isFollow = updatedLiveUserList!.isFollow!;
+    }
+    // The id-tagged update() above only reaches GetBuilders that opt in by
+    // matching id; the FollowPill's parent GetBuilder is unkeyed, so we
+    // also fire a bare update() to rebuild it with the fresh isFollow.
     update(["onUpdateMultiLive", "idShare"]);
+    update();
   }
 
   void onToggleLiveLike() {
