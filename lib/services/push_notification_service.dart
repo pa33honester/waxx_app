@@ -67,11 +67,15 @@ class PushNotificationService {
       return;
     }
 
+    // Capture the cold-start tap (if any) BEFORE returning so the platform
+    // doesn't dispose of it. iOS and Android only surface getInitialMessage
+    // for a short window after launch — calling it late (e.g. on splash's
+    // onInit) raced past it on cold-start launches from a tapped push,
+    // dropping the deep link and routing the user to Home.
     final initialMessage = await _messaging.getInitialMessage();
-    if (initialMessage != null) {
-      await handleRemoteMessage(initialMessage, fromTap: true);
-    }
 
+    // Register the warm-tap and foreground listeners immediately so any
+    // subsequent taps after this method returns are caught.
     FirebaseMessaging.onMessageOpenedApp.listen((message) async {
       await handleRemoteMessage(message, fromTap: true);
     });
@@ -82,6 +86,17 @@ class PushNotificationService {
     });
 
     _interactionHandlersRegistered = true;
+
+    // The cold-start tap routes through AppLinkService.openLive(), which
+    // calls Get.dialog and needs a live Flutter context. Defer until after
+    // the first frame so MaterialApp + GetX are ready to receive the
+    // navigation, otherwise the tap silently no-ops and the user lands on
+    // the default Home route.
+    if (initialMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        handleRemoteMessage(initialMessage, fromTap: true);
+      });
+    }
   }
 
   // [fromTap] is true when the user actively tapped a notification

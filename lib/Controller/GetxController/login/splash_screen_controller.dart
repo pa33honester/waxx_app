@@ -32,7 +32,10 @@ class SplashScreenController extends GetxController {
   @override
   Future<void> onInit() async {
     log("Splash Screen ");
-    await PushNotificationService.instance.registerInteractionHandlers();
+    // Push interaction handlers are now armed early in main.dart (before
+    // runApp) so cold-start tap-launches don't lose the initial message.
+    // The PushNotificationService idempotency guard would skip a second
+    // call here anyway; removed to keep the call site explicit.
     // getDialCode();
     getIpData();
     await onBoardingFlow();

@@ -97,6 +97,12 @@ Future<void> main() async {
 
   ///************** PUSH NOTIFICATION ************************\\\
   await PushNotificationService.instance.initialize();
+  // Arm the tap handlers BEFORE runApp so cold-start launches from a
+  // tapped notification don't lose the initial message (the platform
+  // only surfaces getInitialMessage briefly). Late registration on
+  // splash's onInit raced past it for cold-start tap-launches, which
+  // is why a tap on a "Live started" push used to land on Home.
+  await PushNotificationService.instance.registerInteractionHandlers();
 
   if (identify != "" && fcmToken != "") {
     await Database.init(identify, fcmToken);

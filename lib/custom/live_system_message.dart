@@ -7,7 +7,7 @@ import 'package:waxxapp/utils/font_style.dart';
 /// viewers can spot them at a glance against regular chat.
 ///
 /// Server-side emission format on the `mainLiveComments` socket stream:
-///   {"type": "SYSTEM", "systemType": "SOLD" | "BID" | "GIVEAWAY_WIN" | "FOLLOW",
+///   {"type": "SYSTEM", "systemType": "SOLD" | "BID" | "GIVEAWAY_WIN" | "FOLLOW" | "JOIN",
 ///    "userName": "...", "text": "..."}
 class LiveSystemMessage extends StatelessWidget {
   final String systemType;
@@ -31,6 +31,8 @@ class LiveSystemMessage extends StatelessWidget {
         return (icon: Icons.card_giftcard_rounded, color: const Color(0xFFFF2D6A), label: 'WINNER');
       case 'FOLLOW':
         return (icon: Icons.person_add_alt_1_rounded, color: const Color(0xFF1D9BF0), label: 'FOLLOW');
+      case 'JOIN':
+        return (icon: Icons.login_rounded, color: AppColors.primary, label: 'JOINED');
       default:
         return (icon: Icons.info_outline_rounded, color: AppColors.white, label: 'INFO');
     }
