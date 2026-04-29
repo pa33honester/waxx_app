@@ -217,6 +217,46 @@ class _SellerProductDetailsViewState extends State<SellerProductDetailsView> {
                                             : Offstage(),
                                         5.height,
                                         Row(
+                                          children: [
+                                            Image(
+                                              color: AppColors.unselected,
+                                              image: AssetImage(AppImage.cart),
+                                              height: 15,
+                                            ),
+                                            5.width,
+                                            Text(
+                                              "${sellerProductDetailsController.sellerProductDetails?.product?[0].sold ?? 0} ${St.sold.tr}",
+                                              style: AppFontStyle.styleW500(AppColors.unselected, 12),
+                                            ),
+                                            10.width,
+                                            GestureDetector(
+                                              behavior: HitTestBehavior.opaque,
+                                              onTap: () {
+                                                productId = sellerProductDetailsController.sellerProductDetails!.product![0].id ?? "";
+                                                Get.toNamed("/ProductReviews");
+                                              },
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.star_rounded,
+                                                    color: Color(0xffFACC15),
+                                                    size: 20,
+                                                  ),
+                                                  5.width,
+                                                  Text(
+                                                    (sellerProductDetailsController.sellerProductDetails?.product?[0].rating?.isEmpty ?? true)
+                                                        ? St.noReviews.tr
+                                                        : "${sellerProductDetailsController.sellerProductDetails!.product![0].rating![0].avgRating}.0 (${sellerProductDetailsController.sellerProductDetails!.product![0].rating![0].totalUser})",
+                                                    style: AppFontStyle.styleW500(AppColors.unselected, 12),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        5.height,
+                                        Row(
                                           mainAxisAlignment: MainAxisAlignment.start,
                                           children: [
                                             Text(

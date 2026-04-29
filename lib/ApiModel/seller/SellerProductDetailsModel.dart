@@ -60,6 +60,7 @@ class Product {
   int? quantity;
   int? review;
   int? sold;
+  List<Rating>? rating;
   int? searchCount;
   dynamic lastSearchedAt;
   bool? isOutOfStock;
@@ -106,6 +107,7 @@ class Product {
     this.quantity,
     this.review,
     this.sold,
+    this.rating,
     this.searchCount,
     this.lastSearchedAt,
     this.isOutOfStock,
@@ -153,6 +155,7 @@ class Product {
         quantity: json["quantity"],
         review: json["review"],
         sold: json["sold"],
+        rating: json["rating"] == null ? [] : List<Rating>.from(json["rating"]!.map((x) => Rating.fromJson(x))),
         searchCount: json["searchCount"],
         lastSearchedAt: json["lastSearchedAt"],
         isOutOfStock: json["isOutOfStock"],
@@ -200,6 +203,7 @@ class Product {
         "quantity": quantity,
         "review": review,
         "sold": sold,
+        "rating": rating == null ? [] : List<dynamic>.from(rating!.map((x) => x.toJson())),
         "searchCount": searchCount,
         "lastSearchedAt": lastSearchedAt,
         "isOutOfStock": isOutOfStock,
@@ -218,6 +222,30 @@ class Product {
         "productSaleType": productSaleType,
         "createdAt": createdAt?.toIso8601String(),
         "updatedAt": updatedAt?.toIso8601String(),
+      };
+}
+
+class Rating {
+  String? id;
+  int? totalUser;
+  num? avgRating;
+
+  Rating({
+    this.id,
+    this.totalUser,
+    this.avgRating,
+  });
+
+  factory Rating.fromJson(Map<String, dynamic> json) => Rating(
+        id: json["_id"],
+        totalUser: json["totalUser"],
+        avgRating: json["avgRating"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "_id": id,
+        "totalUser": totalUser,
+        "avgRating": avgRating,
       };
 }
 
