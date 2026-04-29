@@ -476,12 +476,19 @@ class LiveUi extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        BlurryContainer(
+        // Live-stream-style purple→pink gradient pill (TikTok-ish look) for
+        // the viewer-count badge. Replaces the prior translucent-white
+        // BlurryContainer so the count reads against any backdrop.
+        Container(
           height: 40,
-          blur: 2,
-          color: AppColors.white.withValues(alpha: 0.1),
-          padding: EdgeInsets.zero,
-          borderRadius: BorderRadius.circular(50),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF6B21A8), Color(0xFFEC4899)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(50),
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
