@@ -121,6 +121,7 @@ class Api {
   static const reportReel = "reportToReel/reportReel";
   static const reportLive = "reportToLive/reportLive";
   static const incrementReelView = "reel/incrementView";
+  static const incrementReelShare = "reel/incrementShare";
   static const createWithdraw = "withdrawRequest/initiateCashOut";
   static const getWithdrawalRequestsBySeller = "withdrawRequest/getWithdrawalRequestsBySeller";
   static const getSellerWalletHistory = "sellerWallet/retrieveSellerWalletHistory";

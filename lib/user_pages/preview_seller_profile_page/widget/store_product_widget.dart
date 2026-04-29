@@ -4,6 +4,8 @@ import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chewie/chewie.dart';
 import 'package:waxxapp/ApiModel/seller/SellerReelsModel.dart';
+import 'package:waxxapp/ApiService/user/reel_share_service.dart';
+import 'package:waxxapp/ApiService/user/reel_view_service.dart';
 import 'package:waxxapp/Controller/GetxController/user/follow_unfollow_controller.dart';
 import 'package:waxxapp/View/MyApp/AppPages/reels_page/api/reels_like_dislike_api.dart';
 import 'package:waxxapp/custom/circle_button_widget.dart';
@@ -411,7 +413,8 @@ class _FullScreenReelViewState extends State<FullScreenReelView> {
   int _currentIndex = 0;
   final controller = Get.find<PreviewSellerProfileController>();
   RxBool isLike = false.obs;
-  RxMap customChanges = {"like": 0, "comment": 0}.obs;
+  RxMap customChanges = {"like": 0, "comment": 0, "view": 0, "share": 0}.obs;
+  final Set<String> _viewBumpedIds = <String>{};
 
   RxBool isShowLikeAnimation = false.obs;
   RxBool isShowLikeIconAnimation = false.obs;
@@ -423,7 +426,33 @@ class _FullScreenReelViewState extends State<FullScreenReelView> {
     super.initState();
     _currentIndex = widget.initialIndex;
     _pageController = PageController(initialPage: _currentIndex);
+    _syncCountsForIndex(_currentIndex);
+    _bumpViewIfNeeded(_currentIndex);
     _initializeVideo(widget.reels[_currentIndex].video ?? "");
+  }
+
+  void _syncCountsForIndex(int index) {
+    final reel = widget.reels[index];
+    isLike.value = false;
+    customChanges["like"] = reel.like ?? 0;
+    customChanges["comment"] = reel.comment ?? 0;
+    customChanges["view"] = reel.view ?? 0;
+    customChanges["share"] = reel.share ?? 0;
+  }
+
+  void _bumpViewIfNeeded(int index) {
+    final reel = widget.reels[index];
+    final reelId = reel.id ?? "";
+    if (reelId.isEmpty || _viewBumpedIds.contains(reelId)) return;
+    _viewBumpedIds.add(reelId);
+    ReelViewService.incrementView(reelId: reelId).then((counted) {
+      if (!counted || !mounted) return;
+      final cur = reel.view ?? 0;
+      reel.view = cur + 1;
+      if (_currentIndex == index) {
+        customChanges["view"] = reel.view;
+      }
+    });
   }
 
   void _initializeVideo(String videoUrl) async {
@@ -450,8 +479,23 @@ class _FullScreenReelViewState extends State<FullScreenReelView> {
         : "Check out this video on Waxxapp";
     final reelId = reel.id ?? "";
     final link = reelId.isNotEmpty ? "https://www.waxxapp.com/short/$reelId" : null;
+    if (reelId.isNotEmpty) {
+      final cur = reel.share ?? 0;
+      reel.share = cur + 1;
+      customChanges["share"] = reel.share;
+      ReelShareService.incrementShare(reelId: reelId).then((newCount) {
+        if (newCount == null || !mounted) return;
+        reel.share = newCount;
+        if (_currentIndex == _indexOfReelId(reelId)) {
+          customChanges["share"] = newCount;
+        }
+      });
+    }
     await CustomShare.onShareApp(context: context, link: link);
   }
+
+  int _indexOfReelId(String reelId) =>
+      widget.reels.indexWhere((r) => r.id == reelId);
 
   Future<void> onClickLike() async {
     log("onClickLike:::::::::");
@@ -496,6 +540,8 @@ class _FullScreenReelViewState extends State<FullScreenReelView> {
 
           setState(() {
             _currentIndex = index;
+            _syncCountsForIndex(index);
+            _bumpViewIfNeeded(index);
             _initializeVideo(widget.reels[index].video ?? "");
           });
         },
@@ -539,19 +585,51 @@ class _FullScreenReelViewState extends State<FullScreenReelView> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Obx(() => CircleButtonWidget(
-                            callback: onClickLike,
-                            size: 42,
-                            color: AppColors.black.withValues(alpha: 0.3),
-                            child: isLike.value ? Image.asset(AppAsset.icLiked, width: 22) : Image.asset(AppAsset.icHeart, color: AppColors.white, width: 22),
+                      Obx(() => Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircleButtonWidget(
+                                callback: onClickLike,
+                                size: 42,
+                                color: AppColors.black.withValues(alpha: 0.3),
+                                child: isLike.value ? Image.asset(AppAsset.icLiked, width: 22) : Image.asset(AppAsset.icHeart, color: AppColors.white, width: 22),
+                              ),
+                              4.height,
+                              Text(
+                                CustomFormatNumber.convert((customChanges["like"] as int?) ?? 0),
+                                style: AppFontStyle.styleW700(AppColors.white, 11),
+                              ),
+                            ],
                           )),
                       20.height,
-                      CircleButtonWidget(
-                        callback: onClickShare,
-                        size: 42,
-                        color: AppColors.black.withValues(alpha: 0.3),
-                        child: Image.asset(AppAsset.icShare, width: 22),
-                      ),
+                      Obx(() => Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircleButtonWidget(
+                                callback: onClickShare,
+                                size: 42,
+                                color: AppColors.black.withValues(alpha: 0.3),
+                                child: Image.asset(AppAsset.icShare, width: 22),
+                              ),
+                              4.height,
+                              Text(
+                                CustomFormatNumber.convert((customChanges["share"] as int?) ?? 0),
+                                style: AppFontStyle.styleW700(AppColors.white, 11),
+                              ),
+                            ],
+                          )),
+                      20.height,
+                      Obx(() => Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset(AppAsset.icEye, width: 18, color: AppColors.white),
+                              6.width,
+                              Text(
+                                CustomFormatNumber.convert((customChanges["view"] as int?) ?? 0),
+                                style: AppFontStyle.styleW700(AppColors.white, 11),
+                              ),
+                            ],
+                          )),
                       20.height,
 
                       /// TODO

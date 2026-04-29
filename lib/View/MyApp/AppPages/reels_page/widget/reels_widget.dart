@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:chewie/chewie.dart';
 import 'package:waxxapp/Controller/GetxController/user/follow_unfollow_controller.dart';
+import 'package:waxxapp/ApiService/user/reel_share_service.dart';
 import 'package:waxxapp/ApiService/user/reel_view_service.dart';
 import 'package:waxxapp/Controller/GetxController/user/get_reels_controller.dart';
 import 'package:waxxapp/View/MyApp/AppPages/reels_page/api/reels_like_dislike_api.dart';
@@ -56,7 +57,7 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
   RxBool isReelsPage = true.obs; // This is Use to Stop Auto Playing..
 
   RxBool isLike = false.obs;
-  RxMap customChanges = {"like": 0, "comment": 0}.obs;
+  RxMap customChanges = {"like": 0, "comment": 0, "share": 0}.obs;
 
   AnimationController? _controller;
   late Animation<double> _animation;
@@ -173,6 +174,7 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
   void customSetting() {
     isLike.value = controller.mainReels[widget.index].isLike!;
     customChanges["like"] = int.parse(controller.mainReels[widget.index].like.toString());
+    customChanges["share"] = controller.mainReels[widget.index].share ?? 0;
   }
 
   void onClickVideo() async {
@@ -203,6 +205,23 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
         : "Check out this video on Waxxapp";
     final reelId = reel.id ?? "";
     final link = reelId.isNotEmpty ? "https://www.waxxapp.com/short/$reelId" : null;
+    if (reelId.isNotEmpty) {
+      final cur = reel.share ?? 0;
+      reel.share = cur + 1;
+      customChanges["share"] = reel.share;
+      ReelShareService.incrementShare(reelId: reelId).then((newCount) {
+        if (newCount == null || !mounted) return;
+        reel.share = newCount;
+        customChanges["share"] = newCount;
+        if (Get.isRegistered<GetReelsForUserController>()) {
+          final homeReels = Get.find<GetReelsForUserController>().allReels;
+          final idx = homeReels.indexWhere((r) => r.id == reelId);
+          if (idx >= 0) {
+            homeReels[idx].share = newCount;
+          }
+        }
+      });
+    }
     await CustomShare.onShareApp(context: context, link: link);
   }
 
@@ -730,12 +749,22 @@ class _PreviewReelsViewState extends State<PreviewReelsView> with TickerProvider
                                             ),
                                           )),
                                       20.height,
-                                      CircleButtonWidget(
-                                        callback: onClickShare,
-                                        size: 42,
-                                        color: AppColors.black.withValues(alpha: 0.3),
-                                        child: Image.asset(AppAsset.icShare, width: 22),
-                                      ),
+                                      Obx(() => Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              CircleButtonWidget(
+                                                callback: onClickShare,
+                                                size: 42,
+                                                color: AppColors.black.withValues(alpha: 0.3),
+                                                child: Image.asset(AppAsset.icShare, width: 22),
+                                              ),
+                                              4.height,
+                                              Text(
+                                                CustomFormatNumber.convert((customChanges["share"] as int?) ?? 0),
+                                                style: AppFontStyle.styleW700(AppColors.white, 11),
+                                              ),
+                                            ],
+                                          )),
                                       20.height,
                                       CircleButtonWidget(
                                         callback: () {

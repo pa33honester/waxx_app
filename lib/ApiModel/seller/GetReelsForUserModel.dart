@@ -44,6 +44,10 @@ class Reel {
   SellerId? sellerId;
   int? like;
   int? view;
+  // Running share count (v1.0.10). Backend bumps it via
+  // POST /reel/incrementShare/:reelId on every share tap (no per-user
+  // dedupe, mirroring the live-stream shareCount pattern).
+  int? share;
   bool? isFake;
   DateTime? createdAt;
   bool? isLike;
@@ -61,6 +65,7 @@ class Reel {
     this.sellerId,
     this.like,
     this.view,
+    this.share,
     this.isFake,
     this.createdAt,
     this.isLike,
@@ -79,6 +84,7 @@ class Reel {
         sellerId: json["sellerId"] == null ? null : SellerId.fromJson(json["sellerId"]),
         like: json["like"],
         view: json["view"],
+        share: json["share"],
         isFake: json["isFake"],
         createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
         isLike: json["isLike"],
@@ -97,6 +103,7 @@ class Reel {
         "sellerId": sellerId?.toJson(),
         "like": like,
         "view": view,
+        "share": share,
         "isFake": isFake,
         "createdAt": createdAt?.toIso8601String(),
         "isLike": isLike,

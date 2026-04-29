@@ -52,6 +52,14 @@ class Reel {
   final int? duration;
   final int? like;
   final int? comment;
+  // View + share counts surfaced in the seller-profile FullScreenReelView
+  // alongside the like count. `view` mirrors the home-reels feed's
+  // existing field; `share` is new in v1.0.10 (added to the backend
+  // Reel schema + bumped via POST /reel/incrementShare/:reelId).
+  // Mutable so the optimistic +1 on share-tap can repaint without a
+  // full re-fetch from the seller-profile controller.
+  int? view;
+  int? share;
   final bool? isFake;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -68,6 +76,8 @@ class Reel {
     this.duration,
     this.like,
     this.comment,
+    this.view,
+    this.share,
     this.isFake,
     this.createdAt,
     this.updatedAt,
@@ -98,6 +108,8 @@ class Reel {
         duration: json["duration"],
         like: json["like"],
         comment: json["comment"],
+        view: json["view"],
+        share: json["share"],
         isFake: json["isFake"],
         createdAt: json["createdAt"] == null
             ? null
@@ -119,6 +131,8 @@ class Reel {
         "duration": duration,
         "like": like,
         "comment": comment,
+        "view": view,
+        "share": share,
         "isFake": isFake,
         "createdAt": createdAt?.toIso8601String(),
         "updatedAt": updatedAt?.toIso8601String(),
