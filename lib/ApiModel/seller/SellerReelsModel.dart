@@ -129,6 +129,7 @@ class ProductId {
   final String? productCode;
   final int? price;
   final int? shippingCharges;
+  final String? deliveryType;
   final String? createStatus;
   final List<Attribute>? attributes;
   final String? productName;
@@ -141,6 +142,7 @@ class ProductId {
     this.productCode,
     this.price,
     this.shippingCharges,
+    this.deliveryType,
     this.createStatus,
     this.attributes,
     this.productName,
@@ -154,6 +156,7 @@ class ProductId {
         productCode: json["productCode"],
         price: json["price"],
         shippingCharges: json["shippingCharges"],
+        deliveryType: json["deliveryType"],
         createStatus: json["createStatus"],
         attributes: json["attributes"] == null
             ? []
@@ -170,6 +173,7 @@ class ProductId {
         "productCode": productCode,
         "price": price,
         "shippingCharges": shippingCharges,
+        "deliveryType": deliveryType,
         "createStatus": createStatus,
         "attributes": attributes == null
             ? []

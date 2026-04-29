@@ -78,6 +78,7 @@ class Products {
     String? category,
     String? seller,
     num? shippingCharges,
+    String? deliveryType,
     String? mainImage,
     bool? isFavorite,
   }) {
@@ -94,6 +95,7 @@ class Products {
     _category = category;
     _seller = seller;
     _shippingCharges = shippingCharges;
+    _deliveryType = deliveryType;
     _mainImage = mainImage;
     _isFavorite = isFavorite;
   }
@@ -112,6 +114,7 @@ class Products {
     _category = json['category'];
     _seller = json['seller'];
     _shippingCharges = json['shippingCharges'];
+    _deliveryType = json['deliveryType'];
     _mainImage = json['mainImage'];
     _isFavorite = json['isFavorite'];
   }
@@ -129,6 +132,7 @@ class Products {
   String? _category;
   String? _seller;
   num? _shippingCharges;
+  String? _deliveryType;
   String? _mainImage;
   bool? _isFavorite;
 
@@ -146,6 +150,7 @@ class Products {
     String? category,
     String? seller,
     num? shippingCharges,
+    String? deliveryType,
     String? mainImage,
     bool? isFavorite,
   }) =>
@@ -163,6 +168,7 @@ class Products {
         category: category ?? _category,
         seller: seller ?? _seller,
         shippingCharges: shippingCharges ?? _shippingCharges,
+        deliveryType: deliveryType ?? _deliveryType,
         mainImage: mainImage ?? _mainImage,
         isFavorite: isFavorite ?? _isFavorite,
       );
@@ -192,6 +198,7 @@ class Products {
   String? get seller => _seller;
 
   num? get shippingCharges => _shippingCharges;
+  String? get deliveryType => _deliveryType;
 
   String? get mainImage => _mainImage;
 
@@ -212,6 +219,7 @@ class Products {
     map['category'] = _category;
     map['seller'] = _seller;
     map['shippingCharges'] = _shippingCharges;
+    map['deliveryType'] = _deliveryType;
     map['mainImage'] = _mainImage;
     map['isFavorite'] = _isFavorite;
     return map;

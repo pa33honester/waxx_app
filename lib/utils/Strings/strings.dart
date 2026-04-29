@@ -331,6 +331,11 @@ class St {
   static String categories = "categories";
   static String tShirt = "tShirt";
   static String shippingCharge = "shippingCharge";
+  static String deliveryBySeller = "deliveryBySeller";
+  static String deliveryLocal = "deliveryLocal";
+  static String deliveryNationwide = "deliveryNationwide";
+  static String deliveryInternational = "deliveryInternational";
+  static String selectDeliveryType = "selectDeliveryType";
   static String caption = "caption";
 
   static String businessNameTFHintText = "businessNameTFHintText";

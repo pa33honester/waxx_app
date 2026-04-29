@@ -79,6 +79,7 @@ class Product {
     String? category,
     String? seller,
     num? shippingCharges,
+    String? deliveryType,
     String? mainImage,
     String? createdAt,
     String? updatedAt,
@@ -102,6 +103,7 @@ class Product {
     _category = category;
     _seller = seller;
     _shippingCharges = shippingCharges;
+    _deliveryType = deliveryType;
     _mainImage = mainImage;
     _createdAt = createdAt;
     _updatedAt = updatedAt;
@@ -127,6 +129,7 @@ class Product {
     _category = json['category'];
     _seller = json['seller'];
     _shippingCharges = json['shippingCharges'];
+    _deliveryType = json['deliveryType'];
     _mainImage = json['mainImage'];
     _createdAt = json['createdAt'];
     _updatedAt = json['updatedAt'];
@@ -151,6 +154,7 @@ class Product {
   String? _category;
   String? _seller;
   num? _shippingCharges;
+  String? _deliveryType;
   String? _mainImage;
   String? _createdAt;
   String? _updatedAt;
@@ -175,6 +179,7 @@ class Product {
     String? category,
     String? seller,
     num? shippingCharges,
+    String? deliveryType,
     String? mainImage,
     String? createdAt,
     String? updatedAt,
@@ -199,6 +204,7 @@ class Product {
         category: category ?? _category,
         seller: seller ?? _seller,
         shippingCharges: shippingCharges ?? _shippingCharges,
+        deliveryType: deliveryType ?? _deliveryType,
         mainImage: mainImage ?? _mainImage,
         createdAt: createdAt ?? _createdAt,
         updatedAt: updatedAt ?? _updatedAt,
@@ -241,6 +247,7 @@ class Product {
   String? get seller => _seller;
 
   num? get shippingCharges => _shippingCharges;
+  String? get deliveryType => _deliveryType;
 
   String? get mainImage => _mainImage;
 
@@ -269,6 +276,7 @@ class Product {
     map['category'] = _category;
     map['seller'] = _seller;
     map['shippingCharges'] = _shippingCharges;
+    map['deliveryType'] = _deliveryType;
     map['mainImage'] = _mainImage;
     map['createdAt'] = _createdAt;
     map['updatedAt'] = _updatedAt;

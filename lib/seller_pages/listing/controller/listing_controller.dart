@@ -209,6 +209,9 @@ class ListingController extends GetxController {
     print('PRICE :: ${buyItNowPriceController.text}');
     buyItNowPriceController.text = product.price?.toString() ?? '';
     shippingChargeController.text = product.shippingCharges?.toString() ?? '';
+    // Seed the picker so the saved choice is preselected on Edit. Stays
+    // null when the product was created before this field existed.
+    selectedDeliveryType = product.deliveryType;
     isOffersAllowed = product.allowOffer ?? false;
     if (isOffersAllowed) {
       minimumOfferAmountController.text = product.minimumOfferPrice?.toString() ?? '';
@@ -899,9 +902,23 @@ class ListingController extends GetxController {
   List<CoolDropdownItem<String>> businessDaysDropdownItems = [];
   final businessDaysDropDownController = DropdownController<String>();
 
+  // Pricing-page "Delivery by Seller" picker. Optional — null until the
+  // seller picks an option, and persisted to backend Product.deliveryType.
+  // Stored as the lowercase enum value the backend expects (`local`,
+  // `nationwide`, `international`) so we don't have to translate at the
+  // serialization boundary.
+  String? selectedDeliveryType;
+  List<CoolDropdownItem<String>> deliveryTypeDropdownItems = [];
+  final deliveryTypeDropDownController = DropdownController<String>();
+
   // Duration Selection
   void selectBusinessDays(String? days) {
     selectedBusinessDays = days;
+    update();
+  }
+
+  void setDeliveryType(String? type) {
+    selectedDeliveryType = type;
     update();
   }
 
@@ -1242,6 +1259,7 @@ class ListingController extends GetxController {
         recipientAddress: recipientAddress,
         isImmediatePaymentRequired: isImmediatePaymentEnabled,
         promoCodes: selectedPromoCodeIds.toList(),
+        deliveryType: selectedDeliveryType,
       );
       Get.back();
       if (result.status == true) {
@@ -1329,6 +1347,7 @@ class ListingController extends GetxController {
         recipientAddress: recipientAddress,
         isImmediatePaymentRequired: isImmediatePaymentEnabled,
         promoCodes: selectedPromoCodeIds.toList(),
+        deliveryType: selectedDeliveryType,
       );
       Get.back();
       if (result.status == true) {

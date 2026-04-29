@@ -50,6 +50,10 @@ class AddProductApi extends GetxService {
     /// opted this product into. Backend stores them on Product.promoCodes
     /// and they become eligible at checkout for buyers using those codes.
     List<String> promoCodes = const [],
+    /// Optional delivery scope (`local` / `nationwide` / `international`)
+    /// from the Pricing-page picker. Skipped from the multipart body when
+    /// null/empty so the backend treats it as "leave existing".
+    String? deliveryType,
   }) async {
     final url = Uri.parse(Api.baseUrl + Api.createProduct);
     var request = http.MultipartRequest("POST", url);
@@ -101,6 +105,8 @@ class AddProductApi extends GetxService {
       // CSV is the simplest cross-language form for an array in
       // multipart/form-data. Backend's parsePromoCodeIds accepts it.
       if (promoCodes.isNotEmpty) 'promoCodes': promoCodes.join(','),
+      if (deliveryType != null && deliveryType.isNotEmpty)
+        'deliveryType': deliveryType,
     };
 
     log("Product create by seller api body :: $body");

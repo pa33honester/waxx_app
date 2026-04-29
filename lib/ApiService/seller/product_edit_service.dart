@@ -47,6 +47,7 @@ class ProductEditApi extends GetxService {
     required String recipientAddress,
     required bool isImmediatePaymentRequired,
     List<String> promoCodes = const [],
+    String? deliveryType,
   }) async {
     log("Edit Attributes json encode :: ${json.encode(attributes)}");
     log("Edit Attributes json encode :: ${attributes}");
@@ -139,6 +140,10 @@ class ProductEditApi extends GetxService {
       'recipientAddress': recipientAddress,
       'isImmediatePaymentRequired': isImmediatePaymentRequired.toString(),
       'promoCodes': promoCodes.join(','),
+      // Skip the field on null/empty so the backend's `||` fallback in
+      // updateProduct preserves whatever was previously saved.
+      if (deliveryType != null && deliveryType.isNotEmpty)
+        'deliveryType': deliveryType,
     });
 
     log("Body Map :: ${request.fields}");

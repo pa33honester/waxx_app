@@ -101,6 +101,7 @@ class ProductId {
   String? productCode;
   int? price;
   int? shippingCharges;
+  String? deliveryType;
   String? mainImage;
   List<Attribute>? attributes;
   String? createStatus;
@@ -112,6 +113,7 @@ class ProductId {
     this.productCode,
     this.price,
     this.shippingCharges,
+    this.deliveryType,
     this.mainImage,
     this.attributes,
     this.createStatus,
@@ -124,6 +126,7 @@ class ProductId {
         productCode: json["productCode"],
         price: json["price"],
         shippingCharges: json["shippingCharges"],
+        deliveryType: json["deliveryType"],
         mainImage: json["mainImage"],
         attributes: json["attributes"] == null ? [] : List<Attribute>.from(json["attributes"]!.map((x) => Attribute.fromJson(x))),
         createStatus: json["createStatus"],
@@ -136,6 +139,7 @@ class ProductId {
         "productCode": productCode,
         "price": price,
         "shippingCharges": shippingCharges,
+        "deliveryType": deliveryType,
         "mainImage": mainImage,
         "attributes": attributes == null ? [] : List<dynamic>.from(attributes!.map((x) => x.toJson())),
         "createStatus": createStatus,

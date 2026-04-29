@@ -66,6 +66,7 @@ class Product {
     int? review,
     List<String>? images,
     int? shippingCharges,
+    String? deliveryType,
     int? quantity,
     int? sold,
     int? view,
@@ -93,6 +94,7 @@ class Product {
     _review = review;
     _images = images;
     _shippingCharges = shippingCharges;
+    _deliveryType = deliveryType;
     _quantity = quantity;
     _sold = sold;
     _view = view;
@@ -122,6 +124,7 @@ class Product {
     _review = json['review'];
     _images = json['images'] != null ? json['images'].cast<String>() : [];
     _shippingCharges = json['shippingCharges'];
+    _deliveryType = json['deliveryType'];
     _quantity = json['quantity'];
     _sold = json['sold'];
     _view = json['view'];
@@ -155,6 +158,7 @@ class Product {
   int? _review;
   List<String>? _images;
   int? _shippingCharges;
+  String? _deliveryType;
   int? _quantity;
   int? _sold;
   int? _view;
@@ -183,6 +187,7 @@ class Product {
     int? review,
     List<String>? images,
     int? shippingCharges,
+    String? deliveryType,
     int? quantity,
     int? sold,
     int? view,
@@ -211,6 +216,7 @@ class Product {
         review: review ?? _review,
         images: images ?? _images,
         shippingCharges: shippingCharges ?? _shippingCharges,
+        deliveryType: deliveryType ?? _deliveryType,
         quantity: quantity ?? _quantity,
         sold: sold ?? _sold,
         view: view ?? _view,
@@ -244,6 +250,7 @@ class Product {
   List<String>? get images => _images;
 
   int? get shippingCharges => _shippingCharges;
+  String? get deliveryType => _deliveryType;
 
   int? get quantity => _quantity;
 
@@ -293,6 +300,7 @@ class Product {
     map['review'] = _review;
     map['images'] = _images;
     map['shippingCharges'] = _shippingCharges;
+    map['deliveryType'] = _deliveryType;
     map['quantity'] = _quantity;
     map['sold'] = _sold;
     map['view'] = _view;

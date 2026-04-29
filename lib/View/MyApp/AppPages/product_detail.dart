@@ -168,6 +168,22 @@ class _ProductDetailState extends State<ProductDetail> {
     return addr?.state ?? addr?.country;
   }
 
+  /// Maps the backend's lowercase enum (`local` / `nationwide` /
+  /// `international`) to the locale-aware display label. Falls back to
+  /// echoing the raw key if a future enum value sneaks through.
+  String _localizeDeliveryType(String key) {
+    switch (key) {
+      case "local":
+        return St.deliveryLocal.tr;
+      case "nationwide":
+        return St.deliveryNationwide.tr;
+      case "international":
+        return St.deliveryInternational.tr;
+      default:
+        return key;
+    }
+  }
+
   final cong = GestureFlipCardController();
 
   @override
@@ -450,6 +466,18 @@ class _ProductDetailState extends State<ProductDetail> {
                                                     ],
                                                   ),
                                                   5.height,
+                                                  // Delivery scope (local / nationwide / international)
+                                                  // — surfaces the seller's pricing-page choice so the
+                                                  // buyer knows what region the listing ships to. Hides
+                                                  // when the seller skipped the picker.
+                                                  if ((userProductDetailsController.userProductDetails?.product?[0].deliveryType ?? '').isNotEmpty)
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(top: 4),
+                                                      child: Text(
+                                                        "${St.deliveryBySeller.tr}: ${_localizeDeliveryType(userProductDetailsController.userProductDetails!.product![0].deliveryType!)}",
+                                                        style: AppFontStyle.styleW500(AppColors.unselected, 12),
+                                                      ),
+                                                    ),
                                                 ],
                                               ),
                                             ),

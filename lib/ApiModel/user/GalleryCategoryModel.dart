@@ -39,6 +39,7 @@ class Product {
   String? description;
   num? price;
   num? shippingCharges;
+  String? deliveryType;
   String? mainImage;
   List<String>? images;
   int? quantity;
@@ -62,6 +63,7 @@ class Product {
     this.description,
     this.price,
     this.shippingCharges,
+    this.deliveryType,
     this.mainImage,
     this.images,
     this.quantity,
@@ -86,6 +88,7 @@ class Product {
         description: json["description"],
         price: json["price"],
         shippingCharges: json["shippingCharges"],
+        deliveryType: json["deliveryType"],
         mainImage: json["mainImage"],
         images: json["images"] == null ? [] : List<String>.from(json["images"]!.map((x) => x)),
         quantity: json["quantity"],
@@ -110,6 +113,7 @@ class Product {
         "description": description,
         "price": price,
         "shippingCharges": shippingCharges,
+        "deliveryType": deliveryType,
         "mainImage": mainImage,
         "images": images == null ? [] : List<dynamic>.from(images!.map((x) => x)),
         "quantity": quantity,

@@ -39,6 +39,7 @@ class RelatedProduct {
   String? description;
   num? price;
   num? shippingCharges;
+  String? deliveryType;
   String? auctionEndDate;
   String? mainImage;
   List<String>? images;
@@ -54,6 +55,7 @@ class RelatedProduct {
     this.description,
     this.price,
     this.shippingCharges,
+    this.deliveryType,
     this.auctionEndDate,
     this.mainImage,
     this.images,
@@ -70,6 +72,7 @@ class RelatedProduct {
         description: json["description"],
         price: json["price"],
         shippingCharges: json["shippingCharges"],
+        deliveryType: json["deliveryType"],
         auctionEndDate: json["auctionEndDate"],
         mainImage: json["mainImage"],
         images: json["images"] == null ? [] : List<String>.from(json["images"]!.map((x) => x)),
@@ -86,6 +89,7 @@ class RelatedProduct {
         "description": description,
         "price": price,
         "shippingCharges": shippingCharges,
+        "deliveryType": deliveryType,
         "auctionEndDate": auctionEndDate,
         "mainImage": mainImage,
         "images": images == null ? [] : List<dynamic>.from(images!.map((x) => x)),

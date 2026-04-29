@@ -39,6 +39,7 @@ class Product {
   int? minimumOfferPrice;
   int? price;
   int? shippingCharges;
+  String? deliveryType;
   bool? enableAuction;
   String? scheduleTime;
   int? auctionStartingPrice;
@@ -83,6 +84,7 @@ class Product {
     this.minimumOfferPrice,
     this.price,
     this.shippingCharges,
+    this.deliveryType,
     this.enableAuction,
     this.scheduleTime,
     this.auctionStartingPrice,
@@ -128,6 +130,7 @@ class Product {
         minimumOfferPrice: json["minimumOfferPrice"],
         price: json["price"],
         shippingCharges: json["shippingCharges"],
+        deliveryType: json["deliveryType"],
         enableAuction: json["enableAuction"],
         scheduleTime: json["scheduleTime"],
         auctionStartingPrice: json["auctionStartingPrice"],
@@ -173,6 +176,7 @@ class Product {
         "minimumOfferPrice": minimumOfferPrice,
         "price": price,
         "shippingCharges": shippingCharges,
+        "deliveryType": deliveryType,
         "enableAuction": enableAuction,
         "scheduleTime": scheduleTime,
         "auctionStartingPrice": auctionStartingPrice,

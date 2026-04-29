@@ -66,6 +66,7 @@ class UpdateProductrequest {
     List<String>? images,
     int? price,
     int? shippingCharges,
+    String? deliveryType,
     String? updateStatus,
     List<Attributes>? attributes,
     String? productName,
@@ -83,6 +84,7 @@ class UpdateProductrequest {
     _images = images;
     _price = price;
     _shippingCharges = shippingCharges;
+    _deliveryType = deliveryType;
     _updateStatus = updateStatus;
     _attributes = attributes;
     _productName = productName;
@@ -102,6 +104,7 @@ class UpdateProductrequest {
     _images = json['images'] != null ? json['images'].cast<String>() : [];
     _price = json['price'];
     _shippingCharges = json['shippingCharges'];
+    _deliveryType = json['deliveryType'];
     _updateStatus = json['updateStatus'];
     if (json['attributes'] != null) {
       _attributes = [];
@@ -125,6 +128,7 @@ class UpdateProductrequest {
   List<String>? _images;
   int? _price;
   int? _shippingCharges;
+  String? _deliveryType;
   String? _updateStatus;
   List<Attributes>? _attributes;
   String? _productName;
@@ -143,6 +147,7 @@ class UpdateProductrequest {
     List<String>? images,
     int? price,
     int? shippingCharges,
+    String? deliveryType,
     String? updateStatus,
     List<Attributes>? attributes,
     String? productName,
@@ -161,6 +166,7 @@ class UpdateProductrequest {
         images: images ?? _images,
         price: price ?? _price,
         shippingCharges: shippingCharges ?? _shippingCharges,
+        deliveryType: deliveryType ?? _deliveryType,
         updateStatus: updateStatus ?? _updateStatus,
         attributes: attributes ?? _attributes,
         productName: productName ?? _productName,
@@ -183,6 +189,7 @@ class UpdateProductrequest {
   int? get price => _price;
 
   int? get shippingCharges => _shippingCharges;
+  String? get deliveryType => _deliveryType;
 
   String? get updateStatus => _updateStatus;
 
@@ -213,6 +220,7 @@ class UpdateProductrequest {
     map['images'] = _images;
     map['price'] = _price;
     map['shippingCharges'] = _shippingCharges;
+    map['deliveryType'] = _deliveryType;
     map['updateStatus'] = _updateStatus;
     if (_attributes != null) {
       map['attributes'] = _attributes?.map((v) => v.toJson()).toList();
