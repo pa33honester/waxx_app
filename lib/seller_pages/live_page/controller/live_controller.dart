@@ -39,8 +39,11 @@ class LiveController extends GetxController {
 
   // Local heart toggle for the buyer-side live page. Server-side persistence
   // is intentionally skipped — live likes are ephemeral the way TikTok / IG
-  // Live treat them. Tap flips the heart and the icon-only state updates.
-  bool isLiveLiked = false;
+  // Live treat them. Reactive so the Obx wrapping the heart in live_widget
+  // rebuilds on each toggle; previously a plain bool was paired with an
+  // id-tagged update() that reached no GetBuilder, so unlikes never flipped
+  // the icon back to its outline state.
+  RxBool isLiveLiked = false.obs;
 
   // Buyer-side: muting the incoming Zego stream so the user can watch silently
   // without affecting other viewers. The streamID we mute against lives on
@@ -246,12 +249,13 @@ class LiveController extends GetxController {
     // owned by the backend and broadcast via the `liveLikeCount` socket
     // event. Optimistically nudge the local mirror so the number doesn't
     // visually lag a round-trip behind the tap.
-    isLiveLiked = !isLiveLiked;
-    if (isLiveLiked) {
+    isLiveLiked.value = !isLiveLiked.value;
+    if (isLiveLiked.value) {
       SocketServices.liveLikeCount.value += 1;
       SocketServices.onLiveLike(liveHistoryId: roomId);
     }
-    update(["onToggleLiveLike"]);
+    // No id-tagged update() — the Obx in live_widget reacts directly to
+    // the RxBool above.
   }
 
   Future<void> getReportReason() async {

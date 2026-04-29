@@ -149,8 +149,8 @@ class LiveUi extends StatelessWidget {
               // Mute mutes the incoming Zego audio for this viewer only.
               if (!isHost) ...[
                 Obx(() => _LiveActionButton(
-                      icon: controller.isLiveLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                      iconColor: controller.isLiveLiked ? AppColors.red : AppColors.white,
+                      icon: controller.isLiveLiked.value ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                      iconColor: controller.isLiveLiked.value ? AppColors.red : AppColors.white,
                       label: CustomFormatNumber.convert(SocketServices.liveLikeCount.value),
                       onTap: controller.onToggleLiveLike,
                     )),
