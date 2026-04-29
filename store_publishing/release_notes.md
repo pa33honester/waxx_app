@@ -1,96 +1,13 @@
 # Release Notes — Waxx App
 
 ---
-## 🚚 Version 1.0.10 — Delivery-by-Seller picker, refreshed onboarding, follow-pill polish
-
-**Version:** 1.0.10
-**Build Number:** 13
-**Release Date:** April 2026
-**Type:** Feature drop + UX polish
-
-### English (Default)
-*(Max 500 characters on Play Store)*
-
-```
-🔥 Update — v1.0.10
-
-🚚 Sellers can now tag delivery scope on listings
-   (Local / Nationwide / International)
-🛍 Buyers see delivery scope on product detail
-🎨 Refreshed onboarding slides + new welcome copy
-✅ Fixed Follow / Following pill on Product Detail
-👤 Seller name now shows even when business name empty
-✨ Tighter Seller Profile header — no more overflow
-🐛 Following status now agrees across product + seller
-   pages (per-viewer fix)
-```
-
-### 📋 Full Internal Release Notes (for your team)
-
-#### 🆕 New features in v1.0.10
-
-**Delivery scope picker on the seller's Pricing page**
-- New CoolDropdown above the existing `Shipping charge` field on the listing wizard's Pricing screen with three options: **Local delivery / Nationwide delivery / International**. Optional — legacy products without a value behave exactly as before.
-- The seller-facing label and three options localized across all 18 language files (English, Arabic, Bengali, Chinese, French, German, Hindi, Indonesian, Italian, Korean, Portuguese, Russian, Spanish, Swahili, Tamil, Telugu, Turkish, Urdu).
-- New `Product.deliveryType` Mongo enum field (`local | nationwide | international | null`). `ProductRequest` mirrors it so seller edits going through admin approval carry the value through to the live Product on accept. The aggregations on `getliveSellerList`, `getLiveByHistoryId`, search, and product detail flow it through without explicit projection changes.
-- Buyers see the chosen scope as a small **"Delivery by Seller: <Type>"** label under the price/header on Product Detail. Hidden when the seller skipped the picker so legacy products show nothing extra.
-- Edit-mode hydration: opening Pricing for an existing listing seeds the dropdown with the saved value so the seller doesn't lose their previous choice.
-
-**Refreshed onboarding carousel**
-- New 3-slide intro art replaces the older fashion-themed illustrations:
-  1. **Shopping Made Easy** — branded welcome (cyan stacked-bars logo + everyday devices)
-  2. **Buy Like A Pro** — buyer pitch (deal-finder, discount badges)
-  3. **Sell Like A Pro** — seller pitch (live-sales, money-in-hand)
-- Source art is 1024 × 1536 RGB, center-cropped to the existing 0.7004 aspect, then Lanczos-resized to the original 512 × 731 RGBA PNG so the asset registration in `pubspec.yaml` stays unchanged.
-- New welcome / buyer / seller copy below each slide, freshly localized across all 18 language files. The fashion-themed `MAKE IT FASHIONABLE / SHOP THE MODERN ESSENTIALS / NEW CLOTHS NEW PASSION` copy and its 17 translations are gone.
-
-#### 🛠 UX / polish in v1.0.10
-
-**Product Detail "About this seller" row**
-- Follow / Following pill colors **inverted** to match the convention used elsewhere in the app: `Following` is filled primary (yellow) with black text — signaling "active relationship"; `Follow` is transparent with a primary-color border + primary-color text — the outline invites the tap. Mirrors the seller-profile preview pill at `preview_seller_profile_view.dart:265-277`.
-- Seller name now resolves through `businessName → firstName + lastName → St.seller.tr`. Sellers who signed up without filling their store profile no longer render a blank line where the name should be — used to render literally `"null"` from the unconditional `"${... ?.seller?.businessName}"` interpolation.
-
-**Seller Profile preview header height**
-- 8 px `RenderFlex overflowed` on the SliverAppBar bottom (Products tab) — the budget was bumped 114 → 140 in v1.0.8 to fit `TabBar` + `CategoryTabsWidget`, but in some locales / font-scaling combos the natural Column was actually 148. Bumped to 150 with a small cushion. The other-tabs budget (78) is unchanged.
-
-#### 🐛 Bug fixes in v1.0.10
-
-| Issue | Fix |
-|---|---|
-| "Following" status disagreed between Product Detail and Seller Profile pages for the same seller | `getProductDetails` aggregation's `$lookup` for `isFollow` joined the followers collection on `sellerId` only — no `userId` filter — so it returned `true` whenever **any** user followed the seller. Every buyer saw "Following" on a popular seller's product. Now filters on both `sellerId` AND the requesting `user._id` with `$limit: 1`, agreeing with how the seller-profile fetch already projects it. The followerCount sibling lookup is unchanged (correctly room-wide). |
-
-#### 📁 Files Changed
-
-| Area | Files |
-|---|---|
-| Version | `pubspec.yaml` (`1.0.9+12` → `1.0.10+13`) |
-| Backend version | `waxxapp_admin/backend/package.json` (unchanged at `1.17.0`; small fix-and-feature additions on top) |
-| Onboarding art | `assets/Entry_image/{fst,snd,trd}.png` (replaced) |
-| Onboarding copy | `lib/localization/language/*_language.dart` (all 18) |
-| Delivery picker — Flutter | `lib/seller_pages/listing/view/pricing_screen.dart`, `lib/seller_pages/listing/controller/listing_controller.dart`, `lib/utils/Strings/strings.dart`, `lib/localization/language/*_language.dart` (all 18 — 5 new keys), `lib/ApiService/seller/{add_product_service.dart,product_edit_service.dart}`, plus `deliveryType: String?` on 16 product-shaped models in `lib/ApiModel/{seller,user}/` |
-| Delivery picker — buyer-side display | `lib/View/MyApp/AppPages/product_detail.dart` (`_localizeDeliveryType`, label render under price) |
-| Delivery picker — Backend | `backend/server/product/product.model.js`, `backend/server/productRequest/productRequest.model.js`, `backend/server/product/product.controller.js` (`createProduct`, `createProductByAdmin`, `updateProduct`), `backend/server/productRequest/productRequest.controller.js` (`updateProductRequest` × 2 branches, `acceptUpdateRequest`) |
-| Product Detail polish | `lib/View/MyApp/AppPages/product_detail.dart` (Follow pill color triple, `_resolveSellerName` helper) |
-| Seller profile header | `lib/user_pages/preview_seller_profile_page/view/preview_seller_profile_view.dart` (`PreferredSize.fromHeight` 140 → 150 on Products tab) |
-| Per-viewer isFollow fix — Backend | `backend/server/product/product.controller.js` (product-detail `isFollow` lookup pipeline) |
-
-#### 🚀 Deploy checklist for v1.0.10
-
-1. `pm2 restart waxxapp` after pulling the matching `waxxapp_admin` HEAD so the new `Product.deliveryType` field, the productRequest mirror, and the per-viewer-`isFollow` fix on `getProductDetails` are all live.
-2. Optional but recommended: backfill existing Product docs to materialize the new `deliveryType` field (Mongoose's `default: null` covers it for new docs but won't touch existing ones until they're next saved). Either skip — buyer side simply doesn't render the label for legacy products — or run on the server's Mongo:
-   ```js
-   db.products.updateMany({ deliveryType: { $exists: false } }, { $set: { deliveryType: null } })
-   ```
-3. No admin-panel redeploy needed for this slice — the admin React app doesn't surface delivery type yet (seller-only field). Same deal for productRequest's admin review screen.
-4. Force-quit and relaunch the Flutter app so it picks up the new bundle and re-fetches `/setting`. Pricing screen → "Delivery by Seller" picker should be visible above the existing "Shipping charge" input.
-
----
-## 💳 Version 1.0.9 — Paystack payments (GHS) + live page polish
+## 💳 Version 1.0.9 — Paystack payments (GHS) + Delivery scope picker + onboarding refresh + live polish
 
 **Version:** 1.0.9
 **Build Number:** 12
 **Release Date:** April 2026
-**Type:** Feature drop + bug-fix cluster
+**Type:** Major feature drop + bug-fix cluster
+**Note:** This entry covers the full v1.0.9+12 build that promotes from Closed Testing to Open Testing. The same versionCode carries the originally-planned v1.0.9 features (Paystack + live page polish) plus the post-cut additions originally tracked as v1.0.10 (delivery scope picker, onboarding refresh, follow-pill polish, per-viewer isFollow fix).
 
 ### English (Default)
 *(Max 500 characters on Play Store)*
@@ -98,14 +15,16 @@
 ```
 🔥 Update — v1.0.9
 
-💳 Paystack added — pay in GHS with card, mobile money, bank
-❤️ Live like now ± symmetric — tap to like, tap to unlike
-👁 Host now sees the room-wide like count too
-🔄 Live share count synced room-wide over socket
-👥 Live FollowPill no longer says "+ Follow" if you already follow
-✨ Restyled live viewer-count pill (gradient)
+💳 Paystack added — pay in GHS (card, momo, bank)
+🚚 Sellers tag delivery scope on listings
+   (Local / Nationwide / International)
+🛍 Buyers see delivery scope on product detail
+🎨 Refreshed onboarding slides + welcome copy
+❤️ Live like now ± symmetric, host sees count too
+🔄 Live share count synced room-wide
+👥 Follow / Following pill polish across the app
 🛒 Cart minus no longer kicks you to Reels
-📦 Order Details: buyer phone shown, tracking inputs hidden
+📦 Order Details: buyer phone shown
 ```
 
 ### 📋 Full Internal Release Notes (for your team)
@@ -117,6 +36,21 @@
 - The success popup is **never** trusted on its own. New `PaystackService.pay(...)` calls the new backend `POST /payment/paystack/verify` route, which hits Paystack's `GET /transaction/verify/:reference` with the admin-configured secret key and confirms `status === "success"` AND that the settled amount matches the client's `expectedAmount` (defends against amount tampering). Only if the backend says verified does the order get credited.
 - Settings flag + public/secret key plumbed end-to-end: new `paystackSwitch`, `paystackPublicKey`, `paystackSecretKey` on the Setting Mongoose model + setting controller (update + handleSwitch); matching toggle and key inputs in the admin React panel's Payment Settings page; Flutter splash + bottom-bar controllers seed `isShowPaystackPaymentMethod` / `paystackPublicKey` / `paystackSecretKey` from the settings response so the tile only shows when the admin has flipped it on.
 - Paystack icon ships as `assets/icons/paystack.svg` (icon-only stacked-bars mark, wordmark stripped) rendered via the new `flutter_svg` dep. `PaymentItemUi` now picks `SvgPicture.asset` for `.svg` paths and falls back to `Image.asset` for the existing PNG tiles, so Razorpay/Stripe/FlutterWave/COD render unchanged.
+
+**Delivery scope picker on the seller's Pricing page**
+- New CoolDropdown above the existing `Shipping charge` field on the listing wizard's Pricing screen with three options: **Local delivery / Nationwide delivery / International**. Optional — legacy products without a value behave exactly as before.
+- The seller-facing label and three options localized across all 18 language files.
+- New `Product.deliveryType` Mongo enum field (`local | nationwide | international | null`). `ProductRequest` mirrors it so seller edits going through admin approval carry the value through to the live Product on accept. The aggregations on `getliveSellerList`, `getLiveByHistoryId`, search, and product detail flow it through without explicit projection changes.
+- Buyers see the chosen scope as a small **"Delivery by Seller: <Type>"** label under the price/header on Product Detail. Hidden when the seller skipped the picker so legacy products show nothing extra.
+- Edit-mode hydration: opening Pricing for an existing listing seeds the dropdown with the saved value so the seller doesn't lose their previous choice.
+
+**Refreshed onboarding carousel**
+- New 3-slide intro art replaces the older fashion-themed illustrations:
+  1. **Shopping Made Easy** — branded welcome (cyan stacked-bars logo + everyday devices)
+  2. **Buy Like A Pro** — buyer pitch (deal-finder, discount badges)
+  3. **Sell Like A Pro** — seller pitch (live-sales, money-in-hand)
+- Source art is 1024 × 1536 RGB, center-cropped to the existing 0.7004 aspect, then Lanczos-resized to the original 512 × 731 RGBA PNG so the asset registration in `pubspec.yaml` stays unchanged.
+- New welcome / buyer / seller copy below each slide, freshly localized across all 18 language files. The fashion-themed `MAKE IT FASHIONABLE / SHOP THE MODERN ESSENTIALS / NEW CLOTHS NEW PASSION` copy and its 17 translations are gone.
 
 **Host-side live like indicator**
 - Display-only filled heart on the seller's right-column action stack with the running like total. Surfaces the same `liveLikeCount` socket broadcast every viewer sees so the host knows the room is reacting. Tap is a no-op toast since a seller can't like their own broadcast.
@@ -131,6 +65,13 @@
 
 **Live viewer-count pill restyled**
 - Replaced the translucent-white `BlurryContainer` views badge with a solid `LinearGradient` pill (`#6B21A8` → `#EC4899`) so the count reads against any backdrop. Same height, radius, eye + count + red Live capsule layout — only the background changes.
+
+**Product Detail "About this seller" row**
+- Follow / Following pill colors **inverted** to match the convention used elsewhere in the app: `Following` is filled primary (yellow) with black text — signaling "active relationship"; `Follow` is transparent with a primary-color border + primary-color text — the outline invites the tap. Mirrors the seller-profile preview pill at `preview_seller_profile_view.dart:265-277`.
+- Seller name now resolves through `businessName → firstName + lastName → St.seller.tr`. Sellers who signed up without filling their store profile no longer render a blank line where the name should be — used to render literally `"null"` from the unconditional `"${... ?.seller?.businessName}"` interpolation.
+
+**Seller Profile preview header height**
+- 8 px `RenderFlex overflowed` on the SliverAppBar bottom (Products tab) — the budget was bumped 114 → 140 in v1.0.8 to fit `TabBar` + `CategoryTabsWidget`, but in some locales / font-scaling combos the natural Column was actually 148. Bumped to 150 with a small cushion. The other-tabs budget (78) is unchanged.
 
 **Pending Order Detail (seller view)**
 - Buyer phone number now renders inside the Location card under the address (uses `Icons.phone` + the `mobileNumber` prop already plumbed from `pending_orders.dart`). Removed the dead commented-out variant.
@@ -149,6 +90,7 @@
 | Live heart icon didn't flip on each tap | The `Obx` wrapping the heart read `controller.isLiveLiked` as a plain `bool`, so Obx never subscribed to it; the id-tagged `update(["onToggleLiveLike"])` reached no GetBuilder. Made `isLiveLiked` a `RxBool` and dropped the dead update call. Heart now flips on every tap. |
 | Live like was append-only — unlike silently flipped the heart with no count change | Toggle is now symmetric ±1: unlike branch optimistically decrements the local count (clamped at 0) and emits a new `liveUnlike` socket event; matching backend handler `$inc`s `LiveSellingHistory.likeCount` by −1 with a `likeCount > 0` guard so a stray double-unlike can't pull it negative. |
 | Live FollowPill stayed on "+ Follow" even when the viewer was already following the seller (e.g. followed from Reels) | The live page refreshes state on entry through the `fetchLiveBroadcastDetails` **socket** call (not the HTTP endpoints), but that handler returned the raw LiveSeller doc with no follower lookup. Now the Flutter payload includes the viewer's `userId` and `handleLiveUserInfoResponse` syncs `isFollow` from the response into the controller and fires a bare `update()` so the unkeyed GetBuilder around the FollowPill rebuilds. Backend handler reads `userId`, looks up `Follower(userId, liveUserInfo.sellerId)`, and adds `isFollow` to the response. |
+| "Following" status disagreed between Product Detail and Seller Profile pages for the same seller | `getProductDetails` aggregation's `$lookup` for `isFollow` joined the followers collection on `sellerId` only — no `userId` filter — so it returned `true` whenever **any** user followed the seller. Every buyer saw "Following" on a popular seller's product. Now filters on both `sellerId` AND the requesting `user._id` with `$limit: 1`, agreeing with how the seller-profile fetch already projects it. The followerCount sibling lookup is unchanged (correctly room-wide). |
 
 #### 📁 Files Changed
 
@@ -159,18 +101,30 @@
 | Paystack — Flutter | `lib/PaymentMethod/paystack/paystack_service.dart` (new), `lib/seller_pages/order_payment_page/{view/order_payment_view.dart,controller/order_payment_controller.dart}`, `lib/ApiModel/login/SettingApiModel.dart`, `lib/Controller/GetxController/login/splash_screen_controller.dart`, `lib/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart`, `lib/utils/{globle_veriables.dart,api_url.dart,app_asset.dart}`, `assets/icons/paystack.svg` (new), `pubspec.yaml` (+ `paystack_for_flutter`, `flutter_svg`) |
 | Paystack — Backend | `backend/server/payment/{paystack.controller.js,paystack.route.js}` (new), `backend/server/setting/{setting.model.js,setting.controller.js}`, `backend/route.js`, `backend/setting.example.js` |
 | Paystack — Admin panel | `waxxapp_admin/frontend/src/Component/Table/setting/paymentSetting.js`, `waxxapp_admin/frontend/src/Component/extra/infoContent.js` |
+| Delivery picker — Flutter | `lib/seller_pages/listing/view/pricing_screen.dart`, `lib/seller_pages/listing/controller/listing_controller.dart`, `lib/utils/Strings/strings.dart`, `lib/localization/language/*_language.dart` (all 18 — 5 new keys), `lib/ApiService/seller/{add_product_service.dart,product_edit_service.dart}`, plus `deliveryType: String?` on 16 product-shaped models in `lib/ApiModel/{seller,user}/` |
+| Delivery picker — buyer-side display | `lib/View/MyApp/AppPages/product_detail.dart` (`_localizeDeliveryType`, label render under price) |
+| Delivery picker — Backend | `backend/server/product/product.model.js`, `backend/server/productRequest/productRequest.model.js`, `backend/server/product/product.controller.js` (`createProduct`, `createProductByAdmin`, `updateProduct`), `backend/server/productRequest/productRequest.controller.js` (`updateProductRequest` × 2 branches, `acceptUpdateRequest`) |
+| Onboarding art | `assets/Entry_image/{fst,snd,trd}.png` (replaced) |
+| Onboarding copy | `lib/localization/language/*_language.dart` (all 18) |
 | Live page | `lib/seller_pages/live_page/widget/live_widget.dart`, `lib/seller_pages/live_page/controller/live_controller.dart`, `lib/seller_pages/live_page/view/live_view.dart`, `lib/seller_pages/live_page/bottom_sheet/product_list_bottom_sheet_ui.dart`, `lib/custom/follow_pill.dart`, `lib/utils/socket_services.dart`, `lib/ApiModel/user/GetLiveSellerListModel.dart`, `lib/ApiService/user/fetch_live_by_history_id_service.dart` |
 | Live socket / endpoints — Backend | `backend/socket.js`, `backend/server/liveSeller/liveSeller.controller.js`, `backend/server/liveSellingHistory/liveSellingHistory.model.js` |
+| Product Detail polish | `lib/View/MyApp/AppPages/product_detail.dart` (Follow pill color triple, `_resolveSellerName` helper) |
+| Seller profile header | `lib/user_pages/preview_seller_profile_page/view/preview_seller_profile_view.dart` (`PreferredSize.fromHeight` 140 → 150 on Products tab) |
+| Per-viewer isFollow fix — Backend | `backend/server/product/product.controller.js` (product-detail `isFollow` lookup pipeline) |
 | Order screens | `lib/View/MyApp/Seller/SellerOrder/PendingOrder/pending_order_proceed.dart`, `lib/View/MyApp/Seller/SellerOrder/ConfirmedOrders/order_confirm_by_seller.dart` |
 | Cart | `lib/Controller/GetxController/user/remove_product_to_cart_controller.dart` |
 
 #### 🚀 Deploy checklist for v1.0.9
 
-1. `pm2 restart waxxapp` after pulling the matching `waxxapp_admin` HEAD so `/payment/paystack/verify`, the `paystack*` settings fields, the new `liveUnlike` handler, and the `fetchLiveBroadcastDetails`-with-`isFollow` change are all live.
+1. `pm2 restart waxxapp` after pulling the matching `waxxapp_admin` HEAD so all of the following are live: `/payment/paystack/verify`, the `paystack*` settings fields, the `liveUnlike` socket handler, the `fetchLiveBroadcastDetails`-with-`isFollow` change, the new `Product.deliveryType` field + matching ProductRequest mirror, and the per-viewer-`isFollow` fix on `getProductDetails`.
 2. Re-deploy the admin React build (`cd waxxapp_admin/frontend && ./deploy.sh`) so the Paystack box appears in the Payment Settings page.
 3. Backfill existing Mongo Setting docs so the new `paystack*` fields exist — easiest path is to open Payment Settings in the admin panel and click Submit (Mongoose materializes the new fields with their defaults). Alternatively `db.settings.updateMany({}, { $set: { paystackSwitch: false, paystackPublicKey: "", paystackSecretKey: "" } })`.
-4. In the admin panel, paste your Paystack `pk_test_…` + `sk_test_…` keys (Paystack dashboard → Settings → API Keys & Webhooks) and flip the Paystack toggle on.
-5. Force-quit and relaunch the Flutter app so it re-fetches `/setting`. The Paystack tile should appear on the order Payment screen.
+4. Optional: backfill existing Product docs to materialize the new `deliveryType` field (Mongoose's `default: null` covers it for new docs but won't touch existing ones until they're next saved). Either skip — buyer side simply doesn't render the label for legacy products — or run on the server's Mongo:
+   ```js
+   db.products.updateMany({ deliveryType: { $exists: false } }, { $set: { deliveryType: null } })
+   ```
+5. In the admin panel, paste your Paystack `pk_test_…` + `sk_test_…` keys (Paystack dashboard → Settings → API Keys & Webhooks) and flip the Paystack toggle on.
+6. Force-quit and relaunch the Flutter app so it re-fetches `/setting`. The Paystack tile should appear on the order Payment screen, and the new "Delivery by Seller" picker should be visible above the "Shipping charge" input on the Pricing page of the listing wizard.
 
 ---
 ## 📲 Version 1.0.8 — Reels-style live feed, like/report on live, faster reels, profile country & address
