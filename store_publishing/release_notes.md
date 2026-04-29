@@ -1,6 +1,94 @@
 # Release Notes — Waxx App
 
 ---
+## 💳 Version 1.0.9 — Paystack payments (GHS) + live page polish
+
+**Version:** 1.0.9
+**Build Number:** 12
+**Release Date:** April 2026
+**Type:** Feature drop + bug-fix cluster
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🔥 Update — v1.0.9
+
+💳 Paystack added — pay in GHS with card, mobile money, bank
+❤️ Live like now ± symmetric — tap to like, tap to unlike
+👁 Host now sees the room-wide like count too
+🔄 Live share count synced room-wide over socket
+👥 Live FollowPill no longer says "+ Follow" if you already follow
+✨ Restyled live viewer-count pill (gradient)
+🛒 Cart minus no longer kicks you to Reels
+📦 Order Details: buyer phone shown, tracking inputs hidden
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🆕 New features in v1.0.9
+
+**Paystack payment gateway (Ghana Cedi)**
+- New fourth gateway tile on the order Payment screen — wires the official `paystack_for_flutter` SDK over a transparent in-app webview that hosts Paystack's standard checkout (card, mobile money, bank transfer, USSD) at `Currency.GHS`.
+- The success popup is **never** trusted on its own. New `PaystackService.pay(...)` calls the new backend `POST /payment/paystack/verify` route, which hits Paystack's `GET /transaction/verify/:reference` with the admin-configured secret key and confirms `status === "success"` AND that the settled amount matches the client's `expectedAmount` (defends against amount tampering). Only if the backend says verified does the order get credited.
+- Settings flag + public/secret key plumbed end-to-end: new `paystackSwitch`, `paystackPublicKey`, `paystackSecretKey` on the Setting Mongoose model + setting controller (update + handleSwitch); matching toggle and key inputs in the admin React panel's Payment Settings page; Flutter splash + bottom-bar controllers seed `isShowPaystackPaymentMethod` / `paystackPublicKey` / `paystackSecretKey` from the settings response so the tile only shows when the admin has flipped it on.
+- Paystack icon ships as `assets/icons/paystack.svg` (icon-only stacked-bars mark, wordmark stripped) rendered via the new `flutter_svg` dep. `PaymentItemUi` now picks `SvgPicture.asset` for `.svg` paths and falls back to `Image.asset` for the existing PNG tiles, so Razorpay/Stripe/FlutterWave/COD render unchanged.
+
+**Host-side live like indicator**
+- Display-only filled heart on the seller's right-column action stack with the running like total. Surfaces the same `liveLikeCount` socket broadcast every viewer sees so the host knows the room is reacting. Tap is a no-op toast since a seller can't like their own broadcast.
+
+**Live share count synced room-wide**
+- New `LiveSellingHistory.shareCount` field, `liveShare` socket handler that `$inc`s it and rebroadcasts the new total to the room as a `liveLikeCount`-style `liveShareCount` event. Both the host and every viewer's Share button label is now the running room total instead of the static "Share" string. Seeded on entry from `getLiveByHistoryId`'s response so deep-link joiners see the count immediately instead of "0".
+
+**Per-viewer follow flag on live**
+- New `LiveSeller.isFollow` field projected by the live-list (`getliveSellerList`), deep-link (`getLiveByHistoryId`) and **socket** (`fetchLiveBroadcastDetails`) backends — gated on the requesting viewer's `userId` so the FollowPill renders in its real state instead of always defaulting to "Follow". The Flutter live page seeds `LiveController.isFollow` from the model on entry and now also syncs it from the socket-fetch response, then fires a bare `update()` so the unkeyed GetBuilder around the FollowPill rebuilds. `FollowPill.didUpdateWidget` mirrors the prop change into local state so it doesn't fight an in-flight tap.
+
+#### 🛠 UX / polish in v1.0.9
+
+**Live viewer-count pill restyled**
+- Replaced the translucent-white `BlurryContainer` views badge with a solid `LinearGradient` pill (`#6B21A8` → `#EC4899`) so the count reads against any backdrop. Same height, radius, eye + count + red Live capsule layout — only the background changes.
+
+**Pending Order Detail (seller view)**
+- Buyer phone number now renders inside the Location card under the address (uses `Icons.phone` + the `mobileNumber` prop already plumbed from `pending_orders.dart`). Removed the dead commented-out variant.
+
+**Cart minus no longer bounces to Reels**
+- `RemoveProductToCartController` was force-switching the bottom bar to index 2 after a successful remove. That was Cart back when the bar had four items, but Live got inserted at index 1 and index 2 became Reels — every minus tap kicked users out to Reels. Dropped the tab-switch entirely (the cart already refreshes itself).
+
+**Confirm Order (seller view) cleanup**
+- Removed the *Delivery by* dropdown, *Tracking Id* and *Tracking Link* text fields per product direction; also dropped the Submit-time validation that previously gated the API call on those fields being non-empty (Submit was a no-op once the inputs were hidden).
+
+#### 🐛 Bug fixes in v1.0.9
+
+| Issue | Fix |
+|---|---|
+| Live "+ Add" pill visible to viewers despite the `isHost` guard | Tightened the gate so the Add pill also requires `Database.sellerId == logic.sellerId` (i.e., the logged-in user is actually the seller of *this* stream) — bulletproof regardless of how `isHost` is plumbed downstream. |
+| Live heart icon didn't flip on each tap | The `Obx` wrapping the heart read `controller.isLiveLiked` as a plain `bool`, so Obx never subscribed to it; the id-tagged `update(["onToggleLiveLike"])` reached no GetBuilder. Made `isLiveLiked` a `RxBool` and dropped the dead update call. Heart now flips on every tap. |
+| Live like was append-only — unlike silently flipped the heart with no count change | Toggle is now symmetric ±1: unlike branch optimistically decrements the local count (clamped at 0) and emits a new `liveUnlike` socket event; matching backend handler `$inc`s `LiveSellingHistory.likeCount` by −1 with a `likeCount > 0` guard so a stray double-unlike can't pull it negative. |
+| Live FollowPill stayed on "+ Follow" even when the viewer was already following the seller (e.g. followed from Reels) | The live page refreshes state on entry through the `fetchLiveBroadcastDetails` **socket** call (not the HTTP endpoints), but that handler returned the raw LiveSeller doc with no follower lookup. Now the Flutter payload includes the viewer's `userId` and `handleLiveUserInfoResponse` syncs `isFollow` from the response into the controller and fires a bare `update()` so the unkeyed GetBuilder around the FollowPill rebuilds. Backend handler reads `userId`, looks up `Follower(userId, liveUserInfo.sellerId)`, and adds `isFollow` to the response. |
+
+#### 📁 Files Changed
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.0.8+11` → `1.0.9+12`) |
+| Backend version | `waxxapp_admin/backend/package.json` (`1.15.0` → `1.17.0`) |
+| Paystack — Flutter | `lib/PaymentMethod/paystack/paystack_service.dart` (new), `lib/seller_pages/order_payment_page/{view/order_payment_view.dart,controller/order_payment_controller.dart}`, `lib/ApiModel/login/SettingApiModel.dart`, `lib/Controller/GetxController/login/splash_screen_controller.dart`, `lib/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart`, `lib/utils/{globle_veriables.dart,api_url.dart,app_asset.dart}`, `assets/icons/paystack.svg` (new), `pubspec.yaml` (+ `paystack_for_flutter`, `flutter_svg`) |
+| Paystack — Backend | `backend/server/payment/{paystack.controller.js,paystack.route.js}` (new), `backend/server/setting/{setting.model.js,setting.controller.js}`, `backend/route.js`, `backend/setting.example.js` |
+| Paystack — Admin panel | `waxxapp_admin/frontend/src/Component/Table/setting/paymentSetting.js`, `waxxapp_admin/frontend/src/Component/extra/infoContent.js` |
+| Live page | `lib/seller_pages/live_page/widget/live_widget.dart`, `lib/seller_pages/live_page/controller/live_controller.dart`, `lib/seller_pages/live_page/view/live_view.dart`, `lib/seller_pages/live_page/bottom_sheet/product_list_bottom_sheet_ui.dart`, `lib/custom/follow_pill.dart`, `lib/utils/socket_services.dart`, `lib/ApiModel/user/GetLiveSellerListModel.dart`, `lib/ApiService/user/fetch_live_by_history_id_service.dart` |
+| Live socket / endpoints — Backend | `backend/socket.js`, `backend/server/liveSeller/liveSeller.controller.js`, `backend/server/liveSellingHistory/liveSellingHistory.model.js` |
+| Order screens | `lib/View/MyApp/Seller/SellerOrder/PendingOrder/pending_order_proceed.dart`, `lib/View/MyApp/Seller/SellerOrder/ConfirmedOrders/order_confirm_by_seller.dart` |
+| Cart | `lib/Controller/GetxController/user/remove_product_to_cart_controller.dart` |
+
+#### 🚀 Deploy checklist for v1.0.9
+
+1. `pm2 restart waxxapp` after pulling the matching `waxxapp_admin` HEAD so `/payment/paystack/verify`, the `paystack*` settings fields, the new `liveUnlike` handler, and the `fetchLiveBroadcastDetails`-with-`isFollow` change are all live.
+2. Re-deploy the admin React build (`cd waxxapp_admin/frontend && ./deploy.sh`) so the Paystack box appears in the Payment Settings page.
+3. Backfill existing Mongo Setting docs so the new `paystack*` fields exist — easiest path is to open Payment Settings in the admin panel and click Submit (Mongoose materializes the new fields with their defaults). Alternatively `db.settings.updateMany({}, { $set: { paystackSwitch: false, paystackPublicKey: "", paystackSecretKey: "" } })`.
+4. In the admin panel, paste your Paystack `pk_test_…` + `sk_test_…` keys (Paystack dashboard → Settings → API Keys & Webhooks) and flip the Paystack toggle on.
+5. Force-quit and relaunch the Flutter app so it re-fetches `/setting`. The Paystack tile should appear on the order Payment screen.
+
+---
 ## 📲 Version 1.0.8 — Reels-style live feed, like/report on live, faster reels, profile country & address
 
 **Version:** 1.0.8
