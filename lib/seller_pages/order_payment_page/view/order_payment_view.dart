@@ -10,6 +10,7 @@ import 'package:waxxapp/utils/font_style.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 
@@ -111,7 +112,7 @@ class PaymentItemUi extends GetView<OrderPaymentController> {
                   borderRadius: BorderRadius.circular(10),
                   color: AppColors.white,
                 ),
-                child: Image.asset(controller.paymentMethodList[index]["icon"]??"", height: 30).paddingAll(8),
+                child: _buildPaymentIcon(controller.paymentMethodList[index]["icon"] ?? "").paddingAll(8),
               ),
             ),
             Text(
@@ -136,6 +137,20 @@ class PaymentItemUi extends GetView<OrderPaymentController> {
         ),
       ),
     );
+  }
+
+  /// Renders an icon from either a raster (`Image.asset`) or vector
+  /// (`SvgPicture.asset`) source, picking based on the file extension.
+  ///
+  /// The square PNG logos (Razorpay, Stripe, FlutterWave, COD) keep their
+  /// existing `height: 30` look. SVGs go through BoxFit.contain so a wide
+  /// wordmark like Paystack scales down to the inner padded area without
+  /// overflowing the 50×50 white box.
+  Widget _buildPaymentIcon(String iconPath) {
+    if (iconPath.toLowerCase().endsWith('.svg')) {
+      return SvgPicture.asset(iconPath, fit: BoxFit.contain);
+    }
+    return Image.asset(iconPath, height: 30);
   }
 }
 

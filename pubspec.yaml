@@ -113,6 +113,7 @@ dependencies:
   connectivity_plus: ^6.1.4
   internet_connection_checker: ^3.0.1
   flutter_launcher_icons: ^0.14.4
+  flutter_svg: ^2.2.4
 
 dev_dependencies:
   flutter_test:
