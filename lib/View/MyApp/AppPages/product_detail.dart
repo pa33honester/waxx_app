@@ -737,10 +737,16 @@ class _ProductDetailState extends State<ProductDetail> {
                                                 return MainButtonWidget(
                                                   height: 42,
                                                   width: 90,
-                                                  color: following ? AppColors.tabBackground : AppColors.primary,
+                                                  // Convention used across the app:
+                                                  //   Following = filled primary (active relationship)
+                                                  //   Follow    = outline (inactive — tap-to-follow CTA)
+                                                  // Mirrors the seller-profile preview pill so the
+                                                  // visual semantics stay consistent.
+                                                  color: following ? AppColors.primary : AppColors.transparent,
+                                                  border: following ? null : Border.all(color: AppColors.primary),
                                                   child: Text(
                                                     following ? St.following.tr : St.follow.tr,
-                                                    style: AppFontStyle.styleW700(following ? AppColors.white : AppColors.black, 14),
+                                                    style: AppFontStyle.styleW700(following ? AppColors.black : AppColors.primary, 14),
                                                   ),
                                                   callback: () {
                                                     if (getStorage.read("isDemoLogin") ?? false || isDemoSeller) {
