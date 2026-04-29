@@ -455,6 +455,19 @@ class SocketServices {
     log("Socket Emit => liveLike: $payload");
   }
 
+  /// Buyer un-taps the heart (toggle off). Mirror of [onLiveLike] — the
+  /// backend decrements [LiveSellingHistory.likeCount] (clamped at zero)
+  /// and rebroadcasts the new total so every open client stays in sync.
+  static void onLiveUnlike({required String liveHistoryId}) {
+    if (socket == null || !socket!.connected) {
+      log("Socket Not Connected (liveUnlike skipped)");
+      return;
+    }
+    final payload = jsonEncode({"liveSellingHistoryId": liveHistoryId});
+    socket!.emit("liveUnlike", payload);
+    log("Socket Emit => liveUnlike: $payload");
+  }
+
   /// Either side (host or viewer) taps Share. The backend increments the
   /// running [LiveSellingHistory.shareCount] and rebroadcasts the new
   /// total so every open client — buyer column + host column — stays
