@@ -54,6 +54,12 @@ class AddProductApi extends GetxService {
     /// from the Pricing-page picker. Skipped from the multipart body when
     /// null/empty so the backend treats it as "leave existing".
     String? deliveryType,
+    /// Shape B per-option shipping prices (v1.0.10). Each entry shaped as
+    /// `{ "type": "local"|"nationwide"|"international", "price": <num> }`.
+    /// JSON-encoded into a single `deliveryOptions` multipart field, mirror
+    /// of how `attributes` is sent. Empty list → field is omitted so the
+    /// backend's preserve-on-empty path leaves an existing value alone.
+    List<Map<String, dynamic>>? deliveryOptions,
   }) async {
     final url = Uri.parse(Api.baseUrl + Api.createProduct);
     var request = http.MultipartRequest("POST", url);
@@ -107,6 +113,11 @@ class AddProductApi extends GetxService {
       if (promoCodes.isNotEmpty) 'promoCodes': promoCodes.join(','),
       if (deliveryType != null && deliveryType.isNotEmpty)
         'deliveryType': deliveryType,
+      // Shape B (v1.0.10): JSON-encoded array of {type, price}. Skip when
+      // empty so the backend's preserve-on-empty path leaves an existing
+      // value alone. Mirrors the `attributes` field's encoding shape.
+      if (deliveryOptions != null && deliveryOptions.isNotEmpty)
+        'deliveryOptions': json.encode(deliveryOptions),
     };
 
     log("Product create by seller api body :: $body");

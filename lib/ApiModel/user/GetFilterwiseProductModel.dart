@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 import 'dart:convert';
 
+import '../common/delivery_option.dart';
 GetFilterwiseProductModel getFilterwiseProductModelFromJson(String str) =>
     GetFilterwiseProductModel.fromJson(json.decode(str));
 
@@ -71,6 +72,7 @@ class Product {
     int? price,
     int? shippingCharges,
     String? deliveryType,
+    List<DeliveryOption>? deliveryOptions,
     List<String>? images,
     int? review,
     int? sold,
@@ -89,6 +91,7 @@ class Product {
     _price = price;
     _shippingCharges = shippingCharges;
     _deliveryType = deliveryType;
+    _deliveryOptions = deliveryOptions;
     _images = images;
     _review = review;
     _sold = sold;
@@ -109,6 +112,7 @@ class Product {
     _price = json['price'];
     _shippingCharges = json['shippingCharges'];
     _deliveryType = json['deliveryType'];
+    if (json['deliveryOptions'] != null) { _deliveryOptions = []; json['deliveryOptions'].forEach((v) => _deliveryOptions?.add(DeliveryOption.fromJson(v))); }
     _images = json['images'] != null ? json['images'].cast<String>() : [];
     _review = json['review'];
     _sold = json['sold'];
@@ -128,6 +132,7 @@ class Product {
   int? _price;
   int? _shippingCharges;
   String? _deliveryType;
+  List<DeliveryOption>? _deliveryOptions;
   List<String>? _images;
   int? _review;
   int? _sold;
@@ -147,6 +152,7 @@ class Product {
     int? price,
     int? shippingCharges,
     String? deliveryType,
+    List<DeliveryOption>? deliveryOptions,
     List<String>? images,
     int? review,
     int? sold,
@@ -166,6 +172,7 @@ class Product {
         price: price ?? _price,
         shippingCharges: shippingCharges ?? _shippingCharges,
         deliveryType: deliveryType ?? _deliveryType,
+        deliveryOptions: deliveryOptions ?? _deliveryOptions,
         images: images ?? _images,
         review: review ?? _review,
         sold: sold ?? _sold,
@@ -188,6 +195,7 @@ class Product {
 
   int? get shippingCharges => _shippingCharges;
   String? get deliveryType => _deliveryType;
+  List<DeliveryOption>? get deliveryOptions => _deliveryOptions;
 
   List<String>? get images => _images;
 
@@ -220,6 +228,7 @@ class Product {
     map['price'] = _price;
     map['shippingCharges'] = _shippingCharges;
     map['deliveryType'] = _deliveryType;
+    if (_deliveryOptions != null) { map['deliveryOptions'] = _deliveryOptions!.map((v) => v.toJson()).toList(); }
     map['images'] = _images;
     map['review'] = _review;
     map['sold'] = _sold;

@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:dotted_line/dotted_line.dart';
+import 'package:waxxapp/ApiService/user/update_cart_delivery_option_service.dart';
 import 'package:waxxapp/Controller/GetxController/user/add_product_to_cart_controller.dart';
 import 'package:waxxapp/Controller/GetxController/user/gallery_catagory_controller.dart';
 import 'package:waxxapp/Controller/GetxController/user/get_all_cart_products_controller.dart';
 import 'package:waxxapp/Controller/GetxController/user/remove_product_to_cart_controller.dart';
+import 'package:waxxapp/utils/database.dart';
 import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
@@ -115,6 +117,8 @@ class _CartPageState extends State<CartPage> {
                                   productId: "${getAllCartProductController.getAllCartProducts?.data?.items?[index].productId?.id}",
                                   productQuantity: getAllCartProductController.getAllCartProducts?.data?.items?[index].productQuantity?.toInt() ?? 0,
                                   productShippingCharge: getAllCartProductController.getAllCartProducts?.data?.items?[index].purchasedTimeShippingCharges?.toInt() ?? 0,
+                                  deliveryOptions: getAllCartProductController.getAllCartProducts?.data?.items?[index].productId?.deliveryOptions,
+                                  chosenDeliveryType: getAllCartProductController.getAllCartProducts?.data?.items?[index].chosenDeliveryType,
                                 ),
                               );
                             },
@@ -226,6 +230,8 @@ class CartListTileWidget extends StatefulWidget {
     required this.productQuantity,
     required this.productShippingCharge,
     required this.index,
+    this.deliveryOptions,
+    this.chosenDeliveryType,
   });
 
   final String productImage;
@@ -236,6 +242,11 @@ class CartListTileWidget extends StatefulWidget {
   final String productId;
   final int productQuantity;
   final int productShippingCharge;
+  // Shape B (v1.0.10): the seller's offered scopes + the buyer's
+  // current pick. Null/empty when the product is on legacy single-cost
+  // shipping; the tile then renders no picker.
+  final List<dynamic>? deliveryOptions;
+  final String? chosenDeliveryType;
 
   @override
   State<CartListTileWidget> createState() => _CartListTileWidgetState();
@@ -371,6 +382,14 @@ class _CartListTileWidgetState extends State<CartListTileWidget> {
                         "$currencySymbol ${widget.productPrice}",
                         style: AppFontStyle.styleW900(AppColors.primary, 14),
                       ),
+                      // Shape B (v1.0.10): per-item delivery picker. Renders
+                      // pills only when the seller offered ≥1 option in
+                      // their pricing-page panel; otherwise falls through
+                      // to the legacy single-cost path silently.
+                      if ((widget.deliveryOptions ?? const []).isNotEmpty) ...[
+                        8.height,
+                        _buildDeliveryOptionsPicker(),
+                      ],
                     ],
                   ).paddingOnly(left: 10),
                 ),
@@ -447,6 +466,73 @@ class _CartListTileWidgetState extends State<CartListTileWidget> {
           ),
         ],
       ),
+    );
+  }
+
+  /// Shape B per-item picker pills. One pill per offered delivery option
+  /// with that option's price; selected pill is filled primary, others
+  /// are outlined. Tapping a pill optimistically swaps the local UI then
+  /// calls `cart/updateDeliveryOption` and refreshes the cart so the
+  /// total reflects the new shipping cost.
+  Widget _buildDeliveryOptionsPicker() {
+    final options = widget.deliveryOptions ?? const [];
+    final selected = widget.chosenDeliveryType;
+    String label(String type) {
+      switch (type) {
+        case 'local':
+          return St.deliveryLocal.tr;
+        case 'nationwide':
+          return St.deliveryNationwide.tr;
+        case 'international':
+          return St.deliveryInternational.tr;
+      }
+      return type;
+    }
+
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: options.map<Widget>((opt) {
+        final type = opt.type as String?;
+        final price = opt.price;
+        if (type == null) return const SizedBox.shrink();
+        final isSelected = selected == type;
+        return GestureDetector(
+          onTap: isSelected || getAllCartProductController.updateLoading.value
+              ? null
+              : () async {
+                  getAllCartProductController.updateLoading.value = true;
+                  final updated = await UpdateCartDeliveryOptionService.update(
+                    userId: Database.loginUserId,
+                    productId: widget.productId,
+                    chosenDeliveryType: type,
+                    attributesArray: widget.attributesArray,
+                  );
+                  if (updated != null) {
+                    // Re-fetch the canonical cart so subTotal +
+                    // totalShippingCharges reflect the new option.
+                    await getAllCartProductController.getCartProductData(updatedData: true);
+                  } else {
+                    getAllCartProductController.updateLoading.value = false;
+                  }
+                },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.primary : AppColors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.primary, width: 1),
+            ),
+            child: Text(
+              "${label(type)} • $currencySymbol$price",
+              style: AppFontStyle.styleW600(
+                isSelected ? AppColors.black : AppColors.primary,
+                11,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

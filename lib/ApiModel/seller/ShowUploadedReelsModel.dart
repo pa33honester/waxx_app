@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 
+import '../common/delivery_option.dart';
 ShowUploadedReelsModel showUploadedReelsModelFromJson(String str) => ShowUploadedReelsModel.fromJson(json.decode(str));
 
 String showUploadedReelsModelToJson(ShowUploadedReelsModel data) => json.encode(data.toJson());
@@ -98,6 +99,7 @@ class ProductId {
   int? price;
   int? shippingCharges;
   String? deliveryType;
+  List<DeliveryOption>? deliveryOptions;
   String? createStatus;
   List<Attribute>? attributes;
   String? productName;
@@ -111,6 +113,7 @@ class ProductId {
     this.price,
     this.shippingCharges,
     this.deliveryType,
+    this.deliveryOptions,
     this.createStatus,
     this.attributes,
     this.productName,
@@ -125,6 +128,7 @@ class ProductId {
         price: json["price"],
         shippingCharges: json["shippingCharges"],
         deliveryType: json["deliveryType"],
+        deliveryOptions: json["deliveryOptions"] == null ? [] : List<DeliveryOption>.from(json["deliveryOptions"].map((x) => DeliveryOption.fromJson(x))),
         createStatus: json["createStatus"],
         attributes: json["attributes"] == null ? [] : List<Attribute>.from(json["attributes"]!.map((x) => Attribute.fromJson(x))),
         productName: json["productName"],
@@ -139,6 +143,7 @@ class ProductId {
         "price": price,
         "shippingCharges": shippingCharges,
         "deliveryType": deliveryType,
+        "deliveryOptions": deliveryOptions == null ? [] : List<dynamic>.from(deliveryOptions!.map((x) => x.toJson())),
         "createStatus": createStatus,
         "attributes": attributes == null ? [] : List<dynamic>.from(attributes!.map((x) => x.toJson())),
         "productName": productName,

@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 import 'dart:convert';
 
+import '../common/delivery_option.dart';
 GetNewCollectionModel getNewCollectionModelFromJson(String str) => GetNewCollectionModel.fromJson(json.decode(str));
 
 String getNewCollectionModelToJson(GetNewCollectionModel data) => json.encode(data.toJson());
@@ -79,6 +80,7 @@ class Products {
     String? seller,
     num? shippingCharges,
     String? deliveryType,
+    List<DeliveryOption>? deliveryOptions,
     String? mainImage,
     bool? isFavorite,
   }) {
@@ -96,6 +98,7 @@ class Products {
     _seller = seller;
     _shippingCharges = shippingCharges;
     _deliveryType = deliveryType;
+    _deliveryOptions = deliveryOptions;
     _mainImage = mainImage;
     _isFavorite = isFavorite;
   }
@@ -115,6 +118,7 @@ class Products {
     _seller = json['seller'];
     _shippingCharges = json['shippingCharges'];
     _deliveryType = json['deliveryType'];
+    if (json['deliveryOptions'] != null) { _deliveryOptions = []; json['deliveryOptions'].forEach((v) => _deliveryOptions?.add(DeliveryOption.fromJson(v))); }
     _mainImage = json['mainImage'];
     _isFavorite = json['isFavorite'];
   }
@@ -133,6 +137,7 @@ class Products {
   String? _seller;
   num? _shippingCharges;
   String? _deliveryType;
+  List<DeliveryOption>? _deliveryOptions;
   String? _mainImage;
   bool? _isFavorite;
 
@@ -151,6 +156,7 @@ class Products {
     String? seller,
     num? shippingCharges,
     String? deliveryType,
+    List<DeliveryOption>? deliveryOptions,
     String? mainImage,
     bool? isFavorite,
   }) =>
@@ -169,6 +175,7 @@ class Products {
         seller: seller ?? _seller,
         shippingCharges: shippingCharges ?? _shippingCharges,
         deliveryType: deliveryType ?? _deliveryType,
+        deliveryOptions: deliveryOptions ?? _deliveryOptions,
         mainImage: mainImage ?? _mainImage,
         isFavorite: isFavorite ?? _isFavorite,
       );
@@ -199,6 +206,7 @@ class Products {
 
   num? get shippingCharges => _shippingCharges;
   String? get deliveryType => _deliveryType;
+  List<DeliveryOption>? get deliveryOptions => _deliveryOptions;
 
   String? get mainImage => _mainImage;
 
@@ -220,6 +228,7 @@ class Products {
     map['seller'] = _seller;
     map['shippingCharges'] = _shippingCharges;
     map['deliveryType'] = _deliveryType;
+    if (_deliveryOptions != null) { map['deliveryOptions'] = _deliveryOptions!.map((v) => v.toJson()).toList(); }
     map['mainImage'] = _mainImage;
     map['isFavorite'] = _isFavorite;
     return map;

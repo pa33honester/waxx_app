@@ -101,6 +101,11 @@ class Item {
   String? sellerId;
   int? purchasedTimeProductPrice;
   int? purchasedTimeShippingCharges;
+  // Shape B (v1.0.10): which delivery option the buyer picked at the
+  // cart line — preserved into the order item so the order-detail
+  // page can render the chosen scope's label next to the shipping
+  // total (e.g. "Shipping (Local) GH¢ 50").
+  String? chosenDeliveryType;
   String? productCode;
   int? productQuantity;
   List<AttributesArray>? attributesArray;
@@ -119,6 +124,7 @@ class Item {
     this.sellerId,
     this.purchasedTimeProductPrice,
     this.purchasedTimeShippingCharges,
+    this.chosenDeliveryType,
     this.productCode,
     this.productQuantity,
     this.attributesArray,
@@ -138,6 +144,7 @@ class Item {
         sellerId: json["sellerId"],
         purchasedTimeProductPrice: json["purchasedTimeProductPrice"],
         purchasedTimeShippingCharges: json["purchasedTimeShippingCharges"],
+        chosenDeliveryType: json["chosenDeliveryType"],
         productCode: json["productCode"],
         productQuantity: json["productQuantity"],
         attributesArray: json["attributesArray"] == null ? [] : List<AttributesArray>.from(json["attributesArray"]!.map((x) => AttributesArray.fromJson(x))),
@@ -157,6 +164,7 @@ class Item {
         "sellerId": sellerId,
         "purchasedTimeProductPrice": purchasedTimeProductPrice,
         "purchasedTimeShippingCharges": purchasedTimeShippingCharges,
+        "chosenDeliveryType": chosenDeliveryType,
         "productCode": productCode,
         "productQuantity": productQuantity,
         "attributesArray": attributesArray == null ? [] : List<dynamic>.from(attributesArray!.map((x) => x.toJson())),

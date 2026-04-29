@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 import 'dart:convert';
 
+import '../common/delivery_option.dart';
 LiveProductSelect liveProductSelectFromJson(String str) => LiveProductSelect.fromJson(json.decode(str));
 
 String liveProductSelectToJson(LiveProductSelect data) => json.encode(data.toJson());
@@ -80,6 +81,7 @@ class Product {
     String? seller,
     num? shippingCharges,
     String? deliveryType,
+    List<DeliveryOption>? deliveryOptions,
     String? mainImage,
     String? createdAt,
     String? updatedAt,
@@ -104,6 +106,7 @@ class Product {
     _seller = seller;
     _shippingCharges = shippingCharges;
     _deliveryType = deliveryType;
+    _deliveryOptions = deliveryOptions;
     _mainImage = mainImage;
     _createdAt = createdAt;
     _updatedAt = updatedAt;
@@ -130,6 +133,7 @@ class Product {
     _seller = json['seller'];
     _shippingCharges = json['shippingCharges'];
     _deliveryType = json['deliveryType'];
+    if (json['deliveryOptions'] != null) { _deliveryOptions = []; json['deliveryOptions'].forEach((v) => _deliveryOptions?.add(DeliveryOption.fromJson(v))); }
     _mainImage = json['mainImage'];
     _createdAt = json['createdAt'];
     _updatedAt = json['updatedAt'];
@@ -155,6 +159,7 @@ class Product {
   String? _seller;
   num? _shippingCharges;
   String? _deliveryType;
+  List<DeliveryOption>? _deliveryOptions;
   String? _mainImage;
   String? _createdAt;
   String? _updatedAt;
@@ -180,6 +185,7 @@ class Product {
     String? seller,
     num? shippingCharges,
     String? deliveryType,
+    List<DeliveryOption>? deliveryOptions,
     String? mainImage,
     String? createdAt,
     String? updatedAt,
@@ -205,6 +211,7 @@ class Product {
         seller: seller ?? _seller,
         shippingCharges: shippingCharges ?? _shippingCharges,
         deliveryType: deliveryType ?? _deliveryType,
+        deliveryOptions: deliveryOptions ?? _deliveryOptions,
         mainImage: mainImage ?? _mainImage,
         createdAt: createdAt ?? _createdAt,
         updatedAt: updatedAt ?? _updatedAt,
@@ -248,6 +255,7 @@ class Product {
 
   num? get shippingCharges => _shippingCharges;
   String? get deliveryType => _deliveryType;
+  List<DeliveryOption>? get deliveryOptions => _deliveryOptions;
 
   String? get mainImage => _mainImage;
 
@@ -277,6 +285,7 @@ class Product {
     map['seller'] = _seller;
     map['shippingCharges'] = _shippingCharges;
     map['deliveryType'] = _deliveryType;
+    if (_deliveryOptions != null) { map['deliveryOptions'] = _deliveryOptions!.map((v) => v.toJson()).toList(); }
     map['mainImage'] = _mainImage;
     map['createdAt'] = _createdAt;
     map['updatedAt'] = _updatedAt;

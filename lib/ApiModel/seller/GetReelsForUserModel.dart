@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 
+import '../common/delivery_option.dart';
 GetReelsForUserModel getReelsForUserModelFromJson(String str) => GetReelsForUserModel.fromJson(json.decode(str));
 
 String getReelsForUserModelToJson(GetReelsForUserModel data) => json.encode(data.toJson());
@@ -110,6 +111,7 @@ class ProductId {
   int? price;
   int? shippingCharges;
   String? deliveryType;
+  List<DeliveryOption>? deliveryOptions;
   String? auctionEndDate;
   String? mainImage;
   List<Attribute>? attributes;
@@ -125,6 +127,7 @@ class ProductId {
     this.price,
     this.shippingCharges,
     this.deliveryType,
+    this.deliveryOptions,
     this.auctionEndDate,
     this.mainImage,
     this.attributes,
@@ -141,6 +144,7 @@ class ProductId {
         price: json["price"],
         shippingCharges: json["shippingCharges"],
         deliveryType: json["deliveryType"],
+        deliveryOptions: json["deliveryOptions"] == null ? [] : List<DeliveryOption>.from(json["deliveryOptions"].map((x) => DeliveryOption.fromJson(x))),
         auctionEndDate: json["auctionEndDate"],
         mainImage: json["mainImage"],
         attributes: json["attributes"] == null ? [] : List<Attribute>.from(json["attributes"]!.map((x) => Attribute.fromJson(x))),
@@ -157,6 +161,7 @@ class ProductId {
         "price": price,
         "shippingCharges": shippingCharges,
         "deliveryType": deliveryType,
+        "deliveryOptions": deliveryOptions == null ? [] : List<dynamic>.from(deliveryOptions!.map((x) => x.toJson())),
         "auctionEndDate": auctionEndDate,
         "mainImage": mainImage,
         "attributes": attributes == null ? [] : List<dynamic>.from(attributes!.map((x) => x.toJson())),

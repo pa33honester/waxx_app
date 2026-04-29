@@ -3,6 +3,7 @@
 //     final sellerReelsModel = sellerReelsModelFromJson(jsonString);
 
 import 'dart:convert';
+import '../common/delivery_option.dart';
 
 SellerReelsModel sellerReelsModelFromJson(String str) =>
     SellerReelsModel.fromJson(json.decode(str));
@@ -130,6 +131,7 @@ class ProductId {
   final int? price;
   final int? shippingCharges;
   final String? deliveryType;
+  final List<DeliveryOption>? deliveryOptions;
   final String? createStatus;
   final List<Attribute>? attributes;
   final String? productName;
@@ -143,6 +145,7 @@ class ProductId {
     this.price,
     this.shippingCharges,
     this.deliveryType,
+    this.deliveryOptions,
     this.createStatus,
     this.attributes,
     this.productName,
@@ -157,6 +160,10 @@ class ProductId {
         price: json["price"],
         shippingCharges: json["shippingCharges"],
         deliveryType: json["deliveryType"],
+        deliveryOptions: json["deliveryOptions"] == null
+            ? []
+            : List<DeliveryOption>.from(
+                json["deliveryOptions"].map((x) => DeliveryOption.fromJson(x))),
         createStatus: json["createStatus"],
         attributes: json["attributes"] == null
             ? []
@@ -174,6 +181,9 @@ class ProductId {
         "price": price,
         "shippingCharges": shippingCharges,
         "deliveryType": deliveryType,
+        "deliveryOptions": deliveryOptions == null
+            ? []
+            : List<dynamic>.from(deliveryOptions!.map((x) => x.toJson())),
         "createStatus": createStatus,
         "attributes": attributes == null
             ? []

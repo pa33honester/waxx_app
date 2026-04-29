@@ -48,6 +48,7 @@ class ProductEditApi extends GetxService {
     required bool isImmediatePaymentRequired,
     List<String> promoCodes = const [],
     String? deliveryType,
+    List<Map<String, dynamic>>? deliveryOptions,
   }) async {
     log("Edit Attributes json encode :: ${json.encode(attributes)}");
     log("Edit Attributes json encode :: ${attributes}");
@@ -144,6 +145,11 @@ class ProductEditApi extends GetxService {
       // updateProduct preserves whatever was previously saved.
       if (deliveryType != null && deliveryType.isNotEmpty)
         'deliveryType': deliveryType,
+      // Shape B (v1.0.10): JSON-encoded array of {type, price}. Skip when
+      // empty so the backend's preserve-on-empty path leaves prior values
+      // alone. Sending an explicit "[]" string would clear all options.
+      if (deliveryOptions != null && deliveryOptions.isNotEmpty)
+        'deliveryOptions': json.encode(deliveryOptions),
     });
 
     log("Body Map :: ${request.fields}");

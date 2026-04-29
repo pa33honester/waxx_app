@@ -28,6 +28,10 @@ class Api {
   static const followUnfollow = "follower/followUnfollow";
   static const addTOCart = "cart/addToCart";
   static const removeTOCart = "cart/removeProduct";
+  // Shape B per-option shipping (v1.0.10) — buyer flips the picked
+  // delivery option on a cart line. Body: userId, productId,
+  // attributesArray, chosenDeliveryType.
+  static const updateCartDeliveryOption = "cart/updateDeliveryOption";
   static const faq = "FAQ";
   static const userAddAddress = "address/create";
   static const getAllCategory = "category";

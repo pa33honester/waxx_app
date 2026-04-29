@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 import 'dart:convert';
 
+import '../common/delivery_option.dart';
 AddProductModel addProductModelFromJson(String str) => AddProductModel.fromJson(json.decode(str));
 
 String addProductModelToJson(AddProductModel data) => json.encode(data.toJson());
@@ -67,6 +68,7 @@ class Product {
     List<String>? images,
     int? shippingCharges,
     String? deliveryType,
+    List<DeliveryOption>? deliveryOptions,
     int? quantity,
     int? sold,
     int? view,
@@ -95,6 +97,7 @@ class Product {
     _images = images;
     _shippingCharges = shippingCharges;
     _deliveryType = deliveryType;
+    _deliveryOptions = deliveryOptions;
     _quantity = quantity;
     _sold = sold;
     _view = view;
@@ -125,6 +128,7 @@ class Product {
     _images = json['images'] != null ? json['images'].cast<String>() : [];
     _shippingCharges = json['shippingCharges'];
     _deliveryType = json['deliveryType'];
+    if (json['deliveryOptions'] != null) { _deliveryOptions = []; json['deliveryOptions'].forEach((v) => _deliveryOptions?.add(DeliveryOption.fromJson(v))); }
     _quantity = json['quantity'];
     _sold = json['sold'];
     _view = json['view'];
@@ -159,6 +163,7 @@ class Product {
   List<String>? _images;
   int? _shippingCharges;
   String? _deliveryType;
+  List<DeliveryOption>? _deliveryOptions;
   int? _quantity;
   int? _sold;
   int? _view;
@@ -188,6 +193,7 @@ class Product {
     List<String>? images,
     int? shippingCharges,
     String? deliveryType,
+    List<DeliveryOption>? deliveryOptions,
     int? quantity,
     int? sold,
     int? view,
@@ -217,6 +223,7 @@ class Product {
         images: images ?? _images,
         shippingCharges: shippingCharges ?? _shippingCharges,
         deliveryType: deliveryType ?? _deliveryType,
+        deliveryOptions: deliveryOptions ?? _deliveryOptions,
         quantity: quantity ?? _quantity,
         sold: sold ?? _sold,
         view: view ?? _view,
@@ -251,6 +258,7 @@ class Product {
 
   int? get shippingCharges => _shippingCharges;
   String? get deliveryType => _deliveryType;
+  List<DeliveryOption>? get deliveryOptions => _deliveryOptions;
 
   int? get quantity => _quantity;
 
@@ -301,6 +309,7 @@ class Product {
     map['images'] = _images;
     map['shippingCharges'] = _shippingCharges;
     map['deliveryType'] = _deliveryType;
+    if (_deliveryOptions != null) { map['deliveryOptions'] = _deliveryOptions!.map((v) => v.toJson()).toList(); }
     map['quantity'] = _quantity;
     map['sold'] = _sold;
     map['view'] = _view;

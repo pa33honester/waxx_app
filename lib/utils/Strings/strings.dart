@@ -336,6 +336,13 @@ class St {
   static String deliveryNationwide = "deliveryNationwide";
   static String deliveryInternational = "deliveryInternational";
   static String selectDeliveryType = "selectDeliveryType";
+  // Shape B per-option shipping (v1.0.10).
+  static String deliveryOptions = "deliveryOptions";
+  static String enterLocalDeliveryCharge = "enterLocalDeliveryCharge";
+  static String enterNationwideDeliveryCharge = "enterNationwideDeliveryCharge";
+  static String enterInternationalDeliveryCharge = "enterInternationalDeliveryCharge";
+  static String leaveBlankToNotOffer = "leaveBlankToNotOffer";
+  static String chooseDeliveryOption = "chooseDeliveryOption";
   static String caption = "caption";
 
   static String businessNameTFHintText = "businessNameTFHintText";

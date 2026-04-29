@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 import 'dart:convert';
 
+import '../common/delivery_option.dart';
 ProductEditModel productEditModelFromJson(String str) => ProductEditModel.fromJson(json.decode(str));
 
 String productEditModelToJson(ProductEditModel data) => json.encode(data.toJson());
@@ -67,6 +68,7 @@ class UpdateProductrequest {
     int? price,
     int? shippingCharges,
     String? deliveryType,
+    List<DeliveryOption>? deliveryOptions,
     String? updateStatus,
     List<Attributes>? attributes,
     String? productName,
@@ -85,6 +87,7 @@ class UpdateProductrequest {
     _price = price;
     _shippingCharges = shippingCharges;
     _deliveryType = deliveryType;
+    _deliveryOptions = deliveryOptions;
     _updateStatus = updateStatus;
     _attributes = attributes;
     _productName = productName;
@@ -105,6 +108,7 @@ class UpdateProductrequest {
     _price = json['price'];
     _shippingCharges = json['shippingCharges'];
     _deliveryType = json['deliveryType'];
+    if (json['deliveryOptions'] != null) { _deliveryOptions = []; json['deliveryOptions'].forEach((v) => _deliveryOptions?.add(DeliveryOption.fromJson(v))); }
     _updateStatus = json['updateStatus'];
     if (json['attributes'] != null) {
       _attributes = [];
@@ -129,6 +133,7 @@ class UpdateProductrequest {
   int? _price;
   int? _shippingCharges;
   String? _deliveryType;
+  List<DeliveryOption>? _deliveryOptions;
   String? _updateStatus;
   List<Attributes>? _attributes;
   String? _productName;
@@ -148,6 +153,7 @@ class UpdateProductrequest {
     int? price,
     int? shippingCharges,
     String? deliveryType,
+    List<DeliveryOption>? deliveryOptions,
     String? updateStatus,
     List<Attributes>? attributes,
     String? productName,
@@ -167,6 +173,7 @@ class UpdateProductrequest {
         price: price ?? _price,
         shippingCharges: shippingCharges ?? _shippingCharges,
         deliveryType: deliveryType ?? _deliveryType,
+        deliveryOptions: deliveryOptions ?? _deliveryOptions,
         updateStatus: updateStatus ?? _updateStatus,
         attributes: attributes ?? _attributes,
         productName: productName ?? _productName,
@@ -190,6 +197,7 @@ class UpdateProductrequest {
 
   int? get shippingCharges => _shippingCharges;
   String? get deliveryType => _deliveryType;
+  List<DeliveryOption>? get deliveryOptions => _deliveryOptions;
 
   String? get updateStatus => _updateStatus;
 
@@ -221,6 +229,7 @@ class UpdateProductrequest {
     map['price'] = _price;
     map['shippingCharges'] = _shippingCharges;
     map['deliveryType'] = _deliveryType;
+    if (_deliveryOptions != null) { map['deliveryOptions'] = _deliveryOptions!.map((v) => v.toJson()).toList(); }
     map['updateStatus'] = _updateStatus;
     if (_attributes != null) {
       map['attributes'] = _attributes?.map((v) => v.toJson()).toList();

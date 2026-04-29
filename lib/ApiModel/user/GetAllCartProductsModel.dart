@@ -3,6 +3,7 @@
 //     final getAllCartProductsModel = getAllCartProductsModelFromJson(jsonString);
 
 import 'dart:convert';
+import '../common/delivery_option.dart';
 
 GetAllCartProductsModel getAllCartProductsModelFromJson(String str) => GetAllCartProductsModel.fromJson(json.decode(str));
 
@@ -73,6 +74,9 @@ class Item {
   String? sellerId;
   num? purchasedTimeProductPrice;
   num? purchasedTimeShippingCharges;
+  // Shape B: which delivery option the buyer picked from the product's
+  // `deliveryOptions[]`. Mutates via PATCH /cart/updateDeliveryOption.
+  String? chosenDeliveryType;
   String? productCode;
   int? productQuantity;
   List<AttributesArray>? attributesArray;
@@ -83,6 +87,7 @@ class Item {
     this.sellerId,
     this.purchasedTimeProductPrice,
     this.purchasedTimeShippingCharges,
+    this.chosenDeliveryType,
     this.productCode,
     this.productQuantity,
     this.attributesArray,
@@ -94,6 +99,7 @@ class Item {
         sellerId: json["sellerId"],
         purchasedTimeProductPrice: json["purchasedTimeProductPrice"],
         purchasedTimeShippingCharges: json["purchasedTimeShippingCharges"],
+        chosenDeliveryType: json["chosenDeliveryType"],
         productCode: json["productCode"],
         productQuantity: json["productQuantity"],
         attributesArray: json["attributesArray"] == null ? [] : List<AttributesArray>.from(json["attributesArray"]!.map((x) => AttributesArray.fromJson(x))),
@@ -105,6 +111,7 @@ class Item {
         "sellerId": sellerId,
         "purchasedTimeProductPrice": purchasedTimeProductPrice,
         "purchasedTimeShippingCharges": purchasedTimeShippingCharges,
+        "chosenDeliveryType": chosenDeliveryType,
         "productCode": productCode,
         "productQuantity": productQuantity,
         "attributesArray": attributesArray == null ? [] : List<dynamic>.from(attributesArray!.map((x) => x.toJson())),
@@ -140,22 +147,43 @@ class ProductId {
   String? id;
   String? mainImage;
   String? productName;
+  // Shape B / legacy shipping fields surfaced via the cart populate so
+  // the buyer's cart UI can render the per-item picker without a second
+  // round-trip to /product/detail.
+  num? shippingCharges;
+  String? deliveryType;
+  List<DeliveryOption>? deliveryOptions;
 
   ProductId({
     this.id,
     this.mainImage,
     this.productName,
+    this.shippingCharges,
+    this.deliveryType,
+    this.deliveryOptions,
   });
 
   factory ProductId.fromJson(Map<String, dynamic> json) => ProductId(
         id: json["_id"],
         mainImage: json["mainImage"],
         productName: json["productName"],
+        shippingCharges: json["shippingCharges"],
+        deliveryType: json["deliveryType"],
+        deliveryOptions: json["deliveryOptions"] == null
+            ? []
+            : List<DeliveryOption>.from(
+                json["deliveryOptions"].map((x) => DeliveryOption.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
         "_id": id,
         "mainImage": mainImage,
         "productName": productName,
+        "shippingCharges": shippingCharges,
+        "deliveryType": deliveryType,
+        "deliveryOptions": deliveryOptions == null
+            ? []
+            : List<dynamic>.from(deliveryOptions!.map((x) => x.toJson())),
       };
 }
+

@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 
+import '../common/delivery_option.dart';
 UserProductDetailsModel userProductDetailsModelFromJson(String str) => UserProductDetailsModel.fromJson(json.decode(str));
 
 String userProductDetailsModelToJson(UserProductDetailsModel data) => json.encode(data.toJson());
@@ -40,6 +41,7 @@ class Product {
   num? price;
   num? shippingCharges;
   String? deliveryType;
+  List<DeliveryOption>? deliveryOptions;
   bool? enableAuction;
   DateTime? scheduleTime;
   num? auctionStartingPrice;
@@ -76,6 +78,7 @@ class Product {
     this.price,
     this.shippingCharges,
     this.deliveryType,
+    this.deliveryOptions,
     this.enableAuction,
     this.scheduleTime,
     this.auctionStartingPrice,
@@ -113,6 +116,7 @@ class Product {
         price: json["price"],
         shippingCharges: json["shippingCharges"],
         deliveryType: json["deliveryType"],
+        deliveryOptions: json["deliveryOptions"] == null ? [] : List<DeliveryOption>.from(json["deliveryOptions"].map((x) => DeliveryOption.fromJson(x))),
         enableAuction: json["enableAuction"],
         scheduleTime: json["scheduleTime"] == null ? null : DateTime.parse(json["scheduleTime"]),
         auctionStartingPrice: json["auctionStartingPrice"],
@@ -150,6 +154,7 @@ class Product {
         "price": price,
         "shippingCharges": shippingCharges,
         "deliveryType": deliveryType,
+        "deliveryOptions": deliveryOptions == null ? [] : List<dynamic>.from(deliveryOptions!.map((x) => x.toJson())),
         "enableAuction": enableAuction,
         "scheduleTime": scheduleTime?.toIso8601String(),
         "auctionStartingPrice": auctionStartingPrice,

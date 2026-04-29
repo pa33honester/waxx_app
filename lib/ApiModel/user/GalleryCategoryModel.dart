@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 
+import '../common/delivery_option.dart';
 GalleryCategoryModel galleryCategoryModelFromJson(String str) => GalleryCategoryModel.fromJson(json.decode(str));
 
 String galleryCategoryModelToJson(GalleryCategoryModel data) => json.encode(data.toJson());
@@ -40,6 +41,7 @@ class Product {
   num? price;
   num? shippingCharges;
   String? deliveryType;
+  List<DeliveryOption>? deliveryOptions;
   String? mainImage;
   List<String>? images;
   int? quantity;
@@ -64,6 +66,7 @@ class Product {
     this.price,
     this.shippingCharges,
     this.deliveryType,
+    this.deliveryOptions,
     this.mainImage,
     this.images,
     this.quantity,
@@ -89,6 +92,7 @@ class Product {
         price: json["price"],
         shippingCharges: json["shippingCharges"],
         deliveryType: json["deliveryType"],
+        deliveryOptions: json["deliveryOptions"] == null ? [] : List<DeliveryOption>.from(json["deliveryOptions"].map((x) => DeliveryOption.fromJson(x))),
         mainImage: json["mainImage"],
         images: json["images"] == null ? [] : List<String>.from(json["images"]!.map((x) => x)),
         quantity: json["quantity"],
@@ -114,6 +118,7 @@ class Product {
         "price": price,
         "shippingCharges": shippingCharges,
         "deliveryType": deliveryType,
+        "deliveryOptions": deliveryOptions == null ? [] : List<dynamic>.from(deliveryOptions!.map((x) => x.toJson())),
         "mainImage": mainImage,
         "images": images == null ? [] : List<dynamic>.from(images!.map((x) => x)),
         "quantity": quantity,

@@ -212,6 +212,47 @@ class ListingController extends GetxController {
     // Seed the picker so the saved choice is preselected on Edit. Stays
     // null when the product was created before this field existed.
     selectedDeliveryType = product.deliveryType;
+    // Shape B (v1.0.10): seed the three per-option controllers so the
+    // saved options reopen with their prices preselected. If the product
+    // has no `deliveryOptions[]` (legacy or never saved any), fall back
+    // to mapping the legacy single shippingCharges + deliveryType pair
+    // onto the matching controller — the seller sees their existing
+    // value and can choose to add the other two scopes.
+    localShippingChargeController.clear();
+    nationwideShippingChargeController.clear();
+    internationalShippingChargeController.clear();
+    final opts = product.deliveryOptions ?? const [];
+    if (opts.isNotEmpty) {
+      for (final opt in opts) {
+        switch (opt.type) {
+          case 'local':
+            localShippingChargeController.text = opt.price?.toString() ?? '';
+            break;
+          case 'nationwide':
+            nationwideShippingChargeController.text = opt.price?.toString() ?? '';
+            break;
+          case 'international':
+            internationalShippingChargeController.text = opt.price?.toString() ?? '';
+            break;
+        }
+      }
+    } else if ((product.shippingCharges ?? 0) > 0) {
+      // Legacy product — drop the single price into the matching scope's
+      // input so the seller sees it. Empty deliveryType defaults to local.
+      final legacyPrice = product.shippingCharges?.toString() ?? '';
+      switch (product.deliveryType) {
+        case 'nationwide':
+          nationwideShippingChargeController.text = legacyPrice;
+          break;
+        case 'international':
+          internationalShippingChargeController.text = legacyPrice;
+          break;
+        case 'local':
+        default:
+          localShippingChargeController.text = legacyPrice;
+          break;
+      }
+    }
     isOffersAllowed = product.allowOffer ?? false;
     if (isOffersAllowed) {
       minimumOfferAmountController.text = product.minimumOfferPrice?.toString() ?? '';
@@ -767,7 +808,34 @@ class ListingController extends GetxController {
   final TextEditingController buyItNowPriceController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController minimumOfferAmountController = TextEditingController();
+  // Legacy single shippingCharge — still backed for backwards compat with
+  // older buyer apps. Set on save to the FIRST non-empty Shape B option's
+  // price (see _collectDeliveryOptions). Hidden from the seller UI now.
   final TextEditingController shippingChargeController = TextEditingController();
+  // Shape B per-option shipping prices (v1.0.10). Each is optional —
+  // leaving any blank means the seller doesn't offer that scope.
+  final TextEditingController localShippingChargeController = TextEditingController();
+  final TextEditingController nationwideShippingChargeController = TextEditingController();
+  final TextEditingController internationalShippingChargeController = TextEditingController();
+
+  // Builds the deliveryOptions array from the three controllers'
+  // current text. Used by both the create-product and edit-product API
+  // calls. Empty entries (or non-numeric) are dropped so the seller can
+  // leave any combination blank without polluting the payload.
+  List<Map<String, dynamic>> _collectDeliveryOptions() {
+    final List<Map<String, dynamic>> out = [];
+    void addIfFilled(String type, String raw) {
+      final trimmed = raw.trim();
+      if (trimmed.isEmpty) return;
+      final price = double.tryParse(trimmed);
+      if (price == null || price < 0) return;
+      out.add({"type": type, "price": price});
+    }
+    addIfFilled("local", localShippingChargeController.text);
+    addIfFilled("nationwide", nationwideShippingChargeController.text);
+    addIfFilled("international", internationalShippingChargeController.text);
+    return out;
+  }
 
 // Available duration options
   final List<String> durationOptions = ['1 day', '3 days', '5 days', '7 days', '10 days', '30 days'];
@@ -1260,6 +1328,7 @@ class ListingController extends GetxController {
         isImmediatePaymentRequired: isImmediatePaymentEnabled,
         promoCodes: selectedPromoCodeIds.toList(),
         deliveryType: selectedDeliveryType,
+        deliveryOptions: _collectDeliveryOptions(),
       );
       Get.back();
       if (result.status == true) {
@@ -1348,6 +1417,7 @@ class ListingController extends GetxController {
         isImmediatePaymentRequired: isImmediatePaymentEnabled,
         promoCodes: selectedPromoCodeIds.toList(),
         deliveryType: selectedDeliveryType,
+        deliveryOptions: _collectDeliveryOptions(),
       );
       Get.back();
       if (result.status == true) {

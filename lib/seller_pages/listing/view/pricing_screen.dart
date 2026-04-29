@@ -1,5 +1,3 @@
-import 'package:cool_dropdown/cool_dropdown.dart';
-import 'package:cool_dropdown/models/cool_dropdown_item.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:flutter/material.dart';
 import 'package:waxxapp/seller_pages/listing/controller/listing_controller.dart';
@@ -77,24 +75,32 @@ class PricingScreen extends StatelessWidget {
                     12.height,
                   ],
                   16.height,
-                  // Delivery scope picker — sits above the existing
-                  // shipping-charge field so the seller picks WHAT the
-                  // charge covers, then enters how much.
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(St.deliveryBySeller.tr, style: AppFontStyle.styleW600(AppColors.white, 16)),
-                      _buildDeliveryTypeDropdown(controller),
-                    ],
+                  // Shape B per-option shipping (v1.0.10): 3 optional
+                  // price inputs, one per delivery scope. Replaces the
+                  // v1.0.9 single dropdown + single charge field.
+                  Text(St.deliveryOptions.tr, style: AppFontStyle.styleW600(AppColors.white, 16)),
+                  6.height,
+                  Text(
+                    St.leaveBlankToNotOffer.tr,
+                    style: AppFontStyle.styleW500(AppColors.unselected, 12),
                   ),
                   16.height,
-                  Text(St.shippingCharge.tr, style: AppFontStyle.styleW600(AppColors.white, 16)),
-                  16.height,
-                  TitleFormFiled(
-                    controller: controller.shippingChargeController,
-                    hintText: St.enterShippingCharge.tr,
-                    keyboardType: TextInputType.number,
+                  _buildDeliveryOptionRow(
+                    label: St.deliveryLocal.tr,
+                    hint: St.enterLocalDeliveryCharge.tr,
+                    fieldController: controller.localShippingChargeController,
+                  ),
+                  10.height,
+                  _buildDeliveryOptionRow(
+                    label: St.deliveryNationwide.tr,
+                    hint: St.enterNationwideDeliveryCharge.tr,
+                    fieldController: controller.nationwideShippingChargeController,
+                  ),
+                  10.height,
+                  _buildDeliveryOptionRow(
+                    label: St.deliveryInternational.tr,
+                    hint: St.enterInternationalDeliveryCharge.tr,
+                    fieldController: controller.internationalShippingChargeController,
                   ),
                   20.height,
                   // Promo Codes section — sellers opt their product into one
@@ -176,62 +182,35 @@ class PricingScreen extends StatelessWidget {
     );
   }
 
-  /// Right-aligned CoolDropdown matching the visual style of the
-  /// handling-time picker on the Preferences screen. Backend stores the
-  /// lowercase enum value (`local`/`nationwide`/`international`); the
-  /// dropdown shows localized labels via St.delivery*.tr.
-  Widget _buildDeliveryTypeDropdown(ListingController controller) {
-    // Rebuild the items list each time so locale / current-selection
-    // changes flow through. The placeholder uses an empty string for the
-    // null-selected state.
-    controller.deliveryTypeDropdownItems
-      ..clear()
-      ..add(CoolDropdownItem<String>(label: St.selectDeliveryType.tr, value: ""))
-      ..add(CoolDropdownItem<String>(label: St.deliveryLocal.tr, value: "local"))
-      ..add(CoolDropdownItem<String>(label: St.deliveryNationwide.tr, value: "nationwide"))
-      ..add(CoolDropdownItem<String>(label: St.deliveryInternational.tr, value: "international"));
-
-    final saved = controller.selectedDeliveryType;
-    final defaultItem = controller.deliveryTypeDropdownItems.firstWhere(
-      (it) => it.value == (saved ?? ""),
-      orElse: () => controller.deliveryTypeDropdownItems.first,
-    );
-
-    return CoolDropdown<String>(
-      controller: controller.deliveryTypeDropDownController,
-      dropdownList: controller.deliveryTypeDropdownItems,
-      defaultItem: defaultItem,
-      onChange: (value) =>
-          controller.setDeliveryType(value.isEmpty ? null : value),
-      resultOptions: ResultOptions(
-        width: 180,
-        render: ResultRender.label,
-        boxDecoration: const BoxDecoration(
-          color: Colors.transparent,
-          border: Border(),
+  /// One row of the Shape B 3-input panel — a left-aligned scope label
+  /// (Local / Nationwide / International) and a right-aligned numeric
+  /// price field. All three rows are optional; an empty input means the
+  /// seller doesn't offer that delivery scope and the buyer never sees
+  /// it as a checkout option.
+  Widget _buildDeliveryOptionRow({
+    required String label,
+    required String hint,
+    required TextEditingController fieldController,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          flex: 4,
+          child: Text(
+            label,
+            style: AppFontStyle.styleW500(AppColors.white, 14),
+          ),
         ),
-        openBoxDecoration: const BoxDecoration(
-          color: Colors.transparent,
-          border: Border(),
+        Expanded(
+          flex: 6,
+          child: TitleFormFiled(
+            controller: fieldController,
+            hintText: hint,
+            keyboardType: TextInputType.number,
+          ),
         ),
-        textStyle: AppFontStyle.styleW600(AppColors.unselected, 13),
-      ),
-      dropdownOptions: DropdownOptions(
-        width: 200,
-        top: 10,
-        selectedItemAlign: SelectedItemAlign.center,
-        curve: Curves.bounceInOut,
-        color: AppColors.tabBackground,
-        align: DropdownAlign.right,
-        animationType: DropdownAnimationType.scale,
-      ),
-      dropdownItemOptions: DropdownItemOptions(
-        textStyle: AppFontStyle.styleW500(AppColors.unselected, 14),
-        selectedTextStyle: AppFontStyle.styleW700(AppColors.primary, 14),
-        selectedBoxDecoration: BoxDecoration(color: AppColors.white.withValues(alpha: 0.08)),
-        padding: const EdgeInsets.only(left: 20),
-        selectedPadding: const EdgeInsets.only(left: 20),
-      ),
+      ],
     );
   }
 }
