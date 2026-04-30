@@ -1,6 +1,128 @@
 # Release Notes — Waxx App
 
 ---
+## 🚚 Version 1.0.10 — Per-option shipping (Shape B) + reel share/view counts + live host control + seller review visibility + pending-edit overlay
+
+**Version:** 1.0.10
+**Build Number:** 13
+**Release Date:** April 2026
+**Type:** Feature drop + UX cluster
+**Note:** First cut on top of v1.0.9+12. Picks up Shape B per-option shipping (the natural follow-up to v1.0.9's single-pick scope), the live "user joined" chat row + push deep-link timing fix promised in the prior plan, plus a batch of seller-flow improvements that surfaced from on-device testing.
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🚀 Update — v1.0.10
+
+🚚 Sellers set 3 shipping prices (Local / Nat / Intl)
+🛒 Buyers pick the option per item on Cart/Checkout
+👋 "<user> joined" chat row on live shows
+📲 Live push tap now opens broadcast (not Home)
+🛍 Hosts can remove products mid-stream
+🎬 Reel share + view counts displayed
+⭐ Sellers see Sold + ⭐ rating on their products
+🗑 Notifications: swipe to delete + Clear all
+🔔 Pending-review banner shows your edits
+❤️ Seller-profile reels remember your like
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🆕 New features in v1.0.10
+
+**Per-option shipping (Shape B)**
+- v1.0.9 shipped the single-pick delivery-scope dropdown. v1.0.10 evolves it: sellers fill in **three optional prices** on the Pricing page (Local / Nationwide / International) instead of one. Any combination can be left blank. The Listing Summary now renders one row per filled scope so the seller's review reflects what they entered.
+- New `Product.deliveryOptions: [{ type, price }]` array on the backend, mirrored on `ProductRequest` so admin-approval edits carry the value. Legacy products with only `shippingCharges` + `deliveryType` keep working — the cart resolves their single virtual option through a new `resolveCartShipping` helper.
+- New `Cart.items.chosenDeliveryType` per-line field; cart picker on **Cart / Checkout** lets buyers flip between offered options per item, with the snapshot price (`purchasedTimeShippingCharges`) re-resolved on the backend so the line total stays self-contained even if the seller later edits.
+- `cart/updateDeliveryOption` endpoint applies the buyer's pick atomically; the picker is hidden when only one option is offered (auto-selected), and legacy products keep their single charge with no UI change.
+- `_syncLegacyShippingFromOptions()` runs immediately before `listItem` / `editListItem` submit so the legacy `shippingCharges` + `deliveryType` fields stay in sync with the first filled option — fixes a regression where the prefilled stale value was being re-sent and the next product detail render showed the pre-edit shipping price.
+
+**Live "user joined" chat row**
+- New `JOIN` system message type for the in-broadcast chat. When a buyer enters a live the host (and every viewer) sees a styled `JOINED` chip + "<name> joined" within ~1 second, matching the Whatnot / TikTok-Live convention. Persisted in `LiveChat` so a third late-joiner sees the JOIN line in the chat-history replay.
+- Per-session dedupe: emits only on first entry to the room, not on Zego reconnects or tab refreshes — gated on the `LiveSellingView` upserted-vs-found flag so a flaky network doesn't spam the chat.
+- Reuses `LiveSystemMessage._style` switch on the Flutter side; new JOIN case renders with a login icon + the same primary color as FOLLOW.
+
+**Live push tap routes to the broadcast (deep-link timing fix)**
+- The handler that converts a tapped `LIVE_STARTED` push into a deep-link nav was registered inside `SplashScreenController.onInit` — i.e. only after storage hydration and only on the splash route. Cold-start from a tapped notification could race past it and `getInitialMessage()` was consumed before the handler was armed, so the app fell through to the Home redirect.
+- Moved `PushNotificationService.instance.registerInteractionHandlers()` into `main()` immediately after `Firebase.initializeApp(...)` — handler is globally armed before `runApp()` is called regardless of login state. Dropped the duplicate splash call. Cold-start cold-start handler defers via `WidgetsBinding.addPostFrameCallback` so `Get.dialog` has a live MaterialApp/GetX context to land on.
+- Logged-out cold-start path: `AppLinkService.openLive()` already accepts the unauthed case, so an account-less viewer lands on `LiveSwipeView` and can watch (chat / like gated by the existing live-page logic).
+
+**Live host can remove products mid-stream**
+- The host-only "Available Products" sheet now shows a small trash icon on every row. Tap → confirmation dialog → row disappears + the live's product list updates room-wide via the existing `selectedProductsUpdated` socket broadcast. Pairs the v1.0.6 "+ Add product" path so a host can fully curate the storefront mid-broadcast without ending the show.
+- New `POST /liveSeller/removeProductFromLive` endpoint mirrors `addProductToLive`: pulls the product from `LiveSeller.selectedProducts`, returns the updated list, broadcasts to the room.
+
+**Reel view + share counts on the seller-profile FullScreenReelView**
+- v1.0.8 added per-user view dedupe + a view counter on the home Shorts rail. v1.0.10 surfaces both view and share totals on the **seller-profile** reel viewer too, where they were missing entirely.
+- New `Reel.share` field on the backend with a `POST /reel/incrementShare/:reelId` endpoint (no per-user dedupe — every share counts, mirroring the live `shareCount` pattern). Both the home Shorts viewer and the seller-profile FullScreenReelView bump it on share-tap with optimistic local +1 reconciled to the server's authoritative count.
+- View-bump now fires on the seller-profile path too (same `ReelViewService.incrementView` the home rail uses) so the counter ticks for views from any surface.
+
+**Sellers see Sold + ⭐ rating on their own product details**
+- The buyer-side product-detail row showing `Sold count + ⭐ + No Reviews / X.X (N)` is now rendered on `SellerProductDetailsView` too, just under the address line. Reuses the same `product.sold` and the new rating aggregation. Tapping the star opens the existing `ProductReviews` page (the buyer-side reviews list, reused) so sellers can read review text.
+- `detailforSeller` runs the same `Rating $group` aggregation `productDetail` uses (`avgRating + totalUser`) and stitches the result onto each returned product.
+
+**Notifications: swipe to delete + Clear all**
+- `Dismissible` swipe-to-delete on every notification row + a trailing trash IconButton + an AppBar "Clear all" TextButton with a confirm dialog.
+- Optimistic UI: rows disappear immediately and restore on backend failure. New endpoints `DELETE /notification/:id` (single) and `DELETE /notification/clearAll?userId=...` (bulk).
+
+**Pending-review overlay on the seller's own detail/summary**
+- When a seller edits a product, the change goes through admin review (`productRequest/updateProductRequest`). Until the admin accepts, the live `Product` is unchanged — sellers were re-opening their own detail page after submit and seeing the pre-edit values, concluding the edit had silently failed.
+- `detailforSeller` now looks up the latest pending `ProductRequest` for the product and **overlays its writable fields** (delivery options/prices, promo codes, attributes, images, pricing, auction settings) onto the response. New `hasPendingReview: true` flag drives a yellow hourglass "Your product is in pending mode" banner at the top of both `SellerProductDetailsView` and `ListingSummary`.
+- Buyers still hit `productDetail` (no overlay) — they keep seeing the live approved product until the admin accepts.
+
+**Per-viewer `isLike` on seller-profile reels**
+- Both the seller-profile reels grid + FullScreenReelView always rendered the heart icon as unliked because `reelsOfSeller` returned the raw Reel doc with no `likehistoryofreels` join. The same user could like a reel from the home Shorts feed and see it unliked from the profile path.
+- Backend `reelsOfSeller` now mirrors `getReelsForUser`: a `$lookup` against `likehistoryofreels` gated on the new `userId` query param + an `addFields` stage that surfaces `isLike` and a default 0 for `view`/`share`. Anonymous viewers (no `userId`) skip the lookup and always see `false`.
+- Flutter threads `loginUserId` through the `fetchSellerReels` call, the `Reel` class gains mutable `isLike` + `like`, and `FullScreenReelView` seeds the heart from `reel.isLike` plus persists the optimistic toggle back onto the reel object so swipes don't lose the state. Also fixed a latent bug where `onClickLike` was hitting the API with `initialIndex` instead of the currently-visible reel.
+
+#### 🛠 UX / polish in v1.0.10
+
+**Live shop icon survives an empty product list**
+- Hosts who removed every product from a live (v1.0.10's new flow) lost the shop icon entirely (`liveSelectedProducts.isNotEmpty` gate), so they had no way to add anything back. Hosts now always see the shop button; with an empty list it renders an `add_shopping_cart` placeholder icon instead of the first product's image. Viewers still only see the icon when there's something to shop.
+
+**Listing Summary shipping rows match Shape B input**
+- The Pricing card on the Listing Summary was hard-coded to the legacy `shippingChargeController.text` — sellers' three Shape B inputs were invisible there, so the summary either showed nothing or only the legacy single value. Now renders one row per filled scope (Local / Nationwide / International), falling back to the legacy single row only for products that haven't been re-saved under Shape B.
+
+#### 🐛 Bug fixes in v1.0.10
+
+| Issue | Fix |
+|---|---|
+| After editing delivery prices, re-opening the seller product detail showed the pre-edit shipping value | `editListItem()` was sending the prefilled stale `shippingChargeController.text` alongside the new `deliveryOptions[]`. Added `_syncLegacyShippingFromOptions()` which back-fills `shippingCharges` + `deliveryType` from the first filled option before submit, mirroring the v1.0.10 plan's "first non-zero option" rule. Wired into both `listItem` + `editListItem`. Pairs with the new pending-review overlay so the seller sees their submitted values immediately even before admin approval. |
+| Live page: after a host removed all products, the shop icon disappeared and they couldn't add new ones | `liveSelectedProducts.isNotEmpty` gate was blocking the host. Hosts now always see the shop icon (with a placeholder when empty); viewers retain the existing visibility. |
+| Listing Summary didn't show per-option shipping under Shape B | Pricing widget on the summary only read `shippingChargeController`. Now iterates the three Shape B controllers and renders one row per filled scope. |
+| Tapping a reel from a seller profile showed the heart unliked even after the same user had already liked it from home Shorts | `reelsOfSeller` had no `likehistoryofreels` join. Backend `$lookup` added; Flutter passes the viewer's `userId`; `Reel` model gains `isLike`; `FullScreenReelView` seeds from + persists into the reel object. |
+| `onClickLike` from the seller-profile FullScreenReelView fired the like API for the wrong reel after vertical swipes | Was indexing on `widget.initialIndex`. Now reads the current visible page via `_currentIndex`. |
+| Sellers re-opened their own product detail after Edit Item and saw pre-edit values, concluding the edit had silently failed | `detailforSeller` now overlays the latest pending `ProductRequest` fields onto the response and surfaces a `hasPendingReview` flag. UI shows a "Pending review" banner so the workflow is transparent. |
+
+#### 📁 Files Changed
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.0.9+12` → `1.0.10+13`) |
+| Backend version | `waxxapp_admin/backend/package.json` (`1.17.0` → `1.18.0`) |
+| Shape B — Backend | `backend/server/product/{product.model.js,product.controller.js}`, `backend/server/productRequest/{productRequest.model.js,productRequest.controller.js}`, `backend/server/cart/{cart.model.js,cart.controller.js,cart.route.js}`, `backend/server/order/{order.model.js,order.controller.js}`, `backend/util/resolveCartShipping.js` (new) |
+| Shape B — Flutter | `lib/seller_pages/listing/{view/pricing_screen,widget/pricing_widget,view/listing_summary,controller/listing_controller}.dart`, `lib/View/MyApp/AppPages/{cheak_out,cart_page,product_detail}.dart`, `lib/View/MyApp/Profile/MyOrder/user_order_details.dart`, `lib/utils/utils.dart` (`_localizeDeliveryType` promoted), `lib/ApiModel/common/delivery_option.dart` (new), 16 product-shaped models in `lib/ApiModel/{seller,user}/`, `lib/ApiService/seller/{add_product_service,product_edit_service}.dart`, `lib/utils/api_url.dart` |
+| Live JOIN row | `backend/socket.js` (addView handler), `lib/custom/live_system_message.dart` |
+| Push deep-link timing | `lib/main.dart` (registerInteractionHandlers before runApp), `lib/Controller/GetxController/login/splash_screen_controller.dart` (drop duplicate call), `lib/services/push_notification_service.dart` (post-frame defer) |
+| Live host remove product | `backend/server/liveSeller/{liveSeller.controller.js,liveSeller.route.js}`, `backend/socket.js`, `lib/seller_pages/live_page/bottom_sheet/product_list_bottom_sheet_ui.dart`, `lib/seller_pages/live_page/controller/live_controller.dart`, `lib/utils/api_url.dart` |
+| Live shop icon empty-state | `lib/seller_pages/live_page/widget/live_widget.dart` |
+| Reel share + view counts | `backend/server/reel/{reel.model.js,reel.controller.js,reel.route.js}`, `lib/ApiModel/seller/{SellerReelsModel.dart,GetReelsForUserModel.dart}`, `lib/ApiService/user/reel_share_service.dart` (new), `lib/utils/api_url.dart`, `lib/View/MyApp/AppPages/reels_page/widget/reels_widget.dart`, `lib/user_pages/preview_seller_profile_page/widget/store_product_widget.dart` |
+| Seller sees rating + reviews | `backend/server/product/product.controller.js` (detailforSeller rating aggregation), `lib/ApiModel/seller/SellerProductDetailsModel.dart` (new Rating class), `lib/seller_pages/seller_product_details_page/seller_product_details_view.dart` |
+| Notifications delete | `backend/server/notification/{notification.controller.js,notification.route.js}`, `lib/Controller/GetxController/user/user_all_notification_controller.dart`, `lib/View/MyApp/AppPages/notification.dart`, `lib/utils/api_url.dart` |
+| Pending-review overlay | `backend/server/product/product.controller.js` (detailforSeller overlay + hasPendingReview), `lib/ApiModel/seller/SellerProductDetailsModel.dart`, `lib/seller_pages/seller_product_details_page/seller_product_details_view.dart`, `lib/seller_pages/listing/view/listing_summary.dart` |
+| Per-viewer reel isLike | `backend/server/reel/reel.controller.js` (reelsOfSeller $lookup), `lib/ApiModel/seller/SellerReelsModel.dart`, `lib/user_pages/preview_seller_profile_page/api/fetch_seller_profile_api.dart`, `lib/user_pages/preview_seller_profile_page/widget/store_product_widget.dart` |
+
+#### 🚀 Deploy checklist for v1.0.10
+
+1. `git pull` in `waxxapp_admin/backend` and `pm2 restart backend` so all the new endpoints are live: Shape B `cart/updateDeliveryOption`, `liveSeller/removeProductFromLive`, `reel/incrementShare/:reelId`, `notification/:id` (DELETE), `notification/clearAll`, plus the schema additions and the per-viewer `isLike` / pending-review overlay reads.
+2. Optional Mongo backfill for new fields — Mongoose's `default` covers new docs but won't touch existing ones until they're next saved. Either skip (legacy docs render correctly without migration) or run on the server's Mongo:
+   ```js
+   db.products.updateMany({ deliveryOptions: { $exists: false } }, { $set: { deliveryOptions: [] } })
+   db.reels.updateMany({ share: { $exists: false } }, { $set: { share: 0 } })
+   ```
+3. Force-quit and relaunch the Flutter app so the freshly registered push interaction handler arms before `runApp` (the deep-link timing fix only applies to the new build).
+
+---
 ## 💳 Version 1.0.9 — Paystack payments (GHS) + Delivery scope picker + onboarding refresh + live polish
 
 **Version:** 1.0.9
