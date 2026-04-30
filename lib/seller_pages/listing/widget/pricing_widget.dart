@@ -138,36 +138,64 @@ class PricingWidget extends StatelessWidget {
               ],
             ),
           ],
-          if (controller.shippingChargeController.text.isNotEmpty) ...[
-            10.height,
-            Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    St.shippingCharge.tr,
-                    style: AppFontStyle.styleW500(AppColors.unselected, 12),
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Text(
-                    ":",
-                    style: AppFontStyle.styleW500(AppColors.white, 12),
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    "$currencySymbol ${controller.shippingChargeController.text}",
-                    style: AppFontStyle.styleW600(AppColors.white, 13),
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ..._buildDeliveryOptionsSummary(controller),
         ],
       ),
     );
   }
+
+  // Shape B (v1.0.10): Pricing now captures up to three delivery scopes
+  // with their own prices. Render one row per filled scope so the summary
+  // matches what the seller actually entered. Falls back to the legacy
+  // single shippingCharges row when only that field is populated (edit
+  // flow on a v1.0.9 product the seller hasn't re-saved under Shape B).
+  List<Widget> _buildDeliveryOptionsSummary(ListingController controller) {
+    final entries = <_DeliveryRow>[
+      _DeliveryRow(St.deliveryLocal.tr, controller.localShippingChargeController.text),
+      _DeliveryRow(St.deliveryNationwide.tr, controller.nationwideShippingChargeController.text),
+      _DeliveryRow(St.deliveryInternational.tr, controller.internationalShippingChargeController.text),
+    ].where((r) => r.value.trim().isNotEmpty).toList();
+
+    if (entries.isEmpty) {
+      if (controller.shippingChargeController.text.trim().isEmpty) return const [];
+      entries.add(_DeliveryRow(St.shippingCharge.tr, controller.shippingChargeController.text));
+    }
+
+    return [
+      for (final r in entries) ...[
+        10.height,
+        Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Text(
+                r.label,
+                style: AppFontStyle.styleW500(AppColors.unselected, 12),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                ":",
+                style: AppFontStyle.styleW500(AppColors.white, 12),
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Text(
+                "$currencySymbol ${r.value}",
+                style: AppFontStyle.styleW600(AppColors.white, 13),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ];
+  }
+}
+
+class _DeliveryRow {
+  final String label;
+  final String value;
+  _DeliveryRow(this.label, this.value);
 }

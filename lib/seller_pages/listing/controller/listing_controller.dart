@@ -837,6 +837,25 @@ class ListingController extends GetxController {
     return out;
   }
 
+  // Shape B back-sync: the legacy `shippingCharges` + `deliveryType` pair
+  // is still surfaced on every product-detail screen (buyer + seller) and
+  // is what older client builds read for cart math. The Pricing UI no
+  // longer has a single shipping input — sellers fill in 1-3 scoped
+  // prices instead — so we have to pick a representative legacy value
+  // before submit. Without this, the prefilled `shippingChargeController`
+  // value sticks around and the next product-detail render shows the
+  // pre-edit price even though the new deliveryOptions[] is correct.
+  // Strategy: take the first filled option (priority local → nationwide
+  // → international) and back-fill both legacy fields from it. This
+  // matches the v1.0.10 plan's "first non-zero option's price" rule.
+  void _syncLegacyShippingFromOptions() {
+    final opts = _collectDeliveryOptions();
+    if (opts.isEmpty) return;
+    final first = opts.first;
+    shippingChargeController.text = (first["price"] as num).toString();
+    selectedDeliveryType = first["type"] as String?;
+  }
+
 // Available duration options
   final List<String> durationOptions = ['1 day', '3 days', '5 days', '7 days', '10 days', '30 days'];
 
@@ -1273,6 +1292,10 @@ class ListingController extends GetxController {
         return; // Don't proceed if validation fails
       }
 
+      // Keep the legacy shippingCharges + deliveryType fields in sync with
+      // the (Shape B) per-option entries before the API call.
+      _syncLegacyShippingFromOptions();
+
       // Show loading only after validation passes
       Get.dialog(
         Center(
@@ -1356,6 +1379,11 @@ class ListingController extends GetxController {
       if (!validateRequiredFields()) {
         return; // Don't proceed if validation fails
       }
+
+      // Sync legacy shippingCharges + deliveryType from the new Shape B
+      // options. Without this the prefilled stale values get re-sent and
+      // the next product-detail render shows pre-edit shipping prices.
+      _syncLegacyShippingFromOptions();
 
       // Show loading only after validation passes
       Get.dialog(

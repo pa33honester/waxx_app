@@ -50,7 +50,9 @@ class Reel {
   final ProductId? productId;
   final SellerId? sellerId;
   final int? duration;
-  final int? like;
+  // Mutable so the optimistic ±1 in onClickLike can repaint the count
+  // without a full refetch (matches the home-reels widget pattern).
+  int? like;
   final int? comment;
   // View + share counts surfaced in the seller-profile FullScreenReelView
   // alongside the like count. `view` mirrors the home-reels feed's
@@ -60,6 +62,10 @@ class Reel {
   // full re-fetch from the seller-profile controller.
   int? view;
   int? share;
+  // Per-viewer like state — seeded from the reelsOfSeller endpoint's new
+  // likehistoryofreels $lookup. Mutable so the FullScreenReelView's
+  // optimistic toggle can repaint the heart immediately without a refetch.
+  bool? isLike;
   final bool? isFake;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -78,6 +84,7 @@ class Reel {
     this.comment,
     this.view,
     this.share,
+    this.isLike,
     this.isFake,
     this.createdAt,
     this.updatedAt,
@@ -110,6 +117,7 @@ class Reel {
         comment: json["comment"],
         view: json["view"],
         share: json["share"],
+        isLike: json["isLike"],
         isFake: json["isFake"],
         createdAt: json["createdAt"] == null
             ? null
@@ -133,6 +141,7 @@ class Reel {
         "comment": comment,
         "view": view,
         "share": share,
+        "isLike": isLike,
         "isFake": isFake,
         "createdAt": createdAt?.toIso8601String(),
         "updatedAt": updatedAt?.toIso8601String(),

@@ -625,7 +625,11 @@ class LiveUi extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(child: _buildBottomInput().paddingOnly(right: 10)),
-                    if (controller.liveSelectedProducts.isNotEmpty) _buildShopViewSection(),
+                    // Host can always open the products sheet (even with no
+                    // selections yet) so they have a way to add the first
+                    // product or recover after removing them all. Viewers
+                    // only see the shop icon when there's something to shop.
+                    if (controller.liveSelectedProducts.isNotEmpty || isHost) _buildShopViewSection(),
                   ],
                 ),
               );
@@ -641,6 +645,7 @@ class LiveUi extends StatelessWidget {
     return GetBuilder<LiveController>(
       builder: (controller) {
         log("controller.products.length: ${controller.liveSelectedProducts.length}");
+        final hasProducts = controller.liveSelectedProducts.isNotEmpty;
         return GestureDetector(
           onTap: () {
             ProductListBottomSheetUi.show(context: Get.context!, isHost: isHost);
@@ -655,17 +660,19 @@ class LiveUi extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.white),
                 ),
-                child: Container(
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-                  child: PreviewImageWidget(
-                    height: 55,
-                    width: 55,
-                    fit: BoxFit.cover,
-                    image: controller.liveSelectedProducts.first.mainImage ?? "",
-                    radius: 10,
-                  ),
-                ),
+                child: hasProducts
+                    ? Container(
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+                        child: PreviewImageWidget(
+                          height: 55,
+                          width: 55,
+                          fit: BoxFit.cover,
+                          image: controller.liveSelectedProducts.first.mainImage ?? "",
+                          radius: 10,
+                        ),
+                      )
+                    : Icon(Icons.add_shopping_cart_rounded, color: AppColors.black, size: 28),
               ),
               5.height,
               Text(St.txtShop.tr, style: AppFontStyle.styleW500(AppColors.white, 12)),

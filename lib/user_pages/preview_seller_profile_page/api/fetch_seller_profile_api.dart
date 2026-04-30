@@ -4,6 +4,7 @@ import 'package:waxxapp/ApiModel/seller/SellerFollowersModel.dart';
 import 'package:waxxapp/ApiModel/seller/SellerReelsModel.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/model/fetch_seller_profile_model.dart';
 import 'package:waxxapp/utils/api_url.dart';
+import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:http/http.dart' as http;
 
@@ -42,7 +43,11 @@ class FetchSellerProfileApi {
   static Future<SellerReelsModel?> sellerReelsApi({required String sellerId}) async {
     Utils.showLog("Fetch Seller Reels Api Calling...");
 
-    final uri = Uri.parse("${Api.fetchSellerReels}?sellerId=$sellerId&start=$startPagination&limit=$limitPagination");
+    // Include the viewer's userId so the backend can stitch on a per-viewer
+    // isLike flag — without it the seller-profile reels grid + viewer
+    // always defaulted to false and the heart icon never reflected the
+    // user's existing likes.
+    final uri = Uri.parse("${Api.fetchSellerReels}?sellerId=$sellerId&userId=$loginUserId&start=$startPagination&limit=$limitPagination");
     // final uri = Uri.parse("${Api.fetchSellerProfile}?sellerId=65c06f09387a7c37496871a0&loggedInUserId=65bc7549bf16286a1e34b33d");
 
     Utils.showLog("Fetch Seller Reels Api Url => $uri");

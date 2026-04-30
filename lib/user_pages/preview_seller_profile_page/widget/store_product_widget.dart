@@ -433,7 +433,11 @@ class _FullScreenReelViewState extends State<FullScreenReelView> {
 
   void _syncCountsForIndex(int index) {
     final reel = widget.reels[index];
-    isLike.value = false;
+    // Seed from the per-viewer flag the reelsOfSeller endpoint now
+    // returns. Was hard-coded to false, which made the heart icon
+    // always render unliked even when the user had already liked the
+    // reel from another surface (home Shorts, etc.).
+    isLike.value = reel.isLike ?? false;
     customChanges["like"] = reel.like ?? 0;
     customChanges["comment"] = reel.comment ?? 0;
     customChanges["view"] = reel.view ?? 0;
@@ -499,22 +503,30 @@ class _FullScreenReelViewState extends State<FullScreenReelView> {
 
   Future<void> onClickLike() async {
     log("onClickLike:::::::::");
+    final reel = widget.reels[_currentIndex];
     if (isLike.value) {
       isLike.value = false;
       customChanges["like"]--;
+      reel.isLike = false;
+      reel.like = (reel.like ?? 1) - 1;
     } else {
       isLike.value = true;
       customChanges["like"]++;
+      reel.isLike = true;
+      reel.like = (reel.like ?? 0) + 1;
     }
 
     isShowLikeIconAnimation.value = true;
     await 500.milliseconds.delay();
     isShowLikeIconAnimation.value = false;
 
-    await ReelsLikeDislikeApi.callApi(
-      loginUserId: loginUserId,
-      videoId: controller.reels[widget.initialIndex].id!,
-    );
+    final reelId = reel.id;
+    if (reelId != null && reelId.isNotEmpty) {
+      await ReelsLikeDislikeApi.callApi(
+        loginUserId: loginUserId,
+        videoId: reelId,
+      );
+    }
   }
 
   @override
