@@ -101,6 +101,29 @@ class _SellerProductDetailsViewState extends State<SellerProductDetailsView> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(height: 15),
+                            if (sellerProductDetailsController.sellerProductDetails?.product?[0].hasPendingReview == true)
+                              Container(
+                                width: Get.width,
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFACC15).withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: const Color(0xFFFACC15), width: 1),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.hourglass_top_rounded, color: Color(0xFFFACC15), size: 22),
+                                    10.width,
+                                    Expanded(
+                                      child: Text(
+                                        St.yourProductIsInPendingMode.tr,
+                                        style: AppFontStyle.styleW600(AppColors.white, 12),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             Container(
                               width: Get.width,
                               decoration: BoxDecoration(

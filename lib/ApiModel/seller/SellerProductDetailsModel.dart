@@ -61,6 +61,11 @@ class Product {
   int? review;
   int? sold;
   List<Rating>? rating;
+  // True when this product has an open ProductRequest awaiting admin
+  // approval. The detailforSeller endpoint overlays the pending request's
+  // fields onto the response so the seller sees their submitted edits;
+  // this flag tells the UI to render a "Pending review" banner.
+  bool? hasPendingReview;
   int? searchCount;
   dynamic lastSearchedAt;
   bool? isOutOfStock;
@@ -108,6 +113,7 @@ class Product {
     this.review,
     this.sold,
     this.rating,
+    this.hasPendingReview,
     this.searchCount,
     this.lastSearchedAt,
     this.isOutOfStock,
@@ -156,6 +162,7 @@ class Product {
         review: json["review"],
         sold: json["sold"],
         rating: json["rating"] == null ? [] : List<Rating>.from(json["rating"]!.map((x) => Rating.fromJson(x))),
+        hasPendingReview: json["hasPendingReview"],
         searchCount: json["searchCount"],
         lastSearchedAt: json["lastSearchedAt"],
         isOutOfStock: json["isOutOfStock"],
@@ -204,6 +211,7 @@ class Product {
         "review": review,
         "sold": sold,
         "rating": rating == null ? [] : List<dynamic>.from(rating!.map((x) => x.toJson())),
+        "hasPendingReview": hasPendingReview,
         "searchCount": searchCount,
         "lastSearchedAt": lastSearchedAt,
         "isOutOfStock": isOutOfStock,

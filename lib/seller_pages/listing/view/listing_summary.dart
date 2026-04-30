@@ -76,6 +76,32 @@ class ListingSummary extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            GetBuilder<ListingController>(builder: (logic) {
+              if (!logic.isEdit) return const SizedBox.shrink();
+              final pending = logic.sellerProductDetailsController.sellerProductDetails?.product?[0].hasPendingReview == true;
+              if (!pending) return const SizedBox.shrink();
+              return Container(
+                margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFACC15).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFFACC15), width: 1),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.hourglass_top_rounded, color: Color(0xFFFACC15), size: 22),
+                    10.width,
+                    Expanded(
+                      child: Text(
+                        St.yourProductIsInPendingMode.tr,
+                        style: AppFontStyle.styleW600(AppColors.white, 12),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
             PhotosWidget(),
             TitleWidget(),
             CategoryWidget(),
