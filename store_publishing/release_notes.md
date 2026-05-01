@@ -31,6 +31,7 @@
 | Live like was capped at 1 per session — every tap toggled symmetric ±1 | v1.0.9 introduced symmetric ±1 likes; users hated that they couldn't keep cheering past the first tap (Whatnot / TikTok-Live let you spam taps). Reverted to multi-tap convention: every tap is +1, no toggle. Heart flips to filled red on first tap and stays filled. Backend `liveLike` handler is already append-only so no server change needed. |
 | Live chat history wasn't shown to hosts re-entering their own broadcast | The `FetchLiveChatHistoryService.fetch` call in `live_view.dart` was gated on `!widget.isHost`, so the seller's own broadcast view always restarted with an empty chat panel. Removed the gate — both buyers and hosts now get the LiveChat replay on entry. |
 | Buyers saw only the legacy `Delivery by Seller: <Type>` line on Product Detail, no per-scope prices | The buyer-side `productDetail` aggregation `$project` dropped both `deliveryType` and `deliveryOptions` so the Flutter side had no per-option data even though the seller's Pricing-page entries were stored correctly. Added both fields to the projection; Product Detail now renders a `Wrap` of outlined pill chips (`Local • GH₵X`, `Nationwide • GH₵Y`, `International • GH₵Z`) beneath the Sold/star row when `deliveryOptions` is non-empty. Falls back to the legacy single-line label for products that haven't been re-saved under Shape B. The actual per-item pick still happens on Cart where it gets persisted. |
+| Listing Summary's Submit button rejected sellers with a "Listing Errors: Enter Shipping charge" dialog even when they'd filled the new Local / Nationwide / International prices | The validator was still checking `shippingChargeController.text.isEmpty` against the legacy single-shipping field that v1.0.10 hid from the UI. Sellers who only used the new Shape B inputs hit a hard block. Validator now passes when ANY of the three Shape B controllers OR the legacy one has a value, so new listings and edits on v1.0.9 products both submit cleanly. |
 
 #### 📁 Files Changed
 
@@ -42,6 +43,7 @@
 | Multi-tap likes | `lib/seller_pages/live_page/controller/live_controller.dart` (`onToggleLiveLike` reverted to +1-only) |
 | Chat replay for hosts | `lib/seller_pages/live_page/view/live_view.dart` (drop `!widget.isHost` gate) |
 | Delivery options on Product Detail | `backend/server/product/product.controller.js` (`productDetail` `$project` adds `deliveryType` + `deliveryOptions`), `lib/View/MyApp/AppPages/product_detail.dart` (Wrap of pill chips) |
+| Listing Summary submit validation | `lib/seller_pages/listing/controller/listing_controller.dart` (`validateRequiredFields` checks all 3 Shape B controllers + legacy fallback) |
 
 #### 🚀 Deploy checklist for v1.0.11
 
