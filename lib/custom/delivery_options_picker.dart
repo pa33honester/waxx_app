@@ -51,48 +51,57 @@ class DeliveryOptionsPicker extends StatelessWidget {
       return type;
     }
 
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: options.map<Widget>((opt) {
-        final type = opt.type as String?;
-        final price = opt.price;
-        if (type == null) return const SizedBox.shrink();
-        final isSelected = chosenDeliveryType == type;
-        return GestureDetector(
-          onTap: isSelected || cartCtrl.updateLoading.value
-              ? null
-              : () async {
-                  cartCtrl.updateLoading.value = true;
-                  final updated = await UpdateCartDeliveryOptionService.update(
-                    userId: Database.loginUserId,
-                    productId: productId,
-                    chosenDeliveryType: type,
-                    attributesArray: attributesArray,
-                  );
-                  if (updated != null) {
-                    await cartCtrl.getCartProductData(updatedData: true);
-                  } else {
-                    cartCtrl.updateLoading.value = false;
-                  }
-                },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary : AppColors.transparent,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary, width: 1),
-            ),
-            child: Text(
-              "${label(type)} • $currencySymbol$price",
-              style: AppFontStyle.styleW600(
-                isSelected ? AppColors.black : AppColors.primary,
-                11,
+    // Wrapped in Obx so that taps re-enable as soon as the cart's
+    // `updateLoading` flips back to false after the refetch — without
+    // this the GetBuilder rebuild fires while updateLoading is still
+    // true (the controller's `update()` call lands BEFORE the finally
+    // block resets the flag), and the pills ended up frozen with
+    // `onTap: null` until some other event triggered a rebuild.
+    return Obx(() {
+      final loading = cartCtrl.updateLoading.value;
+      return Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: options.map<Widget>((opt) {
+          final type = opt.type as String?;
+          final price = opt.price;
+          if (type == null) return const SizedBox.shrink();
+          final isSelected = chosenDeliveryType == type;
+          return GestureDetector(
+            onTap: isSelected || loading
+                ? null
+                : () async {
+                    cartCtrl.updateLoading.value = true;
+                    final updated = await UpdateCartDeliveryOptionService.update(
+                      userId: Database.loginUserId,
+                      productId: productId,
+                      chosenDeliveryType: type,
+                      attributesArray: attributesArray,
+                    );
+                    if (updated != null) {
+                      await cartCtrl.getCartProductData(updatedData: true);
+                    } else {
+                      cartCtrl.updateLoading.value = false;
+                    }
+                  },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.primary : AppColors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.primary, width: 1),
+              ),
+              child: Text(
+                "${label(type)} • $currencySymbol$price",
+                style: AppFontStyle.styleW600(
+                  isSelected ? AppColors.black : AppColors.primary,
+                  11,
+                ),
               ),
             ),
-          ),
-        );
-      }).toList(),
-    );
+          );
+        }).toList(),
+      );
+    });
   }
 }

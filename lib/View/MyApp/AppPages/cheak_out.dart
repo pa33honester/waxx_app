@@ -561,56 +561,62 @@ class _CheckOutState extends State<CheckOut> {
                               maxLines: 1,
                               style: AppFontStyle.styleW700(AppColors.white, 18),
                             ),
-                            ListView.builder(
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: getAllCartProductController.getAllCartProducts?.data!.items!.length,
-                              itemBuilder: (context, index) {
-                                final item = getAllCartProductController.getAllCartProducts?.data!.items![index];
-                                final productQuantity = item?.productQuantity;
-                                final purchasedTimeProductPrice = item?.purchasedTimeProductPrice?.toInt();
-                                final deliveryOptions = item?.productId?.deliveryOptions;
-                                final chosenDeliveryType = item?.chosenDeliveryType;
-                                final productIdStr = "${item?.productId?.id}";
-                                final attributesArray = jsonDecode(jsonEncode(item?.attributesArray ?? const [])) as List<dynamic>;
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              "${item?.productId?.productName} x $productQuantity",
-                                              style: AppFontStyle.styleW700(AppColors.primary, 11),
+                            // Wrapped in a GetBuilder so a pill-tap → cart-refetch
+                                                          // → controller.update() actually re-renders the picker
+                                                          // with the new chosenDeliveryType. Without this the user
+                                                          // saw the pills but selecting one had no effect — the
+                                                          // backend updated, the cart re-fetched, but the
+                                                          // surrounding Obx (gated on the address controller's
+                                                          // isLoading) never re-evaluated cart data so the picker
+                                                          // visually stayed on its old selection.
+                            GetBuilder<GetAllCartProductController>(
+                              builder: (cartCtrl) => ListView.builder(
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: cartCtrl.getAllCartProducts?.data?.items?.length ?? 0,
+                                itemBuilder: (context, index) {
+                                  final item = cartCtrl.getAllCartProducts?.data?.items?[index];
+                                  final productQuantity = item?.productQuantity;
+                                  final purchasedTimeProductPrice = item?.purchasedTimeProductPrice?.toInt();
+                                  final deliveryOptions = item?.productId?.deliveryOptions;
+                                  final chosenDeliveryType = item?.chosenDeliveryType;
+                                  final productIdStr = "${item?.productId?.id}";
+                                  final attributesArray = jsonDecode(jsonEncode(item?.attributesArray ?? const [])) as List<dynamic>;
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 10),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                "${item?.productId?.productName} x $productQuantity",
+                                                style: AppFontStyle.styleW700(AppColors.primary, 11),
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            "$currencySymbol${(productQuantity ?? 0) * (purchasedTimeProductPrice ?? 0)}",
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style: AppFontStyle.styleW700(AppColors.white, 14),
+                                            Text(
+                                              "$currencySymbol${(productQuantity ?? 0) * (purchasedTimeProductPrice ?? 0)}",
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              style: AppFontStyle.styleW700(AppColors.white, 14),
+                                            ),
+                                          ],
+                                        ),
+                                        if ((deliveryOptions ?? const []).isNotEmpty) ...[
+                                          8.height,
+                                          DeliveryOptionsPicker(
+                                            deliveryOptions: deliveryOptions,
+                                            chosenDeliveryType: chosenDeliveryType,
+                                            productId: productIdStr,
+                                            attributesArray: attributesArray,
                                           ),
                                         ],
-                                      ),
-                                      // Shape B per-item delivery picker — same widget Cart
-                                      // uses, so the buyer can flip the choice on Checkout
-                                      // too. The total row below re-aggregates after the
-                                      // cart refetch baked into the picker.
-                                      if ((deliveryOptions ?? const []).isNotEmpty) ...[
-                                        8.height,
-                                        DeliveryOptionsPicker(
-                                          deliveryOptions: deliveryOptions,
-                                          chosenDeliveryType: chosenDeliveryType,
-                                          productId: productIdStr,
-                                          attributesArray: attributesArray,
-                                        ),
                                       ],
-                                    ],
-                                  ),
-                                );
-                              },
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
 
                             GestureDetector(
@@ -681,12 +687,19 @@ class _CheckOutState extends State<CheckOut> {
                               ),
                             ),
                             20.height,
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(St.subTotal.tr, style: AppFontStyle.styleW500(AppColors.unselected, 14)),
-                                Text("$currencySymbol${getAllCartProductController.getAllCartProducts?.data?.subTotal}", style: AppFontStyle.styleW700(AppColors.white, 14)),
-                              ],
+                            // Both Sub Total and Shipping charge rows read off
+                            // the cart controller, which calls update() (not
+                            // .obs) when the cart re-fetches after a pill tap.
+                            // Wrap in GetBuilder so the numbers re-aggregate
+                            // when the buyer flips a delivery option.
+                            GetBuilder<GetAllCartProductController>(
+                              builder: (cartCtrl) => Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(St.subTotal.tr, style: AppFontStyle.styleW500(AppColors.unselected, 14)),
+                                  Text("$currencySymbol${cartCtrl.getAllCartProducts?.data?.subTotal}", style: AppFontStyle.styleW700(AppColors.white, 14)),
+                                ],
+                              ),
                             ),
                             if (userApplyPromoCheckController.userApplyPromoCheck?.status == true) ...[
                               10.height,
@@ -709,27 +722,45 @@ class _CheckOutState extends State<CheckOut> {
                               ),
                             ],
                             10.height,
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(St.shippingCharge.tr, style: AppFontStyle.styleW500(AppColors.unselected, 14)),
-                                Text("$currencySymbol${getAllCartProductController.getAllCartProducts?.data!.totalShippingCharges}", style: AppFontStyle.styleW700(AppColors.primary, 14)),
-                              ],
+                            GetBuilder<GetAllCartProductController>(
+                              builder: (cartCtrl) => Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(St.shippingCharge.tr, style: AppFontStyle.styleW500(AppColors.unselected, 14)),
+                                  Text("$currencySymbol${cartCtrl.getAllCartProducts?.data?.totalShippingCharges}", style: AppFontStyle.styleW700(AppColors.primary, 14)),
+                                ],
+                              ),
                             ),
                             15.height,
                             DottedLine(dashColor: AppColors.unselected.withValues(alpha: 0.3)),
                             15.height,
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(St.total.tr, style: AppFontStyle.styleW500(AppColors.unselected, 14)),
-                                userApplyPromoCheckController.userApplyPromoCheck?.status == true
-                                    ? Text("$currencySymbol${createOrderByUserController.finalAmount}", style: AppFontStyle.styleW700(AppColors.primary, 14))
-                                    : Text(
-                                        "$currencySymbol${createOrderByUserController.total}",
-                                        style: AppFontStyle.styleW700(AppColors.primary, 14),
-                                      )
-                              ],
+                            // Recompute total from the live cart data when no
+                            // promo is active — the prior code cached
+                            // createOrderByUserController.total in initState
+                            // and never updated it after a pill tap, so the
+                            // Total row stayed stale even though Sub Total +
+                            // Shipping charge above had refreshed.
+                            GetBuilder<GetAllCartProductController>(
+                              builder: (cartCtrl) {
+                                final sub = (cartCtrl.getAllCartProducts?.data?.subTotal ?? 0).toInt();
+                                final ship = (cartCtrl.getAllCartProducts?.data?.totalShippingCharges ?? 0).toInt();
+                                final liveTotal = sub + ship;
+                                if (createOrderByUserController.total != liveTotal) {
+                                  createOrderByUserController.total = liveTotal;
+                                }
+                                return Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(St.total.tr, style: AppFontStyle.styleW500(AppColors.unselected, 14)),
+                                    userApplyPromoCheckController.userApplyPromoCheck?.status == true
+                                        ? Text("$currencySymbol${createOrderByUserController.finalAmount}", style: AppFontStyle.styleW700(AppColors.primary, 14))
+                                        : Text(
+                                            "$currencySymbol$liveTotal",
+                                            style: AppFontStyle.styleW700(AppColors.primary, 14),
+                                          )
+                                  ],
+                                );
+                              },
                             ),
                             20.height,
                           ],
