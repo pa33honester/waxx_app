@@ -1,6 +1,192 @@
 # Release Notes — Waxx App
 
 ---
+## 🚀 Version 1.1.0 — Production launch (promotion from Closed Testing)
+
+**Version:** 1.1.0
+**Build Number:** 15
+**Release Date:** April 2026
+**Type:** Production launch (Play Console: Production track)
+**Note:** First public production release. Carries everything that has been validated through Closed Testing in v1.0.4 → v1.0.11. The minor version bump to **1.1.0** marks the public milestone — there are no new features in v1.1.0 over v1.0.11+14, just the production cut so the versionCode is fresh and the version name reflects "we're live."
+
+### Suggested Play Console release name
+`v1.1.0 — Production launch`
+
+### English (Default)
+*(Max 500 characters on Play Store — what users see in "What's New")*
+
+```
+🎉 Waxx App is here — v1.1.0
+
+Live shopping, video reels, and auctions in one place.
+
+🛍 Shop live with sellers in real-time
+🎥 Discover products through short videos
+💬 Chat in live shows + see who joined
+❤️ Tap-to-cheer hearts during live streams
+🚚 Per-option shipping (Local / Nationwide / International)
+💳 Pay with Paystack (GHS, momo, card, bank transfer)
+🌍 14+ languages
+```
+
+### 📋 What's bundled in this production cut
+
+This is a *promotion* cut — no new code beyond v1.0.11+14, so the changelog is the running list of everything that landed during testing:
+
+| Track | Versions | Highlights |
+|---|---|---|
+| Closed Testing kickoff | 1.0.0–1.0.3 | Initial release, Firebase Auth fix, dropdown crash fix, gallery picker null-safety |
+| Whatnot-parity feature drop | 1.0.4 | Live tab + reel-style swipe between live shows, in-show auctions + auto-bid, combined shipping (bundles), Make-an-Offer, unified search, Wishlist top bar |
+| Live reliability + Deep links | 1.0.5 | Heartbeat-based zombie sweep, deep links for `/short/<id>`, scheduled-shows empty state, reels card overflow fix |
+| MoMo payouts + Live links + Promo codes | 1.0.6 | Mobile Money (MTN / Vodafone / AirtelTigo / Telecel Cash) replaces bank fields, `/live/<id>` deep links, mid-stream Add Product, multi-product reels + Shop pill, promo codes on listings, Auction/Offer UI removed |
+| Live push routing + chat history | 1.0.7 | Live push tap opens broadcast directly, late joiners see chat history, share copies clean URL |
+| Reels-style live feed + reel views | 1.0.8 | Vertical swipe between live shows, like/mute/share/report on the buyer-side live page, per-user reel view dedupe, 720p live broadcast, Country/Address on Profile |
+| Paystack payments + onboarding refresh | 1.0.9 | Paystack (GHS) — card/momo/bank/USSD, server-side verify against tampering, delivery-scope picker on Pricing, refreshed onboarding art, host-side live like indicator, room-wide share count |
+| Per-option shipping (Shape B) | 1.0.10 | Three optional delivery prices on Pricing, buyer cart picker, live "user joined" chat row, host-can-remove products mid-stream, reel share+view counts, seller sold/⭐/reviews, notification swipe-delete + Clear all, pending-review banner for sellers, per-viewer reel `isLike` |
+| v1.0.10 hotfixes (this cut's working surface) | 1.0.11 | Live push deep-link cold-start replay, multi-tap likes (Whatnot/TikTok-Live style), chat replay for hosts, buyer Product Detail delivery-options pills, Listing Summary validator, Checkout picker reactivity, seller's own product detail delivery pills, live like/share host-room fallback, atomic JOIN dedupe, Paystack callback page + signed webhook + paymentReference plumbing, Paystack metaData crash fix |
+
+#### 📁 Files Changed (relative to 1.0.11+14)
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.0.11+14` → `1.1.0+15`) |
+| Backend version | `waxxapp_admin/backend/package.json` (`1.18.1` → `1.19.0`) |
+
+No code changes — this entry exists solely to bump the versionCode so the production track can accept a fresh AAB.
+
+### 🚀 Production launch checklist
+
+> Review every box once before promoting. Most of these were already configured during Closed/Open Testing — this list is the cross-check, not new work.
+
+#### Play Console — Production track
+- [ ] **App release** → Production → Create new release → Upload `app-release.aab` (1.1.0+15)
+- [ ] **Release name**: `v1.1.0 — Production launch` (internal label only)
+- [ ] **What's new in this release**: paste the English block above; localize to as many of the 18 supported languages as you can (Spanish / French / Arabic / German / Turkish samples below). The Play Console's translation widget is fine for the rest.
+- [ ] **Rollout %**: start at **20%** for the first 24-48h, watch the pre-launch report + crash dashboard, then ramp to 100%.
+
+#### Play Console — Store listing (verify, not change)
+- [ ] App name: `Waxxapp` (or your final brand)
+- [ ] Short description (≤80 chars)
+- [ ] Full description (≤4000 chars)
+- [ ] App icon (512×512)
+- [ ] Feature graphic (1024×500)
+- [ ] Screenshots (8 max per device type — phone screenshots required, tablet/wear/etc. only if you target those form factors)
+
+#### Play Console — Policy / declarations (one-time, must be Approved)
+- [ ] **Privacy policy URL** populated and reachable
+- [ ] **App content** → Target audience: Adults / 18+ (live commerce + payments)
+- [ ] **App content** → Content rating: completed (likely PEGI 3 / IARC equivalent for shopping)
+- [ ] **App content** → Data safety form: data collected = email, phone, name, address, payment info, photos; data shared with third parties = Firebase, Zego, Paystack, Stripe, Razorpay, Flutterwave; encryption in transit = Yes; deletion request flow = Yes
+- [ ] **App content** → Ads: declare "No, my app does not contain ads" if true
+- [ ] **App content** → Government apps: No
+- [ ] **Financial features**: declare "Allows users to make payments" + "Money transfer" — link your Paystack/Razorpay/Stripe/Flutterwave merchant accounts as the payment provider
+- [ ] **News apps**: No
+- [ ] **Health apps**: No
+- [ ] **Real-money gambling**: No (auctions are not gambling — but be ready to defend that distinction if Play asks)
+
+#### Play Console — App access (test credentials)
+- [ ] Provide a test phone number + OTP that bypasses real SMS, OR a demo-account toggle Google reviewers can flip on. Otherwise reviewers can't get past your Phone Auth signup.
+- [ ] Note: the codebase has an `isDemoSeller` flag in `lib/utils/globle_veriables.dart` — if reviewers should land in a pre-populated state, document the demo entry path on the Tester Notes field.
+
+#### Backend (`waxxapp_admin/backend`)
+- [ ] `git pull` to HEAD on the production server
+- [ ] `pm2 restart backend`
+- [ ] Confirm `pm2 status` shows backend running, `pm2 logs backend --lines 50` is clean
+- [ ] All v1.0.11 deploy items already applied: `productDetail` `deliveryOptions` projection, `liveLike`/`liveShare` host fallback, atomic JOIN dedupe + LiveSellingView unique index, Paystack callback + webhook + `paymentReference` field
+- [ ] In Mongo, confirm the LiveSellingView unique index built without errors after the dedupe cleanup query
+- [ ] Paystack dashboard (Live Mode → API Keys & Webhooks) — verify both URLs saved:
+  - Callback: `https://www.waxxapp.com/payment/paystack/callback`
+  - Webhook: `https://www.waxxapp.com/payment/paystack/webhook`
+- [ ] Test webhook end-to-end: charge a small amount via the app, confirm Paystack dashboard shows the webhook delivered + the Order doc has `paymentStatus: 2`
+
+#### Smoke test on the new AAB BEFORE submitting
+- [ ] Phone OTP signup (real device, not emulator — reCAPTCHA must succeed via Play Integrity in release mode)
+- [ ] Buy Now → Cart → Checkout → Paystack pay flow lands on the right Order with `paymentStatus: 2`
+- [ ] Live push notification tap (cold + warm start) routes into the broadcast, not Home
+- [ ] Live like spam — count climbs on both buyer and seller sides
+- [ ] "<name> joined" appears once per buyer per live, even after rejoins
+- [ ] Buyer Product Detail shows the per-scope shipping pill chips
+- [ ] Cart picker tap re-renders selection + total
+- [ ] Checkout picker tap does the same
+
+### 🌍 Localized "What's New" text (v1.1.0)
+
+**Spanish:**
+```
+🎉 ¡Waxx App está aquí — v1.1.0!
+
+Compras en vivo, reels de video y subastas en un solo lugar.
+
+🛍 Compra en directo con vendedores
+🎥 Descubre productos en videos cortos
+💬 Chatea en vivo y ve quién entró
+❤️ Toca-para-vitorear corazones en vivo
+🚚 Envío por zona (Local / Nacional / Internacional)
+💳 Paga con Paystack (GHS, momo, tarjeta, banco)
+🌍 14+ idiomas
+```
+
+**French:**
+```
+🎉 Waxx App est là — v1.1.0 !
+
+Shopping en direct, reels vidéo et enchères en un seul endroit.
+
+🛍 Achetez en direct avec les vendeurs
+🎥 Découvrez les produits via de courtes vidéos
+💬 Chattez pendant les lives + voyez qui a rejoint
+❤️ Tap-pour-acclamer les cœurs en direct
+🚚 Livraison par zone (Local / National / International)
+💳 Payez via Paystack (GHS, momo, carte, banque)
+🌍 14+ langues
+```
+
+**Arabic:**
+```
+🎉 Waxx App هنا — v1.1.0
+
+التسوق المباشر، الريلز، والمزادات في مكان واحد.
+
+🛍 تسوّق مباشرةً مع البائعين
+🎥 اكتشف المنتجات عبر فيديوهات قصيرة
+💬 دردش أثناء البث وشاهد من انضم
+❤️ انقر-للتشجيع بالقلوب أثناء البث
+🚚 الشحن حسب المنطقة (محلي / وطني / دولي)
+💳 ادفع عبر Paystack (GHS، موبايل موني، بطاقة، بنك)
+🌍 أكثر من 14 لغة
+```
+
+**German:**
+```
+🎉 Waxx App ist da — v1.1.0!
+
+Live-Shopping, Video-Reels und Auktionen an einem Ort.
+
+🛍 Kaufe live bei Verkäufern in Echtzeit
+🎥 Entdecke Produkte über Kurzvideos
+💬 Chatte in Live-Shows + sieh, wer beigetreten ist
+❤️ Tap-to-cheer-Herzen während Live-Streams
+🚚 Versand nach Zone (Lokal / National / International)
+💳 Zahle mit Paystack (GHS, Mobile Money, Karte, Bank)
+🌍 14+ Sprachen
+```
+
+**Turkish:**
+```
+🎉 Waxx App burada — v1.1.0!
+
+Canlı alışveriş, video reels ve açık artırmalar tek yerde.
+
+🛍 Satıcılarla canlı alışveriş yap
+🎥 Kısa videolarla ürünleri keşfet
+💬 Canlı yayında sohbet et + kimin katıldığını gör
+❤️ Canlı yayında dokun-tezahürat kalpleri
+🚚 Bölgeye göre kargo (Yerel / Ulusal / Uluslararası)
+💳 Paystack ile öde (GHS, mobil para, kart, banka)
+🌍 14+ dil
+```
+
+---
 ## 🔧 Version 1.0.11 — Live push deep-link reliability + multi-tap likes + chat replay + buyer-side delivery options
 
 **Version:** 1.0.11
