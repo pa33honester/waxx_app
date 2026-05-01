@@ -1238,8 +1238,18 @@ class ListingController extends GetxController {
       missingFields.add('Offer price should be less than Buy It Now price');
     }
 
-    if (shippingChargeController.text.isEmpty) {
-      missingFields.add('Enter Shipping charge');
+    // Shape B (v1.0.10): the Pricing UI no longer has a single shipping
+    // input — sellers fill 1-3 scoped prices (Local / Nationwide /
+    // International) and we back-sync the legacy shippingCharges field
+    // from the first one at submit. Validate against the three new
+    // controllers AND the legacy one so an existing edit on a v1.0.9
+    // product still passes when the seller hasn't touched Pricing.
+    final hasAnyDeliveryOption = localShippingChargeController.text.trim().isNotEmpty ||
+        nationwideShippingChargeController.text.trim().isNotEmpty ||
+        internationalShippingChargeController.text.trim().isNotEmpty ||
+        shippingChargeController.text.trim().isNotEmpty;
+    if (!hasAnyDeliveryOption) {
+      missingFields.add('Enter at least one delivery option price');
     }
 
     if (selectedBusinessDays == null) {
