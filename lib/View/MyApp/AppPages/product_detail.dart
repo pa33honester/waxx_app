@@ -481,18 +481,53 @@ class _ProductDetailState extends State<ProductDetail> {
                                                     ],
                                                   ),
                                                   5.height,
-                                                  // Delivery scope (local / nationwide / international)
-                                                  // — surfaces the seller's pricing-page choice so the
-                                                  // buyer knows what region the listing ships to. Hides
-                                                  // when the seller skipped the picker.
-                                                  if ((userProductDetailsController.userProductDetails?.product?[0].deliveryType ?? '').isNotEmpty)
-                                                    Padding(
-                                                      padding: const EdgeInsets.only(top: 4),
-                                                      child: Text(
-                                                        "${St.deliveryBySeller.tr}: ${_localizeDeliveryType(userProductDetailsController.userProductDetails!.product![0].deliveryType!)}",
-                                                        style: AppFontStyle.styleW500(AppColors.unselected, 12),
-                                                      ),
-                                                    ),
+                                                  // Shape B (v1.0.10): show every offered shipping
+                                                  // scope + price so the buyer can compare upfront
+                                                  // before tapping Add to cart. The picker on the
+                                                  // cart page is where the actual choice gets
+                                                  // recorded; this is just a preview row. Falls back
+                                                  // to the legacy single-line label when the seller
+                                                  // didn't fill the new per-option fields.
+                                                  Builder(builder: (_) {
+                                                    final p = userProductDetailsController.userProductDetails?.product?[0];
+                                                    final opts = p?.deliveryOptions ?? const [];
+                                                    if (opts.isNotEmpty) {
+                                                      return Padding(
+                                                        padding: const EdgeInsets.only(top: 4),
+                                                        child: Wrap(
+                                                          spacing: 6,
+                                                          runSpacing: 6,
+                                                          children: opts.map<Widget>((opt) {
+                                                            final type = opt.type;
+                                                            final price = opt.price;
+                                                            if (type == null) return const SizedBox.shrink();
+                                                            return Container(
+                                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                                              decoration: BoxDecoration(
+                                                                color: AppColors.transparent,
+                                                                borderRadius: BorderRadius.circular(12),
+                                                                border: Border.all(color: AppColors.primary, width: 1),
+                                                              ),
+                                                              child: Text(
+                                                                "${_localizeDeliveryType(type)} • $currencySymbol$price",
+                                                                style: AppFontStyle.styleW600(AppColors.primary, 11),
+                                                              ),
+                                                            );
+                                                          }).toList(),
+                                                        ),
+                                                      );
+                                                    }
+                                                    if ((p?.deliveryType ?? '').isNotEmpty) {
+                                                      return Padding(
+                                                        padding: const EdgeInsets.only(top: 4),
+                                                        child: Text(
+                                                          "${St.deliveryBySeller.tr}: ${_localizeDeliveryType(p!.deliveryType!)}",
+                                                          style: AppFontStyle.styleW500(AppColors.unselected, 12),
+                                                        ),
+                                                      );
+                                                    }
+                                                    return const SizedBox.shrink();
+                                                  }),
                                                 ],
                                               ),
                                             ),

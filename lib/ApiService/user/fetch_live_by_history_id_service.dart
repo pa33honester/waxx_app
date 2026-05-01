@@ -29,32 +29,47 @@ class FetchLiveByHistoryIdService {
     // FollowPill on the deep-linked live page always defaults to "Follow".
     final qs = loginUserId.isNotEmpty ? "?userId=$loginUserId" : "";
     final uri = Uri.parse("${Api.baseUrl}${Api.liveByHistoryId}/$liveSellingHistoryId$qs");
-    log("FetchLiveByHistoryId → $uri");
-    try {
-      final res = await http.get(uri, headers: _headers);
-      log("FetchLiveByHistoryId ← ${res.statusCode} ${res.body}");
-      if (res.statusCode != 200) {
-        return (ok: false, live: null, ended: false, message: "Couldn't open this live.");
+
+    // Cold-start tap from a push notification often fires before the device
+    // radio is fully ready, so the first GET hits SocketException → "Check
+    // your connection and try again." Retry once after a short delay before
+    // surfacing the error to the user.
+    for (var attempt = 0; attempt < 2; attempt++) {
+      log("FetchLiveByHistoryId (attempt ${attempt + 1}) → $uri");
+      try {
+        final res = await http.get(uri, headers: _headers);
+        log("FetchLiveByHistoryId ← ${res.statusCode} ${res.body}");
+        if (res.statusCode != 200) {
+          if (attempt == 0) {
+            await Future.delayed(const Duration(milliseconds: 800));
+            continue;
+          }
+          return (ok: false, live: null, ended: false, message: "Couldn't open this live.");
+        }
+        final json = jsonDecode(res.body) as Map<String, dynamic>;
+        if (json["status"] == true && json["data"] is Map<String, dynamic>) {
+          final dataMap = json["data"] as Map<String, dynamic>;
+          // Seed the room-wide like + share totals before the socket subscribes,
+          // so a late joiner sees the running counts straight away instead of
+          // "0" until someone next taps.
+          final lc = dataMap["likeCount"];
+          if (lc is num) SocketServices.liveLikeCount.value = lc.toInt();
+          final sc = dataMap["shareCount"];
+          if (sc is num) SocketServices.liveShareCount.value = sc.toInt();
+          final live = LiveSeller.fromJson(dataMap);
+          return (ok: true, live: live, ended: false, message: "");
+        }
+        // status:false with our standard "ended" message means the LiveSeller
+        // row is gone — the show has wrapped. Don't retry — this is terminal.
+        return (ok: false, live: null, ended: true, message: (json["message"] ?? "This live show has ended.").toString());
+      } catch (e) {
+        log("FetchLiveByHistoryId error (attempt ${attempt + 1}): $e");
+        if (attempt == 0) {
+          await Future.delayed(const Duration(milliseconds: 800));
+          continue;
+        }
       }
-      final json = jsonDecode(res.body) as Map<String, dynamic>;
-      if (json["status"] == true && json["data"] is Map<String, dynamic>) {
-        final dataMap = json["data"] as Map<String, dynamic>;
-        // Seed the room-wide like + share totals before the socket subscribes,
-        // so a late joiner sees the running counts straight away instead of
-        // "0" until someone next taps.
-        final lc = dataMap["likeCount"];
-        if (lc is num) SocketServices.liveLikeCount.value = lc.toInt();
-        final sc = dataMap["shareCount"];
-        if (sc is num) SocketServices.liveShareCount.value = sc.toInt();
-        final live = LiveSeller.fromJson(dataMap);
-        return (ok: true, live: live, ended: false, message: "");
-      }
-      // status:false with our standard "ended" message means the LiveSeller
-      // row is gone — the show has wrapped.
-      return (ok: false, live: null, ended: true, message: (json["message"] ?? "This live show has ended.").toString());
-    } catch (e) {
-      log("FetchLiveByHistoryId error: $e");
-      return (ok: false, live: null, ended: false, message: "Couldn't open this live.");
     }
+    return (ok: false, live: null, ended: false, message: "Couldn't open this live.");
   }
 }

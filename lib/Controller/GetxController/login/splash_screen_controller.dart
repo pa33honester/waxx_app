@@ -8,6 +8,7 @@ import 'package:waxxapp/ApiModel/login/WhoLoginModel.dart';
 import 'package:waxxapp/ApiService/login/ip_api_service.dart';
 import 'package:waxxapp/Controller/ApiControllers/seller/api_seller_data_controller.dart';
 import 'package:waxxapp/main.dart';
+import 'package:waxxapp/services/app_link_service.dart';
 import 'package:waxxapp/services/push_notification_service.dart';
 import 'package:waxxapp/utils/Theme/theme_service.dart';
 import 'package:waxxapp/utils/Zego/create_engine.dart';
@@ -82,6 +83,27 @@ class SplashScreenController extends GetxController {
     }
   }
 
+  // Replay any pending live deep-link tap that came in during cold start.
+  // The push tap handler stashes the liveSellingHistoryId in getStorage
+  // (`pendingDeepLinkLiveId`) instead of trying to fetch immediately —
+  // the cold-start race between Firebase init, storage hydration, settings
+  // fetch, Zego engine init, and the post-frame callback was reliably
+  // failing the live-detail GET and dumping the user on Home with a
+  // "Couldn't open this live" snackbar. By the time we reach this point
+  // the splash has navigated to BottomTabBar (or PageManage), the network
+  // is settled, and AppLinkService.openLive can do its loading-dialog +
+  // fetch + push flow cleanly.
+  void _replayPendingDeepLink() {
+    final pending = getStorage.read("pendingDeepLinkLiveId");
+    if (pending is! String || pending.isEmpty) return;
+    getStorage.remove("pendingDeepLinkLiveId");
+    // Defer one frame so the new route is laid out before we open the
+    // loading dialog on top of it.
+    Future.delayed(const Duration(milliseconds: 200), () {
+      AppLinkService.instance.openLive(pending);
+    });
+  }
+
   Future<void> onBoardingFlow() async {
     var connectivityResult = await Connectivity().checkConnectivity();
     hasInternet.value = connectivityResult != ConnectivityResult.none;
@@ -102,11 +124,13 @@ class SplashScreenController extends GetxController {
           Get.offAllNamed("/PageManage");
         } else {
           Get.offAllNamed("/BottomTabBar");
+          _replayPendingDeepLink();
         }
         // Get.offAllNamed("/BottomTabBar");
       } else {
         Timer(const Duration(seconds: 3), () {
           Get.offAllNamed("/PageManage");
+          _replayPendingDeepLink();
         });
       }
     } else {

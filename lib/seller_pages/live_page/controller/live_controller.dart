@@ -245,26 +245,16 @@ class LiveController extends GetxController {
 
   void onToggleLiveLike() {
     if (roomId.isEmpty) return;
-    // Toggle the local heart immediately; the room-wide running total is
-    // owned by the backend and broadcast via the `liveLikeCount` socket
-    // event. Optimistically nudge the local mirror so the number doesn't
-    // visually lag a round-trip behind the tap.
-    isLiveLiked.value = !isLiveLiked.value;
-    // Symmetric ±1: like adds, unlike subtracts. Optimistic local update
-    // first, then emit so the room-wide running total stays in sync.
-    if (isLiveLiked.value) {
-      SocketServices.liveLikeCount.value += 1;
-      SocketServices.onLiveLike(liveHistoryId: roomId);
-    } else {
-      // Clamp at zero so a stray double-unlike (e.g. if the local mirror
-      // drifted from the server) doesn't render a negative count.
-      if (SocketServices.liveLikeCount.value > 0) {
-        SocketServices.liveLikeCount.value -= 1;
-      }
-      SocketServices.onLiveUnlike(liveHistoryId: roomId);
-    }
-    // No id-tagged update() — the Obx in live_widget reacts directly to
-    // the RxBool above.
+    // Whatnot / TikTok-Live convention: every tap is a +1 like, no toggle.
+    // The heart icon flips to filled red on the very first tap and stays
+    // there for the rest of the session (a viewer expressing enthusiasm
+    // by spamming taps shouldn't have to think about toggle state). We
+    // dropped the symmetric ±1 unlike path that the v1.0.9 plan added —
+    // it ended up capping users at one like per session and felt off
+    // compared to the apps Waxxapp competes with.
+    isLiveLiked.value = true;
+    SocketServices.liveLikeCount.value += 1;
+    SocketServices.onLiveLike(liveHistoryId: roomId);
   }
 
   Future<void> getReportReason() async {

@@ -12,6 +12,7 @@ import 'package:waxxapp/ApiService/login/profile_edit_service.dart';
 import 'package:waxxapp/View/MyApp/AppPages/dialog/payment_dialog.dart';
 import 'package:waxxapp/services/app_link_service.dart';
 import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/Theme/theme_service.dart';
 import 'package:waxxapp/utils/database.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 
@@ -180,7 +181,23 @@ class PushNotificationService {
 
       if (fromTap) {
         if (liveSellingHistoryId.isNotEmpty) {
+          // Cold-start race fix: the splash route + storage hydration + Zego
+          // engine init are still in flight when the cold-start handler
+          // fires from main(), and the synchronous fetch we used to do here
+          // raced ahead of the network/auth setup → "Couldn't open this
+          // live" snackbar → user dropped on Home. Stash the id and let the
+          // splash controller replay it AFTER navigating to BottomTabBar
+          // when everything is ready. Warm taps (app already running) hit
+          // the same code but the stash is consumed immediately by the
+          // splash controller, which is already past its onInit, so they
+          // also fall through to the direct openLive() below.
+          getStorage.write('pendingDeepLinkLiveId', liveSellingHistoryId);
+          // If the splash controller is no longer the live route (warm
+          // tap), open the live now — the splash won't re-trigger. The
+          // splash controller is responsible for clearing the stash on
+          // its own consumption.
           AppLinkService.instance.openLive(liveSellingHistoryId);
+          getStorage.remove('pendingDeepLinkLiveId');
         }
         return;
       }

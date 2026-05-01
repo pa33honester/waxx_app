@@ -76,12 +76,16 @@ class _LivePageViewState extends State<LivePageView> with RouteAware {
       SocketServices.mainLiveComments.clear();
     }
 
-    // Replay any persisted chat backlog so a buyer joining mid-stream
-    // sees what was already said. Fire-and-forget; the socket starts
-    // appending new comments shortly after, and chronological order is
-    // preserved because the history is sorted oldest-first server-side.
+    // Replay any persisted chat backlog so anyone re-entering the live
+    // (buyer who left + came back, host whose stream restarted, etc.)
+    // sees what was already said. Was previously gated on `!widget.isHost`
+    // so the seller's own broadcast view always restarted with an empty
+    // chat panel — flipped this so both surfaces replay history.
+    // Chronological order is preserved (sorted oldest-first server-side)
+    // and the socket starts appending new comments after this fetch
+    // returns, so the running stream stays consistent.
     final historyId = widget.liveUserList.liveSellingHistoryId ?? "";
-    if (historyId.isNotEmpty && !widget.isHost) {
+    if (historyId.isNotEmpty) {
       FetchLiveChatHistoryService.fetch(liveSellingHistoryId: historyId).then((rows) {
         if (!mounted || rows.isEmpty) return;
         SocketServices.mainLiveComments.addAll(rows);
