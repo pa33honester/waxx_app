@@ -64,8 +64,25 @@ class PaystackService {
         PaymentOption.mobileMoney,
         PaymentOption.ussd,
       ],
+      // Paystack's API accepts either a flat metadata object or one with
+      // `custom_fields: [{display_name, variable_name, value}, ...]`. The
+      // paystack_for_flutter 1.0.4 package's internal serializer crashes
+      // on the flat shape — `{"userId": "..."}` triggers a "type
+      // 'List<Map<String, dynamic>>' is not a subtype of type 'String'
+      // of 'value'" cast error inside the SDK and the user lands on a
+      // black "Initialize payment again" screen. Use the canonical
+      // custom_fields shape instead. Display name shows up in the
+      // Paystack dashboard so the support team can correlate charges
+      // back to a Waxxapp user without us needing the verify-side
+      // metadata round-trip.
       metaData: {
-        "userId": Database.loginUserId,
+        "custom_fields": [
+          {
+            "display_name": "Waxxapp User ID",
+            "variable_name": "userId",
+            "value": Database.loginUserId,
+          },
+        ],
       },
       onSuccess: (paystackCallback) async {
         Utils.showLog("Paystack popup reported success: ${paystackCallback.reference}");
