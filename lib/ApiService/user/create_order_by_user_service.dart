@@ -14,6 +14,7 @@ class CreateOrderByUserApi {
     required String promoCode,
     required num finalTotal,
     required int paymentStatus,
+    String? paymentReference,
   }) async {
     final url = Uri.parse("${Api.baseUrl + Api.createOrderByUser}?userId=$loginUserId&paymentGateway=$paymentGateway&paymentStatus=$paymentStatus");
 
@@ -22,6 +23,10 @@ class CreateOrderByUserApi {
     final body = jsonEncode({
       'promoCode': promoCode,
       'finalTotal': finalTotal,
+      // Gateway-side reference (Paystack `reference`, etc.) so the
+      // webhook handler can find this order if the user closes the
+      // app between Paystack confirming and our verify path firing.
+      if (paymentReference != null && paymentReference.isNotEmpty) 'paymentReference': paymentReference,
     });
 
     final headers = {

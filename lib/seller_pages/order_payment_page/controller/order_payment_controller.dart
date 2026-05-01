@@ -61,7 +61,7 @@ class OrderPaymentController extends GetxController {
   }
 
   // Helper method to handle post-payment success logic
-  Future<void> handlePaymentSuccess(String paymentGateway, int paymentStatus) async {
+  Future<void> handlePaymentSuccess(String paymentGateway, int paymentStatus, {String? paymentReference}) async {
     Get.dialog(const LoadingUi(), barrierDismissible: false);
 
     try {
@@ -77,7 +77,13 @@ class OrderPaymentController extends GetxController {
         );
       } else {
         Utils.showLog("Processing regular payment - creating new order");
-        createOrderByUserModel = await CreateOrderByUserApi.createOrderByUserApi(paymentGateway: paymentGateway, promoCode: promoCode, finalTotal: finalTotal, paymentStatus: paymentStatus);
+        createOrderByUserModel = await CreateOrderByUserApi.createOrderByUserApi(
+          paymentGateway: paymentGateway,
+          promoCode: promoCode,
+          finalTotal: finalTotal,
+          paymentStatus: paymentStatus,
+          paymentReference: paymentReference,
+        );
         isSuccess = createOrderByUserModel?.status == true;
       }
 
@@ -200,9 +206,9 @@ class OrderPaymentController extends GetxController {
       try {
         await PaystackService().pay(
           amount: finalTotal.toInt(),
-          callback: () async {
-            Utils.showLog("Paystack Payment verified by backend");
-            await handlePaymentSuccess("Paystack", paymentStatus);
+          onVerified: (reference) async {
+            Utils.showLog("Paystack Payment verified by backend, ref=$reference");
+            await handlePaymentSuccess("Paystack", paymentStatus, paymentReference: reference);
           },
         );
       } catch (e) {

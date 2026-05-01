@@ -5,7 +5,6 @@ import 'package:waxxapp/utils/database.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:get/get.dart';
-import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
 import 'package:http/http.dart' as http;
 import 'package:paystack_for_flutter/paystack_for_flutter.dart';
 
@@ -22,9 +21,15 @@ class PaystackService {
   /// [amount] is the major-unit amount in GHS (e.g. 280254 for GH¢280,254).
   /// We convert to pesewas (×100) here, since Paystack expects the smallest
   /// currency unit.
+  /// Launches the Paystack checkout. [onVerified] fires only after the
+  /// backend's `/payment/paystack/verify` confirms the charge actually
+  /// settled — never on the popup's onSuccess alone. The reference
+  /// argument is the Paystack transaction reference; pass it to
+  /// `/order/create` so the webhook handler can find the order if the
+  /// app dies before the verify call returns.
   Future<void> pay({
     required int amount,
-    required Callback callback,
+    required Future<void> Function(String reference) onVerified,
   }) async {
     final email = (Database.fetchLoginUserProfileModel?.user?.email ?? "").trim();
 
@@ -69,7 +74,7 @@ class PaystackService {
           expectedAmount: pesewas,
         );
         if (verified) {
-          callback.call();
+          await onVerified(paystackCallback.reference);
         } else {
           Utils.showToast("Payment couldn't be verified. Please try again.");
         }
