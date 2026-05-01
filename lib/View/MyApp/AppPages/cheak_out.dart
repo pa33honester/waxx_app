@@ -3,6 +3,9 @@ import 'dart:developer';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:waxxapp/Controller/GetxController/user/get_all_promocode_controller.dart';
 import 'package:waxxapp/Controller/GetxController/user/user_apply_promo_check_controller.dart';
+import 'dart:convert';
+
+import 'package:waxxapp/custom/delivery_options_picker.dart';
 import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/custom/simple_app_bar_widget.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/no_data_found.dart';
@@ -563,24 +566,47 @@ class _CheckOutState extends State<CheckOut> {
                               shrinkWrap: true,
                               itemCount: getAllCartProductController.getAllCartProducts?.data!.items!.length,
                               itemBuilder: (context, index) {
-                                int? productQuantity = getAllCartProductController.getAllCartProducts?.data!.items![index].productQuantity;
-                                int? purchasedTimeProductPrice = getAllCartProductController.getAllCartProducts?.data!.items![index].purchasedTimeProductPrice?.toInt();
+                                final item = getAllCartProductController.getAllCartProducts?.data!.items![index];
+                                final productQuantity = item?.productQuantity;
+                                final purchasedTimeProductPrice = item?.purchasedTimeProductPrice?.toInt();
+                                final deliveryOptions = item?.productId?.deliveryOptions;
+                                final chosenDeliveryType = item?.chosenDeliveryType;
+                                final productIdStr = "${item?.productId?.id}";
+                                final attributesArray = jsonDecode(jsonEncode(item?.attributesArray ?? const [])) as List<dynamic>;
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 10),
-                                  child: Row(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: Text(
-                                          "${getAllCartProductController.getAllCartProducts?.data!.items![index].productId?.productName} x $productQuantity",
-                                          style: AppFontStyle.styleW700(AppColors.primary, 11),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              "${item?.productId?.productName} x $productQuantity",
+                                              style: AppFontStyle.styleW700(AppColors.primary, 11),
+                                            ),
+                                          ),
+                                          Text(
+                                            "$currencySymbol${(productQuantity ?? 0) * (purchasedTimeProductPrice ?? 0)}",
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: AppFontStyle.styleW700(AppColors.white, 14),
+                                          ),
+                                        ],
+                                      ),
+                                      // Shape B per-item delivery picker — same widget Cart
+                                      // uses, so the buyer can flip the choice on Checkout
+                                      // too. The total row below re-aggregates after the
+                                      // cart refetch baked into the picker.
+                                      if ((deliveryOptions ?? const []).isNotEmpty) ...[
+                                        8.height,
+                                        DeliveryOptionsPicker(
+                                          deliveryOptions: deliveryOptions,
+                                          chosenDeliveryType: chosenDeliveryType,
+                                          productId: productIdStr,
+                                          attributesArray: attributesArray,
                                         ),
-                                      ),
-                                      Text(
-                                        "$currencySymbol${(productQuantity)! * (purchasedTimeProductPrice!.toInt())}",
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        style: AppFontStyle.styleW700(AppColors.white, 14),
-                                      ),
+                                      ],
                                     ],
                                   ),
                                 );

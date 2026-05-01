@@ -324,6 +324,62 @@ class _SellerProductDetailsViewState extends State<SellerProductDetailsView> {
                                           ],
                                         ),
                                         5.height,
+                                        // Shape B (v1.0.10/11): show the per-scope shipping
+                                        // breakdown the seller entered on Pricing so they can
+                                        // see what buyers see on Product Detail. Falls through
+                                        // to the legacy single-line label for products without
+                                        // deliveryOptions[]. Hidden entirely when neither is set.
+                                        Builder(builder: (_) {
+                                          final p = sellerProductDetailsController.sellerProductDetails?.product?[0];
+                                          final opts = p?.deliveryOptions ?? const [];
+                                          if (opts.isNotEmpty) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(top: 4),
+                                              child: Wrap(
+                                                spacing: 6,
+                                                runSpacing: 6,
+                                                children: opts.map<Widget>((opt) {
+                                                  final type = opt.type;
+                                                  final price = opt.price;
+                                                  if (type == null) return const SizedBox.shrink();
+                                                  String label() {
+                                                    switch (type) {
+                                                      case 'local':
+                                                        return St.deliveryLocal.tr;
+                                                      case 'nationwide':
+                                                        return St.deliveryNationwide.tr;
+                                                      case 'international':
+                                                        return St.deliveryInternational.tr;
+                                                    }
+                                                    return type;
+                                                  }
+                                                  return Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                                    decoration: BoxDecoration(
+                                                      color: AppColors.transparent,
+                                                      borderRadius: BorderRadius.circular(12),
+                                                      border: Border.all(color: AppColors.primary, width: 1),
+                                                    ),
+                                                    child: Text(
+                                                      "${label()} • $currencySymbol$price",
+                                                      style: AppFontStyle.styleW600(AppColors.primary, 11),
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            );
+                                          }
+                                          if ((p?.deliveryType ?? '').isNotEmpty) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(top: 4),
+                                              child: Text(
+                                                "${St.deliveryBySeller.tr}: ${p!.deliveryType}",
+                                                style: AppFontStyle.styleW500(AppColors.unselected, 12),
+                                              ),
+                                            );
+                                          }
+                                          return const SizedBox.shrink();
+                                        }),
                                       ],
                                     ),
                                   ),
