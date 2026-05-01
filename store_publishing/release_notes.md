@@ -1,6 +1,54 @@
 # Release Notes — Waxx App
 
 ---
+## 🔧 Version 1.0.11 — Live push deep-link reliability + multi-tap likes + chat replay + buyer-side delivery options
+
+**Version:** 1.0.11
+**Build Number:** 14
+**Release Date:** April 2026
+**Type:** Hotfix cluster — follow-ups to v1.0.10
+**Note:** Bundles four bugs reported on top of v1.0.10+13. No new schema fields, no new endpoints — all four are scope/timing/projection fixes against the existing v1.0.10 surfaces.
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🔧 Update — v1.0.11
+
+📲 Live push tap reliably opens the broadcast (no more "network error")
+❤️ Live likes are tap-to-cheer — every tap is +1 (Whatnot/TikTok-Live style)
+💬 Live chat shows full history when you re-enter (host included)
+🚚 Buyers see all delivery options on Product Detail before adding to cart
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🐛 Bug fixes in v1.0.11
+
+| Issue | Fix |
+|---|---|
+| Live push notification tap landed on Home with a "Couldn't open this live" snackbar | Even after v1.0.10's `registerInteractionHandlers`-before-`runApp` move, the post-frame `getInitialMessage` handler was racing splash hydration / Zego engine init / device-radio readiness on cold-start launches and the live-by-history GET fired into a half-up network stack. Restructured the cold-start tap path so it stashes the `liveSellingHistoryId` in `getStorage` as `pendingDeepLinkLiveId` and `SplashScreenController` replays it via `AppLinkService.openLive` AFTER landing on `/BottomTabBar` (or `/PageManage` for logged-out users). Network and GetX context are both ready by then. Also added a single retry to `FetchLiveByHistoryIdService` for residual transient errors. |
+| Live like was capped at 1 per session — every tap toggled symmetric ±1 | v1.0.9 introduced symmetric ±1 likes; users hated that they couldn't keep cheering past the first tap (Whatnot / TikTok-Live let you spam taps). Reverted to multi-tap convention: every tap is +1, no toggle. Heart flips to filled red on first tap and stays filled. Backend `liveLike` handler is already append-only so no server change needed. |
+| Live chat history wasn't shown to hosts re-entering their own broadcast | The `FetchLiveChatHistoryService.fetch` call in `live_view.dart` was gated on `!widget.isHost`, so the seller's own broadcast view always restarted with an empty chat panel. Removed the gate — both buyers and hosts now get the LiveChat replay on entry. |
+| Buyers saw only the legacy `Delivery by Seller: <Type>` line on Product Detail, no per-scope prices | The buyer-side `productDetail` aggregation `$project` dropped both `deliveryType` and `deliveryOptions` so the Flutter side had no per-option data even though the seller's Pricing-page entries were stored correctly. Added both fields to the projection; Product Detail now renders a `Wrap` of outlined pill chips (`Local • GH₵X`, `Nationwide • GH₵Y`, `International • GH₵Z`) beneath the Sold/star row when `deliveryOptions` is non-empty. Falls back to the legacy single-line label for products that haven't been re-saved under Shape B. The actual per-item pick still happens on Cart where it gets persisted. |
+
+#### 📁 Files Changed
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.0.10+13` → `1.0.11+14`) |
+| Backend version | `waxxapp_admin/backend/package.json` (`1.18.0` → `1.18.1`) |
+| Live push deep-link timing | `lib/services/push_notification_service.dart` (stash to getStorage on cold-start tap), `lib/Controller/GetxController/login/splash_screen_controller.dart` (`_replayPendingDeepLink` after Get.offAllNamed), `lib/ApiService/user/fetch_live_by_history_id_service.dart` (one-shot retry) |
+| Multi-tap likes | `lib/seller_pages/live_page/controller/live_controller.dart` (`onToggleLiveLike` reverted to +1-only) |
+| Chat replay for hosts | `lib/seller_pages/live_page/view/live_view.dart` (drop `!widget.isHost` gate) |
+| Delivery options on Product Detail | `backend/server/product/product.controller.js` (`productDetail` `$project` adds `deliveryType` + `deliveryOptions`), `lib/View/MyApp/AppPages/product_detail.dart` (Wrap of pill chips) |
+
+#### 🚀 Deploy checklist for v1.0.11
+
+1. `git pull` in `waxxapp_admin/backend` and `pm2 restart backend` so the buyer-side Product Detail receives `deliveryOptions` in the response. Without this the new pill chips will be empty even on the new build.
+2. Force-quit and relaunch the Flutter app once after install — `getStorage` should now have the `pendingDeepLinkLiveId` plumbing wired in.
+
+---
 ## 🚚 Version 1.0.10 — Per-option shipping (Shape B) + reel share/view counts + live host control + seller review visibility + pending-edit overlay
 
 **Version:** 1.0.10
