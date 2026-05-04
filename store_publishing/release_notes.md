@@ -1,6 +1,71 @@
 # Release Notes — Waxx App
 
 ---
+## 💬 Version 1.1.0+17 — Live customer support + cold-start push deep-link fix
+
+**Version:** 1.1.0
+**Build Number:** 17 (was 15 at first prod cut, 16 was a re-upload)
+**Release Date:** May 2026
+**Type:** Feature drop + critical bugfix on top of the v1.1.0 production launch
+**Note:** Same version name as the production launch (1.1.0) — versionCode 17 just lets us upload a fresh AAB with the new fixes. Promote via Play Console as a normal release on the Production track.
+
+### Suggested Play Console release name
+`v1.1.0 — Build 17 (Live Support + push fix)`
+
+### English (Default)
+*(Max 500 characters on Play Store — what users see in "What's New")*
+
+```
+🔧 Update — v1.1.0 (Build 17)
+
+💬 Live customer support chat — talk to our team in-app
+📲 Live push notification tap reliably opens the broadcast
+🛒 Tap a product name on Checkout to re-view it
+💳 Fixed Paystack "Initialize payment again" black screen
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🆕 New features in 1.1.0+17
+
+**Live customer-support chat**
+- New "Help and Support" entry on the buyer Profile menu opens a realtime 1:1 chat with the Waxxapp support pool. Persistent — one conversation per user, ever; reopens to full message history every time.
+- Built on the existing Socket.io connection. No new realtime infrastructure: backend `server/support/` (new feature folder) adds `SupportConversation` model + 6 endpoints + 4 socket events (`supportJoin`/`supportLeave` for the per-conversation room, `supportInboxJoin`/`supportInboxLeave` for the admin-wide listing room).
+- Admin React panel adds a `/admin/supportInbox` route with a two-pane inbox: filterable list (open / closed / all) + user search on the left, full thread + composer on the right. Live-updates via `socket.io-client` (added to `frontend/package.json`).
+- FCM push to user on every admin reply (`type: SUPPORT_REPLY`); foreground-tap shows in-app snackbar, background/cold-start tap routes straight to `/SupportChat`.
+- 3 new locale strings (`supportEmptyTitle`, `supportEmptySubtitle`, `supportComposeHint`) translated across all 18 language files via the new `scripts/_add_support_keys.py` helper.
+
+**Tappable product name on Checkout's Order Info**
+- Each line item on Checkout now has a tappable, primary-underlined product name that opens `/ProductDetail` so buyers can re-check the description / images before confirming the order. Uses the same productId-global pattern other surfaces use; defensive against empty / `"null"` ids.
+
+#### 🐛 Bug fixes in 1.1.0+17
+
+| Issue | Fix |
+|---|---|
+| **Tap on a "Seller is live now" push reliably dropped users on Home instead of the broadcast** — even after the v1.0.11 stash + replay machinery shipped | Two compounding bugs in the `LIVE_STARTED` cold-start path: (a) `getStorage.write('pendingDeepLinkLiveId', ...)` was followed on the very next synchronous line by `getStorage.remove(...)` — same JS tick, no awaits — so the splash controller's `_replayPendingDeepLink` always read AFTER the remove and saw nothing; (b) the same branch ALSO called `AppLinkService.openLive()` inline, which raced against splash's `Get.offAllNamed("/BottomTabBar")` and got wiped half the time. Split the cold path completely: `registerInteractionHandlers` no longer calls `handleRemoteMessage` on the cold-start initial message — a tiny new `_stashColdStartTap` writes the deep-link target and returns. The splash controller's `_replayPendingDeepLink` consumes it 200ms AFTER `Get.offAllNamed` lands. Warm taps (`onMessageOpenedApp` + foreground local-notification tap) are now a single direct `openLive` call with no stash dance. Same mechanism extended to `SUPPORT_REPLY` cold-start. |
+| Paystack checkout dumped users on a black "Initialize payment again" screen with `'List<Map<String, dynamic>>' is not a subtype of 'String' of 'value'` | The `paystack_for_flutter 1.0.4` SDK's metadata serializer/parser pair are mutually inconsistent — flat `{"userId": "..."}` shape blows up one branch, the canonical `{"custom_fields": [{display_name, variable_name, value}]}` shape blows up the other. Removed the `metaData` field entirely (the package's own README sample omits it). The Paystack `reference` correlates back to Waxxapp via the `paymentReference` field on the Order doc, which is searchable in the Paystack dashboard — so no functional loss. |
+
+#### 📁 Files Changed (relative to 1.1.0+15)
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.1.0+15` → `1.1.0+17`; `+16` was a routine re-upload with no code changes) |
+| Live customer support — backend | `backend/server/support/{support.model.js,support.controller.js,support.route.js}` (new), `backend/route.js` (mount), `backend/socket.js` (4 new events) |
+| Live customer support — admin panel | `frontend/src/Component/Table/support/SupportInbox.js` (new), `frontend/src/Component/Pages/Admin.js` (route mount), `frontend/src/Component/Pages/Sidebar.js` (sidebar entry), `frontend/package.json` (+`socket.io-client ^4.7.5`) |
+| Live customer support — Flutter | `lib/ApiModel/user/support_conversation_model.dart` (new), `lib/ApiService/user/support_chat_service.dart` (new), `lib/user_pages/support_chat/{controller,view}/*` (new), `lib/utils/socket_services.dart` (`supportMessageStream` + emit helpers), `lib/utils/api_url.dart`, `lib/utils/Strings/strings.dart`, `lib/utils/routes_pages.dart` (route), `lib/View/MyApp/Profile/main_profile.dart` (entry point), `lib/services/push_notification_service.dart` (SUPPORT_REPLY handler), `lib/localization/language/*.dart` (×18), `scripts/_add_support_keys.py` (new) |
+| Tappable Order Info product name | `lib/View/MyApp/AppPages/cheak_out.dart` |
+| Push deep-link cold-start race fix | `lib/services/push_notification_service.dart` (new `_stashColdStartTap` + cleaned `LIVE_STARTED` branch), `lib/Controller/GetxController/login/splash_screen_controller.dart` (`_replayPendingDeepLink` extended for support tap) |
+| Paystack metaData crash fix | `lib/PaymentMethod/paystack/paystack_service.dart` (drop `metaData`) |
+
+### 🚀 Deploy checklist for 1.1.0+17
+
+1. `git pull` in `waxxapp_admin/backend` to HEAD and `pm2 restart backend` so the new `/support/*` endpoints + the `supportJoin`/`supportInboxJoin` socket events are live. Without this the in-app support chat will fail to bootstrap.
+2. `cd waxxapp_admin/frontend && npm install --f && ./deploy.sh` so the admin panel gets `socket.io-client` and the new `/admin/supportInbox` route.
+3. Upload `app-release.aab` (1.1.0+17) to Production. Same release-notes flow as the +15 launch — paste the English block above + auto-translate the rest.
+4. Force-quit and relaunch the Flutter app once after install — the cold-start tap fix only takes effect on a fresh process launch.
+5. Smoke test on the new build: kill the app, tap a `LIVE_STARTED` push from another seller's account, confirm the app opens directly into the live broadcast (NOT Home). Then tap "Help and Support" from the Profile menu, send a test message, confirm it appears in the admin Support Inbox in real time.
+
+---
 ## 🚀 Version 1.1.0 — Production launch (promotion from Closed Testing)
 
 **Version:** 1.1.0
