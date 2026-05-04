@@ -417,6 +417,17 @@ class _MainProfileState extends State<MainProfile> {
                         iconSize: 23,
                         callback: () => Get.toNamed("/UserForgotPassword"),
                       ),
+                      15.height,
+                      // Live customer-support chat — opens a 1:1
+                      // conversation with the Waxxapp support pool. Idempotent
+                      // entry: the controller bootstraps an existing thread
+                      // or mints a fresh one on first tap.
+                      ProfileItemWidget(
+                        title: St.helpAndSupport.tr,
+                        icon: AppAsset.icHelp,
+                        iconSize: 23,
+                        callback: () => Get.toNamed("/SupportChat"),
+                      ),
                       100.height,
 
                       // ProfileOptions(

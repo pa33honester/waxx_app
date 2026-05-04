@@ -122,6 +122,9 @@ class Api {
   static const reportLive = "reportToLive/reportLive";
   static const incrementReelView = "reel/incrementView";
   static const incrementReelShare = "reel/incrementShare";
+  // Customer-support chat (user ↔ admin operator pool).
+  static const supportMyConversation = "support/myConversation";
+  static const supportSendUserMessage = "support/sendUserMessage";
   static const createWithdraw = "withdrawRequest/initiateCashOut";
   static const getWithdrawalRequestsBySeller = "withdrawRequest/getWithdrawalRequestsBySeller";
   static const getSellerWalletHistory = "sellerWallet/retrieveSellerWalletHistory";

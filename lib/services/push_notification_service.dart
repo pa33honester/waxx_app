@@ -215,6 +215,23 @@ class PushNotificationService {
           }
         },
       );
+    } else if (type == 'SUPPORT_REPLY') {
+      // Customer-support reply from an admin. Foreground: in-app
+      // snackbar; tap routes into the SupportChatView. Background tap
+      // also routes there via the fromTap branch.
+      if (fromTap) {
+        Get.toNamed("/SupportChat");
+        return;
+      }
+      Get.snackbar(
+        message.notification?.title ?? 'Support reply',
+        message.notification?.body ?? 'Tap to open the support chat',
+        backgroundColor: AppColors.tabBackground,
+        colorText: AppColors.white,
+        icon: Icon(Icons.support_agent_rounded, color: AppColors.primary),
+        duration: const Duration(seconds: 6),
+        onTap: (_) => Get.toNamed("/SupportChat"),
+      );
     }
   }
 

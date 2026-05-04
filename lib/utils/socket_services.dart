@@ -25,6 +25,11 @@ class SocketServices {
   static RxInt liveLikeCount = 0.obs;
   static RxInt liveShareCount = 0.obs;
   static RxList mainLiveComments = [].obs;
+  // Customer-support chat — the raw socket payload pushed here on every
+  // `supportMessage` event. SupportChatController subscribes via
+  // `ever()` and parses + appends. Plain `.obs` so we don't have to
+  // import the model class into this file.
+  static Rx<dynamic> supportMessageStream = Rx<dynamic>(null);
   static ScrollController scrollController = ScrollController();
   static TextEditingController sellerCommentText = TextEditingController();
   static TextEditingController userCommentText = TextEditingController();
@@ -144,6 +149,17 @@ class SocketServices {
     socket!.on("comment", (comment) {
       log("Socket Listen => Add New Comment : $comment");
       onGetNewComment(comment: comment);
+    });
+
+    // Customer-support chat — the backend's support.controller.js
+    // broadcasts `supportMessage` to `supportRoom:<conversationId>`
+    // whenever either side sends a message. The SupportChatController
+    // subscribes to `supportMessageStream` via `ever()` and parses +
+    // appends. Kept as a generic Rx<dynamic> so this file doesn't need
+    // to import the SupportMessage model from user_pages/.
+    socket!.on("supportMessage", (raw) {
+      log("Socket Listen => Support Message : $raw");
+      supportMessageStream.value = raw;
     });
 
     socket!.on("endLiveSeller", (liveSellingHistoryId) {
@@ -316,6 +332,7 @@ class SocketServices {
     socket!.off("liveLikeCount");
     socket!.off("liveShareCount");
     socket!.off("comment");
+    socket!.off("supportMessage");
     socket!.off("endLiveSeller");
     socket!.off("selectedProductsUpdated");
     socket!.off("initiateAuction");
@@ -378,6 +395,26 @@ class SocketServices {
       log("Socket Emit => Live Room Connected.");
     } else {
       log("Socket Not Connected");
+    }
+  }
+
+  // Customer-support chat — buyer's app emits `supportJoin` when the
+  // SupportChatView opens so the backend joins the socket to
+  // `supportRoom:<conversationId>`. From that point on the controller
+  // receives `supportMessage` broadcasts in real time. `supportLeave`
+  // is emitted on view dispose so we don't keep accumulating room
+  // memberships across the user's lifetime.
+  static void onSupportJoin({required String conversationId}) {
+    if (conversationId.isEmpty) return;
+    if (socket != null && socket!.connected) {
+      socket?.emit("supportJoin", jsonEncode({"conversationId": conversationId}));
+    }
+  }
+
+  static void onSupportLeave({required String conversationId}) {
+    if (conversationId.isEmpty) return;
+    if (socket != null && socket!.connected) {
+      socket?.emit("supportLeave", jsonEncode({"conversationId": conversationId}));
     }
   }
 
