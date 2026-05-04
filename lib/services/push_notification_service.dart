@@ -88,16 +88,41 @@ class PushNotificationService {
 
     _interactionHandlersRegistered = true;
 
-    // The cold-start tap routes through AppLinkService.openLive(), which
-    // calls Get.dialog and needs a live Flutter context. Defer until after
-    // the first frame so MaterialApp + GetX are ready to receive the
-    // navigation, otherwise the tap silently no-ops and the user lands on
-    // the default Home route.
+    // Cold-start tap. We CANNOT call handleRemoteMessage here and let it
+    // openLive directly — the splash is about to mount and run
+    // onBoardingFlow which ends in `Get.offAllNamed("/BottomTabBar")`,
+    // which would wipe any /LivePage we pushed in the meantime. So
+    // instead we write the deep-link target into getStorage; the
+    // SplashScreenController's _replayPendingDeepLink consumes it AFTER
+    // the BottomTabBar nav lands. This way the openLive runs against a
+    // settled route stack and the LivePage push isn't clobbered.
+    //
+    // Warm taps (onMessageOpenedApp) + foreground local-notification
+    // taps still go through handleRemoteMessage which calls openLive
+    // directly — by then the app is fully mounted and the splash has
+    // long since done its job.
     if (initialMessage != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        handleRemoteMessage(initialMessage, fromTap: true);
-      });
+      _stashColdStartTap(initialMessage);
     }
+  }
+
+  // Cold-start tap stashing — keeps the FCM payload in getStorage so the
+  // splash controller can replay it after navigation lands. We don't
+  // touch any GetX dialogs / routes here because they'd race against
+  // splash's own navigation.
+  void _stashColdStartTap(RemoteMessage message) {
+    final type = message.data['type']?.toString() ?? '';
+    log('Cold-start FCM tap: type=$type');
+    if (type == 'LIVE_STARTED' || type == 'LIVE') {
+      final id = (message.data['liveSellingHistoryId'] as String? ?? '').trim();
+      if (id.isNotEmpty) {
+        getStorage.write('pendingDeepLinkLiveId', id);
+        log('Cold-start: stashed pendingDeepLinkLiveId=$id');
+      }
+    } else if (type == 'SUPPORT_REPLY') {
+      getStorage.write('pendingDeepLinkSupport', true);
+    }
+    // Other types don't navigate — splash's default route is fine.
   }
 
   // [fromTap] is true when the user actively tapped a notification
@@ -180,24 +205,19 @@ class PushNotificationService {
           (message.data['liveSellingHistoryId'] as String? ?? '').trim();
 
       if (fromTap) {
+        // WARM-tap path only — cold-start taps are stashed earlier in
+        // _stashColdStartTap() and replayed by the SplashScreenController
+        // AFTER its `Get.offAllNamed("/BottomTabBar")` navigation lands,
+        // so the openLive's /LivePage push doesn't get clobbered.
+        //
+        // The previous version of this branch wrote AND removed the stash
+        // key in two synchronous statements — the splash never saw the
+        // value because the remove fired before its onBoardingFlow
+        // finished. AND the inline openLive raced against the
+        // BottomTabBar navigation and got wiped half the time. Both
+        // bugs gone — warm tap = direct openLive, cold tap = stash + splash.
         if (liveSellingHistoryId.isNotEmpty) {
-          // Cold-start race fix: the splash route + storage hydration + Zego
-          // engine init are still in flight when the cold-start handler
-          // fires from main(), and the synchronous fetch we used to do here
-          // raced ahead of the network/auth setup → "Couldn't open this
-          // live" snackbar → user dropped on Home. Stash the id and let the
-          // splash controller replay it AFTER navigating to BottomTabBar
-          // when everything is ready. Warm taps (app already running) hit
-          // the same code but the stash is consumed immediately by the
-          // splash controller, which is already past its onInit, so they
-          // also fall through to the direct openLive() below.
-          getStorage.write('pendingDeepLinkLiveId', liveSellingHistoryId);
-          // If the splash controller is no longer the live route (warm
-          // tap), open the live now — the splash won't re-trigger. The
-          // splash controller is responsible for clearing the stash on
-          // its own consumption.
           AppLinkService.instance.openLive(liveSellingHistoryId);
-          getStorage.remove('pendingDeepLinkLiveId');
         }
         return;
       }

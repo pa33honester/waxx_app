@@ -94,14 +94,28 @@ class SplashScreenController extends GetxController {
   // is settled, and AppLinkService.openLive can do its loading-dialog +
   // fetch + push flow cleanly.
   void _replayPendingDeepLink() {
-    final pending = getStorage.read("pendingDeepLinkLiveId");
-    if (pending is! String || pending.isEmpty) return;
-    getStorage.remove("pendingDeepLinkLiveId");
-    // Defer one frame so the new route is laid out before we open the
-    // loading dialog on top of it.
-    Future.delayed(const Duration(milliseconds: 200), () {
-      AppLinkService.instance.openLive(pending);
-    });
+    // LIVE deep-link tap (most common cold-start tap path).
+    final pendingLive = getStorage.read("pendingDeepLinkLiveId");
+    if (pendingLive is String && pendingLive.isNotEmpty) {
+      getStorage.remove("pendingDeepLinkLiveId");
+      // Defer one frame so the new route is laid out before we open the
+      // loading dialog on top of it.
+      Future.delayed(const Duration(milliseconds: 200), () {
+        AppLinkService.instance.openLive(pendingLive);
+      });
+      return;
+    }
+
+    // Customer-support reply tap (added in v1.2 with the live-support
+    // feature). Just routes to the SupportChat view — the controller
+    // there bootstraps the conversation on entry.
+    final pendingSupport = getStorage.read("pendingDeepLinkSupport");
+    if (pendingSupport == true) {
+      getStorage.remove("pendingDeepLinkSupport");
+      Future.delayed(const Duration(milliseconds: 200), () {
+        Get.toNamed("/SupportChat");
+      });
+    }
   }
 
   Future<void> onBoardingFlow() async {
