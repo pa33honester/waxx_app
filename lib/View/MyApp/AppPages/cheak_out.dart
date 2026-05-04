@@ -589,10 +589,25 @@ class _CheckOutState extends State<CheckOut> {
                                       children: [
                                         Row(
                                           children: [
+                                            // Tappable product name — buyers asked to be
+                                            // able to jump back to the product detail from
+                                            // checkout (e.g. to re-check description before
+                                            // confirming). Sets the productId global the
+                                            // existing /ProductDetail route reads on init.
                                             Expanded(
-                                              child: Text(
-                                                "${item?.productId?.productName} x $productQuantity",
-                                                style: AppFontStyle.styleW700(AppColors.primary, 11),
+                                              child: GestureDetector(
+                                                behavior: HitTestBehavior.opaque,
+                                                onTap: () {
+                                                  if (productIdStr.isNotEmpty && productIdStr != "null") {
+                                                    productId = productIdStr;
+                                                    Get.toNamed("/ProductDetail");
+                                                  }
+                                                },
+                                                child: Text(
+                                                  "${item?.productId?.productName} x $productQuantity",
+                                                  style: AppFontStyle.styleW700(AppColors.primary, 11)
+                                                      .copyWith(decoration: TextDecoration.underline, decorationColor: AppColors.primary),
+                                                ),
                                               ),
                                             ),
                                             Text(
