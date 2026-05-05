@@ -1,6 +1,47 @@
 # Release Notes — Waxx App
 
 ---
+## ✂️ Version 1.1.1+18 — Drop Terms & Conditions step from seller signup
+
+**Version:** 1.1.1
+**Build Number:** 18
+**Release Date:** May 2026
+**Type:** Small UX patch on top of v1.1.0+17
+
+### Suggested Play Console release name
+`v1.1.1 — Streamlined seller signup`
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🔧 Update — v1.1.1
+
+✂️ Streamlined seller signup — fewer steps to start selling
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🛠 UX changes in v1.1.1
+
+**Seller signup no longer asks you to accept Terms & Conditions**
+- Sellers used to land on a Terms & Conditions screen between submitting their documents and creating the account. Per product direction, that step was redundant — the only thing it gated was the same `onSubmitTermsAndCondition()` call that creates the seller. Inlined that call into `onSubmitDocumentsDetails`, so finishing the documents step submits the seller account directly. One tap, not two.
+- Demo-user check is preserved — demo accounts still see the "this is a demo user" toast instead of submitting.
+- The `TermsAndConditions` screen file + `/TermsAndConditions` route stay in the codebase but are no longer reachable from the signup flow. Re-adding the gate is a one-line revert if compliance ever needs it.
+
+#### 📁 Files Changed (relative to 1.1.0+17)
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.1.0+17` → `1.1.1+18`) |
+| Seller signup flow | `lib/Controller/GetxController/seller/seller_common_controller.dart` (`onSubmitDocumentsDetails` calls `onSubmitTermsAndCondition` directly) |
+
+#### 🚀 Deploy checklist for 1.1.1+18
+
+1. Upload `app-release.aab` (1.1.1+18) to the Production track. Same release-notes flow as the +17 cut — paste the English block above + auto-translate the rest.
+2. No backend deploy needed — this is a Flutter-only patch.
+
+---
 ## 💬 Version 1.1.0+17 — Live customer support + cold-start push deep-link fix
 
 **Version:** 1.1.0
