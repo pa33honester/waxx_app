@@ -460,7 +460,18 @@ class SellerCommonController extends GetxController {
       Utils.showToast("Please upload Address proof document !!");
       return;
     } else {
-      Get.toNamed("/TermsAndConditions");
+      // Per product direction the Terms & Conditions screen is no longer
+      // a step in the seller signup flow — it just gated the same
+      // onSubmitTermsAndCondition() call. Inline that here so finishing
+      // the documents step submits the seller account directly. The
+      // Terms route + screen file remain in the codebase (still
+      // accessible from /TermsAndConditions if anything ever links to
+      // it) but nothing in the signup flow opens it anymore.
+      if (getStorage.read("isDemoLogin") ?? false || isDemoSeller) {
+        displayToast(message: St.thisIsDemoUser.tr);
+        return;
+      }
+      onSubmitTermsAndCondition();
     }
   }
 
