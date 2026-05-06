@@ -141,9 +141,31 @@ class _ProductDetailState extends State<ProductDetail> {
       displayToast(message: St.pleaseFillAllAttributes.tr, isBottomToast: true);
       return;
     }
+    // Buy Now bypasses /CheckOut entirely (per product direction). The
+    // promo-code input + delivery-option picker that Checkout normally
+    // exposes aren't reachable on this fast path — Buy Now uses
+    // whatever default delivery option the cart auto-picks (first
+    // available, applied by resolveCartShipping on the backend) and
+    // does not apply a promo. The cart-tab → Checkout → Pay Now flow
+    // still goes through /CheckOut for full control.
+    //
+    // We need the finalTotal to seed OrderPaymentController's pricing.
+    // Fetch the cart once after addToCart returns so subTotal +
+    // totalShippingCharges reflect the just-added item. The backend's
+    // /order/create looks up the buyer's selected Address server-side,
+    // so we don't need to pass shippingAddress in the route arguments.
     await addToCart();
+    await getAllCartProductController.getCartProductData();
+    final cartData = getAllCartProductController.getAllCartProducts?.data;
+    final sub = (cartData?.subTotal ?? 0).toInt();
+    final ship = (cartData?.totalShippingCharges ?? 0).toInt();
+    final finalTotal = sub + ship;
     Get.back();
-    Get.toNamed("/CheckOut");
+    Get.toNamed("/OrderPayment", arguments: {
+      "finalTotal": finalTotal,
+      "promoCode": "",
+      "selectedPromoCodeId": "",
+    });
     if (await Vibration.hasVibrator()) {
       Vibration.vibrate();
     }
