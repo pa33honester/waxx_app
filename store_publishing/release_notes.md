@@ -1,6 +1,64 @@
 # Release Notes — Waxx App
 
 ---
+## ⚡ Version 1.1.2+19 — Buy Now fast path + city is free-text + empty Checkout fix
+
+**Version:** 1.1.2
+**Build Number:** 19
+**Release Date:** May 2026
+**Type:** UX patch on top of v1.1.1+18
+
+### Suggested Play Console release name
+`v1.1.2 — Buy Now one-tap + address polish`
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🔧 Update — v1.1.2
+
+⚡ Buy Now goes straight to payment — one fewer step
+🏙 Type your city directly on the address form (no fixed list)
+✨ Smoother loading on Cart → Checkout
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🛠 UX changes in v1.1.2
+
+**Buy Now bypasses Checkout — straight to Pay Now**
+- Tapping Buy Now on a product detail now adds the product to cart and routes directly to `/OrderPayment` with the computed `finalTotal` (sub-total + shipping). The intermediate `/CheckOut` step is skipped for Buy Now purchases.
+- The Cart tab → Checkout → Pay Now path is unchanged. Full Checkout still runs when the buyer explicitly opens Cart to review items, where the address row, promo-code input, per-item delivery-option picker, and totals breakdown all stay reachable.
+- Trade-offs the fast path skips:
+  - **No promo-code input** — Buy Now applies no promo. Cart-based buyers still get the input.
+  - **No per-item delivery-option picker** — Buy Now uses whatever default the cart auto-picks (`resolveCartShipping` server-side picks the first available option). Cart-based buyers still get the picker.
+  - **No address review** — `/order/create` looks the buyer's selected `Address` up server-side via `Address.findOne({ userId, isSelect: true })`, so the order proceeds with the same address Checkout would have shown. Buyers without a selected address can still set one from Profile → My Address.
+
+**City is now a plain text input on Update Address**
+- The Update Address page used to force users through a fixed city dropdown keyed off the bundled `country_state_city.json` dataset. Many Ghana cities (and small towns elsewhere) aren't in that dataset, so users either picked a wrong approximation or got stuck.
+- Replaced with a plain text input — users can now type any city name. The state-keyed city-list helper stays in the file but is unused, so re-enabling the picker later is a one-line revert.
+
+#### 🐛 Bug fixes in v1.1.2
+
+| Issue | Fix |
+|---|---|
+| Buy Now → Checkout briefly rendered an empty page (no Order Info, no totals) before the Pay Now button could be tapped | Independent of the Buy Now redirect above — useful for cart-based buyers too. The Checkout body's `Obx` was only watching `getOnlySelectedUserAddressController.isLoading`. Address loaded fast → Obx flipped → body rendered against still-empty cart data while the cart fetch was in flight. Now also watches `getAllCartProductController.firstLoading` so the existing `checkoutShimmer` covers the gap until BOTH data sources are loaded. |
+
+#### 📁 Files Changed (relative to 1.1.1+18)
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.1.1+18` → `1.1.2+19`) |
+| Buy Now fast path | `lib/View/MyApp/AppPages/product_detail.dart` (`onBuyNow` awaits cart fetch, navigates to `/OrderPayment` with `finalTotal` in arguments — no controller change needed since `OrderPaymentController` already reads `finalTotal` from `Get.arguments`) |
+| Empty Checkout shimmer fix | `lib/View/MyApp/AppPages/cheak_out.dart` (body `Obx` now also waits on `cart.firstLoading`) |
+| City as free-text | `lib/View/MyApp/Profile/MyAddress/update_address.dart` (drop `readOnly: true` + `addressSelectSheet` onTap, use plain `PrimaryTextField`) |
+
+#### 🚀 Deploy checklist for 1.1.2+19
+
+1. Upload `app-release.aab` (1.1.2+19) to the Production track. Same release-notes flow as the +18 cut — paste the English block above + auto-translate the rest.
+2. No backend deploy needed — Flutter-only patch.
+
+---
 ## ✂️ Version 1.1.1+18 — Drop Terms & Conditions step from seller signup
 
 **Version:** 1.1.1
