@@ -222,7 +222,17 @@ class _CheckOutState extends State<CheckOut> {
             height: Get.height,
             width: Get.width,
             child: Obx(
-              () => getOnlySelectedUserAddressController.isLoading.value
+              // Show the shimmer until BOTH the address controller AND the
+              // cart controller have finished their first fetch. The
+              // previous gate only watched address.isLoading, so when a
+              // user landed on Checkout via Buy Now (which fires addToCart
+              // then immediately navigates) the address loaded fast, the
+              // Obx flipped, and the body rendered an empty Order Info /
+              // empty totals page for the brief gap before the cart
+              // fetch completed. Looked like a redundant blank step
+              // before Pay Now.
+              () => (getOnlySelectedUserAddressController.isLoading.value ||
+                      getAllCartProductController.firstLoading.value)
                   ? Shimmers.checkoutShimmer()
                   : Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),

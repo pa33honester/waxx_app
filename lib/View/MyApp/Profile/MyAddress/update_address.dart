@@ -193,35 +193,16 @@ class _UpdateAddressState extends State<UpdateAddress> {
                   },
                 ),
                 const SizedBox(height: 18),
+                // City is a plain text input — many Ghana cities don't
+                // appear in the bundled country_state_city.json (it's a
+                // generic dataset that misses smaller towns), so the
+                // dropdown picker forced users to either pick a wrong
+                // approximation or get stuck. Free text accepts any
+                // value the user types.
                 PrimaryTextField(
                   titleText: St.cityTFTitle.tr,
-                  readOnly: true,
                   hintText: St.cityTFHintText.tr,
                   controllerType: "myCityController",
-                  suffixIcon: Icon(Icons.keyboard_arrow_down_outlined, color: Colors.grey.shade400),
-                  onTap: () {
-                    if (userAddAddressController.myCountryController.text.isNotEmpty && userAddAddressController.myStateController.text.isNotEmpty) {
-                      addressSelectSheet(
-                          isStateValue: true,
-                          onStateTap: (value) {
-                            userAddAddressController.myCityController.text = value;
-                          },
-                          hintText: St.searchCity.tr,
-                          context: context,
-                          countries: city,
-                          controller: cityCountroller,
-                          userAddAddressController: userAddAddressController,
-                          onTap: (value) {
-                            userAddAddressController.myCityController.text = value;
-                          });
-                    } else if (userAddAddressController.myCountryController.text.isEmpty && userAddAddressController.myStateController.text.isEmpty) {
-                      displayToast(message: "Please Select country and state");
-                    } else if (userAddAddressController.myStateController.text.isEmpty) {
-                      displayToast(message: "Please Select state");
-                    } else {
-                      displayToast(message: "Please Select country");
-                    }
-                  },
                 ),
                 // const SizedBox(height: 25),
                 // PrimaryTextField(
