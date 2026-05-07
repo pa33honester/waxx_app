@@ -155,25 +155,12 @@ class _ProductDetailState extends State<ProductDetail> {
     // /order/create looks up the buyer's selected Address server-side,
     // so we don't need to pass shippingAddress in the route arguments.
     await addToCart();
-    await getAllCartProductController.getCartProductData();
-    final cartData = getAllCartProductController.getAllCartProducts?.data;
-    final sub = (cartData?.subTotal ?? 0).toInt();
-    final ship = (cartData?.totalShippingCharges ?? 0).toInt();
-    final finalTotal = sub + ship;
-    // The Pay Now route is registered as `/PaymentPage` (not
-    // /OrderPayment as I named it earlier — that route doesn't exist
-    // in routes_pages.dart and silently bounced to the unknown-route
-    // handler, which is why Buy Now appeared to take users back to
-    // Home). Cart → Checkout → Pay Now also uses `/PaymentPage`.
-    // Use offNamed so Product Detail is replaced (not stacked) by
-    // Pay Now — back-button on Pay Now then returns to wherever
-    // Product Detail was launched from.
-    Get.offNamed("/PaymentPage", arguments: {
-      "finalTotal": finalTotal,
-      "promoCode": "",
-      "selectedPromoCodeId": "",
-      "isAuctionPayment": false,
-    });
+    Get.back();
+    // Restore the Checkout step so the buyer can review the order
+    // (quantity, address, total) before paying. The `isBuyNow` flag
+    // tells Checkout's Continue button to skip the payment-method
+    // picker (/PaymentPage's UI) and auto-start Paystack instead.
+    Get.toNamed("/CheckOut", arguments: {"isBuyNow": true});
     if (await Vibration.hasVibrator()) {
       Vibration.vibrate();
     }

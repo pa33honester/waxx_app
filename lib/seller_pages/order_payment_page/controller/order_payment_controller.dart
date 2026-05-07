@@ -13,6 +13,7 @@ import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/show_toast.dart';
 import 'package:waxxapp/utils/utils.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../../../utils/database.dart' show Database;
@@ -29,11 +30,28 @@ class OrderPaymentController extends GetxController {
   int paymentStatus = 2; //1 => Pending(Cash on Delivery), 2 => Completed(stripe, razorpay, flutterwave)
   CreateOrderByUserModel? createOrderByUserModel;
 
+  // Buy Now flow: when set to a gateway name (currently only "Paystack"
+  // is wired) the Pay Now page will auto-launch that gateway on entry
+  // instead of waiting for the user to tap a payment-method tile. The
+  // payment-method tiles are also hidden in this case so the user
+  // doesn't see the picker at all.
+  String? autoStartGateway;
+
   @override
   void onInit() {
     Utils.showLog("Selected Plan => ${Get.arguments}");
     getArguments();
     super.onInit();
+    // Defer one frame so Get.dialog has a live context to land on (the
+    // PaystackService opens a webview overlay, which needs a mounted
+    // MaterialApp/GetX route stack).
+    if (autoStartGateway == "Paystack") {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        selectedPaymentMethod = 4; // Paystack index in paymentMethodList
+        update(["onChangePaymentMethod"]);
+        onClickPayNow();
+      });
+    }
   }
 
   getArguments() {
@@ -43,6 +61,7 @@ class OrderPaymentController extends GetxController {
     isAuctionPayment = Get.arguments["isAuctionPayment"] ?? false;
     orderId = Get.arguments["orderId"] ?? "";
     itemId = Get.arguments["productId"] ?? "";
+    autoStartGateway = Get.arguments["autoStartGateway"];
   }
 
   final paymentMethodList = [

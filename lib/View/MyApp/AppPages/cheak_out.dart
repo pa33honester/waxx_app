@@ -67,11 +67,20 @@ class _CheckOutState extends State<CheckOut> {
   String checkOtpLength = "";
   String otpCode = "";
   RxBool getCodeLoading = false.obs;
+  // True when this Checkout was opened via Buy Now from Product Detail
+  // (vs the cart-tab → Checkout path). When true, the Continue button
+  // skips the payment-method picker on /PaymentPage and auto-starts
+  // Paystack via the autoStartGateway argument.
+  bool isBuyNow = false;
 
   @override
   void initState() {
     // TODO: implement initState
     editProfileController.mobileNumberController.text = "+91 ";
+    final args = Get.arguments;
+    if (args is Map && args["isBuyNow"] == true) {
+      isBuyNow = true;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await getAllCartProductController.getCartProductData();
       getOnlySelectedUserAddressController.getOnlySelectedUserAddressData();
@@ -827,6 +836,11 @@ class _CheckOutState extends State<CheckOut> {
                             "promoCode": getAllPromoCodeController.promoCodeController.text,
                             "selectedPromoCodeId": getAllPromoCodeController.selectedPromoCodeId,
                             "isAuctionPayment": false,
+                            // Buy Now fast path: tells OrderPaymentController
+                            // to auto-launch Paystack on entry (skipping the
+                            // payment-method picker UI). Cart-tab buyers
+                            // still see the picker as before.
+                            if (isBuyNow) "autoStartGateway": "Paystack",
                           },
                         );
                       }

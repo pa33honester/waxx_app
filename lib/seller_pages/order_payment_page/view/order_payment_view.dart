@@ -31,54 +31,79 @@ class OrderPaymentView extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                St.paymentMethod.tr,
-                style: AppFontStyle.styleW700(AppColors.white, 18),
-              ),
-              20.height,
-              GetBuilder<OrderPaymentController>(
-                id: "onChangePaymentMethod",
-                builder: (controller) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Visibility(visible: isShowRazorPayPaymentMethod, child: PaymentItemUi(0)),
-                    Visibility(visible: isShowStripePaymentMethod, child: PaymentItemUi(1)),
-                    Visibility(visible: isShowFlutterWavePaymentMethod, child: PaymentItemUi(2)),
-                    Visibility(visible: isShowCashOnDelivery, child: PaymentItemUi(3)),
-                    Visibility(visible: isShowPaystackPaymentMethod, child: PaymentItemUi(4)),
-                  ],
-                ),
-              ),
-            ],
+          child: GetBuilder<OrderPaymentController>(
+            id: "onChangePaymentMethod",
+            builder: (controller) {
+              // Buy Now fast path: autoStartGateway is set, the controller
+              // auto-launched the gateway in onInit's post-frame callback.
+              // Hide the picker tiles + show a "Processing..." spinner so
+              // the user doesn't briefly see the payment-method list
+              // before the gateway popup opens.
+              if (controller.autoStartGateway != null) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 60),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        CircularProgressIndicator(color: AppColors.primary),
+                        20.height,
+                        Text(
+                          "Opening ${controller.autoStartGateway}…",
+                          style: AppFontStyle.styleW600(AppColors.white, 14),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    St.paymentMethod.tr,
+                    style: AppFontStyle.styleW700(AppColors.white, 18),
+                  ),
+                  20.height,
+                  Visibility(visible: isShowRazorPayPaymentMethod, child: PaymentItemUi(0)),
+                  Visibility(visible: isShowStripePaymentMethod, child: PaymentItemUi(1)),
+                  Visibility(visible: isShowFlutterWavePaymentMethod, child: PaymentItemUi(2)),
+                  Visibility(visible: isShowCashOnDelivery, child: PaymentItemUi(3)),
+                  Visibility(visible: isShowPaystackPaymentMethod, child: PaymentItemUi(4)),
+                ],
+              );
+            },
           ),
         ),
       ),
       bottomNavigationBar: GetBuilder<OrderPaymentController>(
-         builder: (controller) =>
-         Padding(
-          padding: const EdgeInsets.all(15),
-          child: MainButtonWidget(
-            height: 60,
-            width: Get.width,
-            callback:controller.onClickPayNow,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  St.payNow.tr,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: AppFontStyle.styleW700(AppColors.black, 15),
-                ),
-                8.width,
-                Image.asset(AppAsset.icDoubleArrowRight, width: 14),
-              ],
+        builder: (controller) {
+          // Buy Now fast path hides the Pay Now button — the gateway
+          // is already launching in the background.
+          if (controller.autoStartGateway != null) {
+            return const SizedBox.shrink();
+          }
+          return Padding(
+            padding: const EdgeInsets.all(15),
+            child: MainButtonWidget(
+              height: 60,
+              width: Get.width,
+              callback: controller.onClickPayNow,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    St.payNow.tr,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: AppFontStyle.styleW700(AppColors.black, 15),
+                  ),
+                  8.width,
+                  Image.asset(AppAsset.icDoubleArrowRight, width: 14),
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
