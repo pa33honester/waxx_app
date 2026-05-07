@@ -222,31 +222,43 @@ class OrderPaymentController extends GetxController {
     if (selectedPaymentMethod == 4) {
       Utils.showLog("Paystack Payment Working....");
       Utils.showLog("Is Auction Payment: $isAuctionPayment");
+      // Track whether one of the gateway callbacks handled the result
+      // so we can detect the system-back case (paystack_for_flutter
+      // 1.0.4 closes the webview on Android system-back without
+      // firing onSuccess OR onCancelled — pay() just returns silently).
+      // Without this fallback the user is stuck on the "Opening
+      // Paystack…" spinner forever.
+      bool paystackHandled = false;
       try {
         await PaystackService().pay(
           amount: finalTotal.toInt(),
           onVerified: (reference) async {
+            paystackHandled = true;
             Utils.showLog("Paystack Payment verified by backend, ref=$reference");
             await handlePaymentSuccess("Paystack", paymentStatus, paymentReference: reference);
           },
-          // When the buyer taps back / cancel from the Paystack
-          // checkout webview, pop /PaymentPage too so they don't get
-          // stuck on the "Opening Paystack…" spinner forever (which
-          // happens because /PaymentPage is hidden under the gateway
-          // popup; closing the popup just reveals the spinner). Only
-          // pop in auto-start mode — the manual-pick path leaves the
-          // user on the picker so they can choose another gateway.
           onCancelled: () {
+            paystackHandled = true;
             if (autoStartGateway != null && Get.currentRoute == "/PaymentPage") {
               Get.back();
             }
           },
         );
       } catch (e) {
+        paystackHandled = true;
         Utils.showLog("Paystack Payment Failed => $e");
         if (autoStartGateway != null && Get.currentRoute == "/PaymentPage") {
           Get.back();
         }
+      }
+      // Silent-return fallback: pay() resolved without firing any
+      // callback (typical of the system-back path on Android). Pop
+      // /PaymentPage so the buyer isn't trapped on the spinner.
+      if (!paystackHandled &&
+          autoStartGateway != null &&
+          Get.currentRoute == "/PaymentPage") {
+        Utils.showLog("Paystack pay() returned silently — popping /PaymentPage");
+        Get.back();
       }
     }
   }
