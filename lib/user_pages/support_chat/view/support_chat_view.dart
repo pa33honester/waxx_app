@@ -236,12 +236,37 @@ class _MessageBubble extends StatelessWidget {
                       style: AppFontStyle.styleW500(textColor, 14),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      _formatTime(message.createdAt),
-                      style: AppFontStyle.styleW400(
-                        textColor.withValues(alpha: 0.7),
-                        10,
-                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          _formatTime(message.createdAt),
+                          style: AppFontStyle.styleW400(
+                            textColor.withValues(alpha: 0.7),
+                            10,
+                          ),
+                        ),
+                        // WhatsApp-style read receipts on user-sent
+                        // messages only (admin's bubbles already imply
+                        // "read by me" since I'm viewing them).
+                        // Single ✓  = sent (delivered to backend),
+                        // double ✓✓ = read (admin opened the chat).
+                        if (isUser) ...[
+                          const SizedBox(width: 4),
+                          Text(
+                            (message.isRead ?? false) ? "✓✓" : "✓",
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: (message.isRead ?? false)
+                                  ? const Color(0xFF0EA5E9) // sky blue when read
+                                  : textColor.withValues(alpha: 0.6),
+                              height: 1.0,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),

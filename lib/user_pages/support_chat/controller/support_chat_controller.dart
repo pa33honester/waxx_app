@@ -36,6 +36,7 @@ class SupportChatController extends GetxController {
   String? _conversationId;
   Worker? _socketWorker;
   Worker? _presenceWorker;
+  Worker? _readWorker;
 
   String? get conversationId => _conversationId;
 
@@ -48,18 +49,58 @@ class SupportChatController extends GetxController {
     // onClose where we dispose the Worker — clean up is automatic.
     _socketWorker = ever<dynamic>(SocketServices.supportMessageStream, _onSocketMessage);
     _presenceWorker = ever<dynamic>(SocketServices.supportPresenceStream, _onPresence);
+    _readWorker = ever<dynamic>(SocketServices.supportReadStream, _onRead);
   }
 
   @override
   void onClose() {
     _socketWorker?.dispose();
     _presenceWorker?.dispose();
+    _readWorker?.dispose();
     if (_conversationId != null && _conversationId!.isNotEmpty) {
       SocketServices.onSupportLeave(conversationId: _conversationId!);
     }
     inputController.dispose();
     scrollController.dispose();
     super.onClose();
+  }
+
+  // Backend broadcasts supportRead with `{conversationId, readerSide}`
+  // when an admin opens the conversation in the support panel. We
+  // flip ALL user-sent messages currently in the list to isRead=true,
+  // which the bubble UI uses to render the double-tick (read) state.
+  void _onRead(dynamic raw) {
+    if (raw == null) return;
+    try {
+      final map = raw is Map ? Map<String, dynamic>.from(raw) : null;
+      if (map == null) return;
+      // Defensive — only act on this conversation's reads.
+      if (_conversationId != null &&
+          (map["conversationId"]?.toString() ?? "") != _conversationId) {
+        return;
+      }
+      // The buyer's chat only cares when the ADMIN reads — that's the
+      // signal for "your support message has been seen."
+      if (map["readerSide"] != "admin") return;
+      var changed = false;
+      for (var i = 0; i < messages.length; i++) {
+        final m = messages[i];
+        if (m.senderType == "user" && m.isRead != true) {
+          messages[i] = SupportMessage(
+            id: m.id,
+            senderType: m.senderType,
+            senderId: m.senderId,
+            senderName: m.senderName,
+            senderImage: m.senderImage,
+            text: m.text,
+            isRead: true,
+            createdAt: m.createdAt,
+          );
+          changed = true;
+        }
+      }
+      if (changed) messages.refresh();
+    } catch (_) {}
   }
 
   void _onPresence(dynamic raw) {

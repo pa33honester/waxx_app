@@ -34,6 +34,11 @@ class SocketServices {
   // name, conversationId}`. Buyer's SupportChatController shows a
   // "Support is online" indicator while adminPresent=true.
   static Rx<dynamic> supportPresenceStream = Rx<dynamic>(null);
+  // Read-receipt pushed on `supportRead` events: `{conversationId,
+  // readerSide: "user"|"admin"}`. Buyer's SupportChatController flips
+  // user-sent bubbles from sent (✓) to read (✓✓) when readerSide is
+  // "admin".
+  static Rx<dynamic> supportReadStream = Rx<dynamic>(null);
   static ScrollController scrollController = ScrollController();
   static TextEditingController sellerCommentText = TextEditingController();
   static TextEditingController userCommentText = TextEditingController();
@@ -171,6 +176,13 @@ class SocketServices {
     socket!.on("supportPresence", (raw) {
       log("Socket Listen => Support Presence : $raw");
       supportPresenceStream.value = raw;
+    });
+
+    // Read-receipt — admin (or other side) opened the conversation
+    // and just marked all opposite-side messages as read.
+    socket!.on("supportRead", (raw) {
+      log("Socket Listen => Support Read : $raw");
+      supportReadStream.value = raw;
     });
 
     socket!.on("endLiveSeller", (liveSellingHistoryId) {
@@ -345,6 +357,7 @@ class SocketServices {
     socket!.off("comment");
     socket!.off("supportMessage");
     socket!.off("supportPresence");
+    socket!.off("supportRead");
     socket!.off("endLiveSeller");
     socket!.off("selectedProductsUpdated");
     socket!.off("initiateAuction");
