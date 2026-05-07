@@ -155,11 +155,23 @@ class _ProductDetailState extends State<ProductDetail> {
     // /order/create looks up the buyer's selected Address server-side,
     // so we don't need to pass shippingAddress in the route arguments.
     await addToCart();
+    // Surface addToCart failures explicitly — without this check, a
+    // silent backend rejection (e.g. user trying to buy their own
+    // product, blocked user, etc.) would leave the user staring at an
+    // empty Checkout page wondering why nothing happened.
+    final cartResp = addProductToCartController.addProductToCart;
+    if (cartResp == null || cartResp.status != true) {
+      displayToast(
+        message: cartResp?.message ?? "Couldn't add this item to your cart",
+        isBottomToast: true,
+      );
+      return;
+    }
     Get.back();
     // Restore the Checkout step so the buyer can review the order
-    // (quantity, address, total) before paying. The `isBuyNow` flag
-    // tells Checkout's Continue button to skip the payment-method
-    // picker (/PaymentPage's UI) and auto-start Paystack instead.
+    // (address, total) before paying. The `isBuyNow` flag tells
+    // Checkout's Continue button to skip the payment-method picker
+    // (/PaymentPage's UI) and auto-start Paystack instead.
     Get.toNamed("/CheckOut", arguments: {"isBuyNow": true});
     if (await Vibration.hasVibrator()) {
       Vibration.vibrate();

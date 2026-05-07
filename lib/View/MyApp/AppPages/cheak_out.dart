@@ -81,9 +81,35 @@ class _CheckOutState extends State<CheckOut> {
     if (args is Map && args["isBuyNow"] == true) {
       isBuyNow = true;
     }
+    // Flip the loading flags synchronously so the body Obx renders
+    // the checkoutShimmer immediately on the first frame. Without
+    // this, the post-frame callback below sets the flags AFTER the
+    // first frame has already rendered the body against still-empty
+    // (or stale) cart data — the user briefly sees an empty page.
+    // The Buy Now flow makes this especially visible because addToCart
+    // is fast and Checkout opens with a singleton cart controller
+    // whose firstLoading is already false from a prior visit.
+    getAllCartProductController.firstLoading.value = true;
+    getOnlySelectedUserAddressController.isLoading.value = true;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await getAllCartProductController.getCartProductData();
-      getOnlySelectedUserAddressController.getOnlySelectedUserAddressData();
+      await getOnlySelectedUserAddressController.getOnlySelectedUserAddressData();
+      if (!mounted) return;
+      // If the cart is empty after the fetch (Buy Now's addToCart
+      // silently failed, or the cart-tab path was opened with no
+      // items), pop back to the previous route so the user isn't
+      // stuck on a Checkout that can't proceed.
+      final items = getAllCartProductController.getAllCartProducts?.data?.items;
+      if (items == null || items.isEmpty) {
+        Fluttertoast.showToast(
+          msg: "Your cart is empty",
+          backgroundColor: AppColors.grayLight,
+          textColor: AppColors.white,
+          gravity: ToastGravity.BOTTOM,
+        );
+        Get.back();
+        return;
+      }
       if (getAllCartProductController.getAllCartProducts?.data != null) {
         createOrderByUserController.total = ((getAllCartProductController.getAllCartProducts!.data!.subTotal ?? 0).toInt() + (getAllCartProductController.getAllCartProducts!.data!.totalShippingCharges ?? 0).toInt());
       }
