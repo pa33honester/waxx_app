@@ -60,6 +60,11 @@ class LoginController extends GetxController {
         Database.fetchLoginUserProfileModel = await WhoLoginApi.callApi(userId: loginUserId);
         editUserCountry = Database.fetchLoginUserProfileModel?.user?.country ?? "";
         editUserAddress = Database.fetchLoginUserProfileModel?.user?.address ?? "";
+        // Capture phone + dial code into the globals so Checkout's
+        // Delivery Location card can show the buyer's contact number
+        // without making another profile fetch.
+        mobileNumber = (Database.fetchLoginUserProfileModel?.user?.mobileNumber ?? "").toString();
+        dialCode = (Database.fetchLoginUserProfileModel?.user?.countryCode ?? "").toString();
         if (userLogin?.user?.isSeller == true) {
           isSeller = true;
           await sellerDataController.getSellerAllData();
@@ -83,6 +88,8 @@ class LoginController extends GetxController {
         getStorage.write("country", editUserCountry);
         getStorage.write("address", editUserAddress);
         getStorage.write("uniqueID", uniqueID);
+        getStorage.write("mobileNumber", mobileNumber);
+        getStorage.write("dialCode", dialCode ?? "");
         update();
         isLoading(false);
       }

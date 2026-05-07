@@ -13,6 +13,7 @@ import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/font_style.dart';
+import 'package:waxxapp/utils/database.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/shimmers.dart';
 import 'package:waxxapp/utils/show_toast.dart';
@@ -929,11 +930,21 @@ class _CheckOutState extends State<CheckOut> {
   }
 
   String _buildContactPhone() {
-    final number = mobileNumber.trim();
+    // Prefer the global (populated from login). Fall back to the
+    // freshly-loaded profile model so existing sessions — where the
+    // global was never written, because login_controller didn't
+    // capture mobileNumber until this fix — still surface the phone
+    // without requiring a re-login.
+    final profile = Database.fetchLoginUserProfileModel?.user;
+    final number = mobileNumber.trim().isNotEmpty
+        ? mobileNumber.trim()
+        : (profile?.mobileNumber ?? "").toString().trim();
     if (number.isEmpty) return "";
-    final code = (dialCode ?? "").trim();
-    if (code.isEmpty) return number;
-    final prefix = code.startsWith("+") ? code : "+$code";
+    final rawCode = (dialCode != null && dialCode!.trim().isNotEmpty)
+        ? dialCode!.trim()
+        : (profile?.countryCode ?? "").toString().trim();
+    if (rawCode.isEmpty) return number;
+    final prefix = rawCode.startsWith("+") ? rawCode : "+$rawCode";
     return "$prefix $number";
   }
 

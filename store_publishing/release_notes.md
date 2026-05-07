@@ -33,6 +33,24 @@ The New Address city picker is keyed off the bundled `country_state_city.json` d
 
 **Files touched**: `lib/View/MyApp/Profile/MyAddress/new_address.dart` (`_mergeCustomCities()` + `_persistCustomCity()` helpers, custom-entry params on the city sheet call, picker shown for any selected state), `lib/View/MyApp/Profile/MyAddress/widget/address_select_sheet.dart` (new `allowCustomEntry` + `onCustomEntry` params; renders a "Use '<typed>'" tile in the empty-results state).
 
+**Update Address — same picker-with-add-custom UX as New Address**
+
+Previously Update Address's city field was a plain text input (per the v1.1.2 fix) while New Address used a dropdown picker. Sellers/buyers expected the same UX on both screens. Update Address's city field now opens the same `addressSelectSheet` with `allowCustomEntry: true` — preset cities for the chosen country/state PLUS any custom cities the user previously typed (persisted via `_persistCustomCity`). Empty-results state shows a "Use '<typed>'" tile that accepts the typed value AND saves it to local storage.
+
+**Files touched**: `lib/View/MyApp/Profile/MyAddress/update_address.dart` (replace plain text city input with picker; add `_mergeCustomCities()` + `_persistCustomCity()` helpers; switch import from `globle_veriables` to `Theme/theme_service` for `getStorage`).
+
+**Phone number on Checkout's Delivery Location card — fallback to profile model**
+
+The phone row added in the previous fix only showed when the global `mobileNumber` / `dialCode` were non-empty, but `login_controller` never wrote them — so existing logged-in users never saw the phone. Two-part fix: (1) `_buildContactPhone()` in `cheak_out.dart` now falls back to `Database.fetchLoginUserProfileModel?.user?.mobileNumber` + `.countryCode` when the globals are empty (works immediately for existing sessions, since the splash refreshes that profile model on every app start). (2) `login_controller.dart` now captures the phone + dial code from the profile after the WhoLoginApi call into the globals AND persists them to `getStorage` (`mobileNumber` / `dialCode` keys), so future logins populate the global directly without needing the fallback.
+
+**Files touched**: `lib/View/MyApp/AppPages/cheak_out.dart` (fallback in `_buildContactPhone()` + `Database` import), `lib/Controller/GetxController/login/login_controller.dart` (capture + persist `mobileNumber` and `dialCode` on login).
+
+**DeliveryOptionsPicker — guarded find-or-put for hot-reload safety**
+
+A bare `Get.find<GetAllCartProductController>()` deep inside the cart-list and checkout-list trees threw "controller not found" on hot-reload — the in-memory widget tree is preserved by hot-reload but GetX's instance registry can clear, and the leaf widget rebuilds before the ancestor re-runs `Get.put`. Switched to `Get.isRegistered<T>() ? Get.find<T>() : Get.put(T())` so the widget self-heals: idempotent (returns existing instance if registered) and harmless when called multiple times. Not reproducible on a release build with a fresh start; only hot-reload triggers it. Added `feedback_get_find_in_descendants.md` memory so this pattern is on the radar for similar widgets going forward.
+
+**Files touched**: `lib/custom/delivery_options_picker.dart` (`Get.find` → `isRegistered ? find : put` with comment explaining why).
+
 **No backend changes. No version bump.** Rebuild and re-upload `app-release.aab` on build number 21.
 
 ---

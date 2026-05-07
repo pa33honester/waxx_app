@@ -37,7 +37,15 @@ class DeliveryOptionsPicker extends StatelessWidget {
     final options = deliveryOptions ?? const [];
     if (options.isEmpty) return const SizedBox.shrink();
 
-    final cartCtrl = Get.find<GetAllCartProductController>();
+    // Guarded find-or-put: this picker mounts deep inside the cart-list
+    // and checkout-list trees, and during hot-reload (or if a parent
+    // dispose runs before this widget rebuilds) the controller can
+    // briefly be deregistered. Falling back to Get.put keeps the picker
+    // self-healing without losing in-flight data — Get.put returns the
+    // existing instance if one is already registered.
+    final cartCtrl = Get.isRegistered<GetAllCartProductController>()
+        ? Get.find<GetAllCartProductController>()
+        : Get.put(GetAllCartProductController());
 
     String label(String type) {
       switch (type) {

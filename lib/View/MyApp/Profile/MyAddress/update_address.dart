@@ -12,6 +12,7 @@ import 'package:waxxapp/utils/CoustomWidget/App_theme_services/textfields.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/Zego/ZegoUtils/device_orientation.dart';
 import 'package:waxxapp/utils/app_colors.dart';
+import 'package:waxxapp/utils/Theme/theme_service.dart';
 import 'package:waxxapp/utils/show_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -74,9 +75,45 @@ class _UpdateAddressState extends State<UpdateAddress> {
   List<countryData.StateData>? statesList;
   void updateCityData(String selectedStateName) {
     countryData.StateData? tempData = statesList?.firstWhereOrNull((element) => element.stateName == selectedStateName);
-    city = tempData?.cities?.map((e) => e.cityName.toString()).toList();
+    city = tempData?.cities?.map((e) => e.cityName.toString()).toList() ?? [];
+    _mergeCustomCities();
 
     setState(() {});
+  }
+
+  String get _customCityKey {
+    final country = userAddAddressController.myCountryController.text.trim();
+    final state = userAddAddressController.myStateController.text.trim();
+    return "customCities|$country|$state";
+  }
+
+  void _mergeCustomCities() {
+    final stored = getStorage.read(_customCityKey);
+    if (stored is List) {
+      final existing = (city ?? <String>[]).map((e) => e.toLowerCase()).toSet();
+      for (final c in stored) {
+        if (c is String && !existing.contains(c.toLowerCase())) {
+          city ??= [];
+          city!.add(c);
+          existing.add(c.toLowerCase());
+        }
+      }
+    }
+  }
+
+  void _persistCustomCity(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
+    final stored = getStorage.read(_customCityKey);
+    final List<String> list = (stored is List)
+        ? stored.whereType<String>().toList()
+        : <String>[];
+    if (list.any((e) => e.toLowerCase() == trimmed.toLowerCase())) return;
+    list.add(trimmed);
+    getStorage.write(_customCityKey, list);
+    if (city != null && !city!.any((e) => e.toLowerCase() == trimmed.toLowerCase())) {
+      city!.add(trimmed);
+    }
   }
 
   List<countryData.ConutryDataModel> countryList = [];
@@ -193,16 +230,45 @@ class _UpdateAddressState extends State<UpdateAddress> {
                   },
                 ),
                 const SizedBox(height: 18),
-                // City is a plain text input — many Ghana cities don't
-                // appear in the bundled country_state_city.json (it's a
-                // generic dataset that misses smaller towns), so the
-                // dropdown picker forced users to either pick a wrong
-                // approximation or get stuck. Free text accepts any
-                // value the user types.
+                // City picker: shows preset cities for the chosen
+                // country/state plus any custom cities the user
+                // previously typed (persisted via _persistCustomCity).
+                // When the typed search has no match, the empty-state
+                // shows a "Use '<typed>'" tile that accepts the typed
+                // value AND saves it for next time.
                 PrimaryTextField(
                   titleText: St.cityTFTitle.tr,
+                  readOnly: true,
                   hintText: St.cityTFHintText.tr,
                   controllerType: "myCityController",
+                  suffixIcon: Icon(Icons.keyboard_arrow_down_outlined, color: Colors.grey.shade400),
+                  onTap: () {
+                    if (userAddAddressController.myCountryController.text.isNotEmpty && userAddAddressController.myStateController.text.isNotEmpty) {
+                      _mergeCustomCities();
+                      addressSelectSheet(
+                          isStateValue: true,
+                          onStateTap: (value) {
+                            userAddAddressController.myCityController.text = value;
+                          },
+                          hintText: St.searchCity.tr,
+                          context: context,
+                          countries: city,
+                          controller: cityCountroller,
+                          userAddAddressController: userAddAddressController,
+                          onTap: (value) {
+                            userAddAddressController.myCityController.text = value;
+                          },
+                          allowCustomEntry: true,
+                          onCustomEntry: (value) {
+                            _persistCustomCity(value);
+                            setState(() {});
+                          });
+                    } else if (userAddAddressController.myCountryController.text.isEmpty) {
+                      displayToast(message: "Please Select country");
+                    } else {
+                      displayToast(message: "Please Select state");
+                    }
+                  },
                 ),
                 // const SizedBox(height: 25),
                 // PrimaryTextField(
