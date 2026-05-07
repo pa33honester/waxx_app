@@ -58,13 +58,16 @@ class _CartPageState extends State<CartPage> {
         return Shimmers.cartShimmer();
       }
 
+      // Cart is reachable two ways: as a bottom-tab (no previous route to
+      // pop — back should switch to Home tab) and via Get.toNamed from
+      // Buy Now (Product Detail is below — back should pop normally).
+      // canPop reflects which mode we're in.
+      final canPopNow = Navigator.of(context).canPop();
       return PopScope(
-        canPop: false,
+        canPop: canPopNow,
         onPopInvoked: (bool didPop) {
+          if (didPop) return;
           Get.find<BottomBarController>().onChangeBottomBar(0);
-          if (didPop) {
-            return;
-          }
         },
         child: Scaffold(
           appBar: PreferredSize(
@@ -73,7 +76,10 @@ class _CartPageState extends State<CartPage> {
               automaticallyImplyLeading: false,
               backgroundColor: AppColors.transparent,
               shadowColor: AppColors.black.withValues(alpha: 0.4),
-              flexibleSpace: CartAppBarWidget(title: St.cartTitle.tr),
+              flexibleSpace: CartAppBarWidget(
+                title: St.cartTitle.tr,
+                showBack: canPopNow,
+              ),
             ),
           ),
           body: Padding(
@@ -190,9 +196,10 @@ class _CartPageState extends State<CartPage> {
 }
 
 class CartAppBarWidget extends StatelessWidget {
-  const CartAppBarWidget({super.key, required this.title});
+  const CartAppBarWidget({super.key, required this.title, this.showBack = false});
 
   final String title;
+  final bool showBack;
 
   @override
   Widget build(BuildContext context) {
@@ -201,17 +208,25 @@ class CartAppBarWidget extends StatelessWidget {
       child: Container(
         color: AppColors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-        child: Center(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Center(
+              child: Text(
                 title,
                 style: AppFontStyle.styleW900(AppColors.white, 18),
               ),
-            ],
-          ),
+            ),
+            if (showBack)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  onPressed: () => Get.back(),
+                  icon: Icon(Icons.arrow_back_ios_new, color: AppColors.white, size: 20),
+                  tooltip: 'Back',
+                ),
+              ),
+          ],
         ),
       ),
     );

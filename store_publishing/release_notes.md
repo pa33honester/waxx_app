@@ -12,6 +12,21 @@ Two product-direction tweaks bundled on top of the v1.1.4+21 cut, shipped as a s
 
 **Files touched**: `lib/View/MyApp/AppPages/product_detail.dart` (added `_quantity` state + `_buildQuantitySelector()` widget; `addToCart()` passes `productQuantity: _quantity`; `onBuyNow()` navigates to `/CartPage` instead of `/CheckOut`).
 
+**Phone number on Checkout's Delivery Location card**
+
+The Address model has no phone field, but the seller still wants the buyer's contact number visible at checkout. Surfaced the buyer's signup `mobileNumber` + `dialCode` (already in global state from login) below the address text, with a phone-icon prefix. Hidden when no address is selected or the user has no phone on file. No backend change.
+
+**Files touched**: `lib/View/MyApp/AppPages/cheak_out.dart` (new `_buildContactPhone()` helper + phone row inside the Delivery Location `Container`).
+
+**Cart back arrow + system-back routing for Buy Now → Cart**
+
+The Cart page is reached two ways: as a bottom-tab (no previous route — back should switch to Home tab, the existing `BottomBarController.onChangeBottomBar(0)` behavior) and via `Get.toNamed("/CartPage")` from Buy Now (Product Detail is below — back should pop normally back to the product). The previous build hard-coded `PopScope(canPop: false)` and rendered no back arrow, leaving Buy Now buyers trapped on Cart.
+
+- The `PopScope` now uses `Navigator.canPop(context)` so system-back pops normally when there's a route below, and falls through to the home-tab switch only on the bottom-tab path.
+- `CartAppBarWidget` accepts an optional `showBack` flag and renders a left-aligned back arrow that calls `Get.back()` when set. The cart-tab presentation still has no arrow (canPop is false there).
+
+**Files touched**: `lib/View/MyApp/AppPages/cart_page.dart` (`PopScope.canPop` derived from `Navigator.canPop(context)`; `CartAppBarWidget` gains `showBack` param and renders an `IconButton(arrow_back_ios_new)` when true).
+
 **No backend changes. No version bump.** Rebuild and re-upload `app-release.aab` on build number 21.
 
 ---

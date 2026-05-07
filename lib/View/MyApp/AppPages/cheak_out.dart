@@ -325,6 +325,20 @@ class _CheckOutState extends State<CheckOut> {
                                             _buildAddressString(),
                                             style: AppFontStyle.styleW500(AppColors.unselected, 12),
                                           ),
+                                    if (getOnlySelectedUserAddressController.userAddressSelect?.address != null &&
+                                        _buildContactPhone().isNotEmpty) ...[
+                                      6.height,
+                                      Row(
+                                        children: [
+                                          Icon(Icons.phone_outlined, color: AppColors.unselected, size: 12),
+                                          6.width,
+                                          Text(
+                                            _buildContactPhone(),
+                                            style: AppFontStyle.styleW500(AppColors.unselected, 12),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ),
@@ -912,6 +926,15 @@ class _CheckOutState extends State<CheckOut> {
         // Obx(() => createOrderByUserController.isLoading.value || stripePayService.isStripeLoading.value || flutterWaveService.isFlutterWaveLoading.value ? ScreenCircular.blackScreenCircular() : const SizedBox.shrink())
       ],
     );
+  }
+
+  String _buildContactPhone() {
+    final number = mobileNumber.trim();
+    if (number.isEmpty) return "";
+    final code = (dialCode ?? "").trim();
+    if (code.isEmpty) return number;
+    final prefix = code.startsWith("+") ? code : "+$code";
+    return "$prefix $number";
   }
 
   String _buildAddressString() {
