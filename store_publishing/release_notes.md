@@ -1,6 +1,20 @@
 # Release Notes — Waxx App
 
 ---
+## 🛠 v1.1.4+21 — Follow-up patch (no version bump, rebuild on same build number)
+
+**Buy Now flow change + product-detail quantity counter**
+
+Two product-direction tweaks bundled on top of the v1.1.4+21 cut, shipped as a same-version rebuild:
+
+- **Buy Now now lands on Cart, not Checkout.** Tapping Buy Now on Product Detail still adds the product to cart, but the post-add navigation goes to `/CartPage` instead of `/CheckOut`. Buyers review the cart (line items + per-item delivery picker + promo input) and tap Checkout from there. This restores the "review before pay" step that the v1.1.4 fast lane bypassed when going directly to Checkout. The cart-tab Continue → Paystack auto-launch is unchanged — only the Buy Now entry point shifts.
+- **Quantity selector on Product Detail.** A new "Quantity − N +" row sits above the Buy Now / Add to Cart action buttons. Both buttons honour the chosen quantity (was hardcoded to 1). Min is 1; no upper cap (matching cart-page UX). Resets to 1 each time the page is opened.
+
+**Files touched**: `lib/View/MyApp/AppPages/product_detail.dart` (added `_quantity` state + `_buildQuantitySelector()` widget; `addToCart()` passes `productQuantity: _quantity`; `onBuyNow()` navigates to `/CartPage` instead of `/CheckOut`).
+
+**No backend changes. No version bump.** Rebuild and re-upload `app-release.aab` on build number 21.
+
+---
 ## ⚡ Version 1.1.4+21 — Buy Now → Paystack fast lane + checkout polish + support chat read receipts
 
 **Version:** 1.1.4

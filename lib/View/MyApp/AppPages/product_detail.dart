@@ -63,6 +63,7 @@ class _ProductDetailState extends State<ProductDetail> {
   int click = 0;
   int click1 = 0;
   bool _isFlipped = false;
+  int _quantity = 1;
 
   final categoryDropdownController = DropdownController();
 
@@ -95,7 +96,7 @@ class _ProductDetailState extends State<ProductDetail> {
     }).toList();
 
     await addProductToCartController.addProductToCartData(
-      productQuantity: 1,
+      productQuantity: _quantity,
       attributes: attributesArray,
     );
     return;
@@ -141,24 +142,7 @@ class _ProductDetailState extends State<ProductDetail> {
       displayToast(message: St.pleaseFillAllAttributes.tr, isBottomToast: true);
       return;
     }
-    // Buy Now bypasses /CheckOut entirely (per product direction). The
-    // promo-code input + delivery-option picker that Checkout normally
-    // exposes aren't reachable on this fast path — Buy Now uses
-    // whatever default delivery option the cart auto-picks (first
-    // available, applied by resolveCartShipping on the backend) and
-    // does not apply a promo. The cart-tab → Checkout → Pay Now flow
-    // still goes through /CheckOut for full control.
-    //
-    // We need the finalTotal to seed OrderPaymentController's pricing.
-    // Fetch the cart once after addToCart returns so subTotal +
-    // totalShippingCharges reflect the just-added item. The backend's
-    // /order/create looks up the buyer's selected Address server-side,
-    // so we don't need to pass shippingAddress in the route arguments.
     await addToCart();
-    // Surface addToCart failures explicitly — without this check, a
-    // silent backend rejection (e.g. user trying to buy their own
-    // product, blocked user, etc.) would leave the user staring at an
-    // empty Checkout page wondering why nothing happened.
     final cartResp = addProductToCartController.addProductToCart;
     if (cartResp == null || cartResp.status != true) {
       displayToast(
@@ -168,11 +152,7 @@ class _ProductDetailState extends State<ProductDetail> {
       return;
     }
     Get.back();
-    // Restore the Checkout step so the buyer can review the order
-    // (address, total) before paying. The `isBuyNow` flag tells
-    // Checkout's Continue button to skip the payment-method picker
-    // (/PaymentPage's UI) and auto-start Paystack instead.
-    Get.toNamed("/CheckOut", arguments: {"isBuyNow": true});
+    Get.toNamed("/CartPage");
     if (await Vibration.hasVibrator()) {
       Vibration.vibrate();
     }
@@ -186,6 +166,69 @@ class _ProductDetailState extends State<ProductDetail> {
         ? "Check out $productName on Waxxapp"
         : "Check out this product on Waxxapp";
     await CustomShare.onShareApp(context: context);
+  }
+
+  Widget _buildQuantitySelector() {
+    final canDecrement = _quantity > 1;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            St.quantity.tr,
+            style: AppFontStyle.styleW700(
+              isDark.value ? AppColors.white : AppColors.black,
+              14,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: canDecrement
+                      ? () => setState(() => _quantity--)
+                      : null,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColors.black.withValues(
+                        alpha: canDecrement ? 1 : 0.4,
+                      ),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Icon(Icons.remove, color: AppColors.white, size: 14),
+                  ),
+                ),
+                12.width,
+                Text(
+                  _quantity.toString(),
+                  style: AppFontStyle.styleW700(AppColors.black, 14),
+                ),
+                12.width,
+                GestureDetector(
+                  onTap: () => setState(() => _quantity++),
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColors.black,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Icon(Icons.add, color: AppColors.white, size: 14),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   String? _getAddress() {
@@ -871,6 +914,8 @@ class _ProductDetailState extends State<ProductDetail> {
                               children: [
                                 // Make-an-offer button removed when the offer
                                 // feature was retired.
+                                _buildQuantitySelector(),
+                                8.height,
                                 Row(
                               children: [
                                 // GestureDetector(
