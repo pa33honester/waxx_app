@@ -81,16 +81,18 @@ class _CheckOutState extends State<CheckOut> {
     if (args is Map && args["isBuyNow"] == true) {
       isBuyNow = true;
     }
-    // Flip the loading flags synchronously so the body Obx renders
-    // the checkoutShimmer immediately on the first frame. Without
-    // this, the post-frame callback below sets the flags AFTER the
-    // first frame has already rendered the body against still-empty
-    // (or stale) cart data — the user briefly sees an empty page.
-    // The Buy Now flow makes this especially visible because addToCart
-    // is fast and Checkout opens with a singleton cart controller
-    // whose firstLoading is already false from a prior visit.
-    getAllCartProductController.firstLoading.value = true;
-    getOnlySelectedUserAddressController.isLoading.value = true;
+    // NOTE: We can't mutate the controllers' Rx loading flags here
+    // synchronously — these are singletons with Obx subscribers in
+    // other live widgets (e.g. the Cart page below us in the route
+    // stack), and mutating them during initState triggers a
+    // "setState() called during build" assertion when those
+    // subscribers try to rebuild mid-frame. The fetches called by
+    // the post-frame callback below set the flags themselves at the
+    // top of getCartProductData / getOnlySelectedUserAddressData,
+    // which is safe because by then the first frame has rendered.
+    // The brief flash of empty body before the shimmer kicks in is
+    // covered by the empty-cart fallback below — if items is empty
+    // after the fetch, we pop back rather than leaving a blank page.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await getAllCartProductController.getCartProductData();
       await getOnlySelectedUserAddressController.getOnlySelectedUserAddressData();
