@@ -157,6 +157,15 @@ class SupportChatController extends GetxController {
     // local append. Drop dupes by message id.
     if (msg.id != null && messages.any((m) => m.id == msg.id)) return;
     messages.add(msg);
+    // If a brand-new ADMIN message just landed while we have the chat
+    // open, fire a live mark-read so the admin's UI flips ✓→✓✓.
+    // Without this, only messages received before opening the chat get
+    // marked read (via the myConversation HTTP endpoint).
+    if (msg.senderType == "admin" &&
+        _conversationId != null &&
+        _conversationId!.isNotEmpty) {
+      SocketServices.onSupportMarkRead(conversationId: _conversationId!);
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
 

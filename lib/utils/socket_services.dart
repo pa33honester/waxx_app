@@ -443,6 +443,23 @@ class SocketServices {
     }
   }
 
+  // Live mark-as-read — fired when a new admin message lands while the
+  // buyer is actively viewing the chat. Backend marks all admin-sent
+  // messages as read on the conversation and broadcasts a `supportRead`
+  // back to the room so the admin sees ✓ → ✓✓ in real time.
+  static void onSupportMarkRead({
+    required String conversationId,
+    String readerSide = "user",
+  }) {
+    if (conversationId.isEmpty) return;
+    if (socket != null && socket!.connected) {
+      socket?.emit(
+        "supportMarkRead",
+        jsonEncode({"conversationId": conversationId, "readerSide": readerSide}),
+      );
+    }
+  }
+
   static Future<void> onAddView({
     required String loginUserId,
     required String liveHistoryId,
