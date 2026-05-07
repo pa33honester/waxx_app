@@ -1,6 +1,82 @@
 # Release Notes — Waxx App
 
 ---
+## ⚡ Version 1.1.4+21 — Buy Now → Paystack fast lane + checkout polish + support chat read receipts
+
+**Version:** 1.1.4
+**Build Number:** 21
+**Release Date:** May 2026
+**Type:** Patch cluster on top of v1.1.2+19 / v1.1.3+20 (the +20 cut was a partial fix that bounced users back to Home for Buy Now — superseded by the patches in this cut)
+
+### Suggested Play Console release name
+`v1.1.4 — Buy Now → Paystack one-tap + chat receipts`
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🔧 Update — v1.1.4
+
+⚡ Buy Now → review → straight to Paystack (no extra picker step)
+🛒 Cart Checkout also auto-launches Paystack — fewer taps to pay
+✓✓ Support chat read receipts — see when admin reads your message
+🟢 "Support is online" banner shows when an admin is viewing
+↩️ Cancel from Paystack now correctly returns to Checkout
+🛍 Complete Seller form: Momo Number / Network Name / Momo Name labels
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🆕 New features in v1.1.4
+
+**Buy Now → review → Paystack (no payment-method picker)**
+- Tapping Buy Now on Product Detail now goes through Checkout (so the buyer can review address, line items, and totals) and then directly into Paystack on Continue. The `/PaymentPage` payment-method picker is hidden when `autoStartGateway` is set.
+- Same fast path for **cart-tab** purchases — Cart → Checkout → Continue → Paystack opens immediately. Payment-method tiles + Pay Now button are hidden in this mode; users see "Opening Paystack…" briefly, then the Paystack webview.
+- `paymentReference` is threaded through end-to-end so the backend webhook (`/payment/paystack/webhook`) can mark the order paid even if the app dies mid-checkout.
+- Easy to revert when other gateways are turned on for a market: drop the `"autoStartGateway": "Paystack"` key from Checkout's Continue button — the picker comes back unchanged.
+
+**Customer-support chat — WhatsApp-style read receipts + presence**
+- Each user-sent bubble shows ✓ (sent) or ✓✓ (read by admin). The double-tick flips sky-blue when an admin opens the conversation OR receives a new message while already viewing it.
+- Same on the admin React panel — admin-sent bubbles show ✓/✓✓ for "read by user".
+- New "Support is online" banner with a green dot shows on the buyer's chat view while an admin has the conversation open. Clears when the admin closes the thread, switches threads, or leaves the inbox page.
+- Live mark-read: a new `supportMarkRead` socket event fires whenever an opposite-side message lands during an active session, so receipts flip in real time without re-opening the chat.
+
+#### 🐛 Bug fixes in v1.1.4
+
+| Issue | Fix |
+|---|---|
+| **Buy Now took users back to Home instead of opening Pay Now** (introduced in v1.1.2+19's fast-path commit) | The route name was wrong — I shipped `/OrderPayment`, the actual route is `/PaymentPage`. GetX silently falls back to the unknown-route handler (which lands on Home) when you `Get.toNamed` an unregistered name. Switched to `/PaymentPage` — same route Cart's existing Continue button uses. |
+| **Cart-tab → Checkout crashed with "setState() called during build"** | The earlier "show shimmer immediately" fix mutated the singleton cart controller's `firstLoading.value = true` synchronously in Checkout's initState. Cart page was still in the route stack below with an Obx subscribed to that flag, and Flutter rejected the mid-build dirty-mark. Reverted; the empty-cart fallback now handles the underlying "blank Checkout" symptom by popping back if items are empty. |
+| **Checkout body crashed with "Null check operator used on a null value" inside GetBuilder** | The four `GetBuilder<GetAllCartProductController>` wrappers I added (Order Info, Sub Total, Shipping charge, Total) relied on Get's implicit `Get.find`. The Get package's internal `!` unwrap on the find path tripped a null even though the controller was registered. Pass `init: getAllCartProductController` to all four GetBuilders. |
+| **Pressing back from Paystack webview left users stuck on "Opening Paystack…" forever** | `paystack_for_flutter` 1.0.4 closes the webview on Android system-back without firing `onSuccess` OR `onCancelled` — `pay()` just returns silently. Added a `paystackHandled` flag set inside each callback; if `pay()` resolves with the flag still false, treat as cancel and pop `/PaymentPage`. |
+| **Email "Open the app" CTA opened the backend website instead of the app** | The `sellerApproved` + `productApproved` templates had `ctaUrl: config.baseURL || ""` which resolves to the backend root. Replaced with a hardened `appOpenLink()` helper that returns the Play Store URL by default and rejects backend-domain overrides if `global.settingJSON.appOpenLink` somehow contains them. |
+| **Empty Checkout page after Buy Now when add-to-cart silently failed** | `addProductToCartData` swallowed backend rejections (e.g. user trying to buy own product, blocked accounts, network errors); Buy Now navigated to /CheckOut with an unchanged cart. `onBuyNow` now checks the response status and toasts the rejection message before navigating. Checkout's initState also pops back with an empty-cart toast if the fetch returns no items. |
+| **Complete Seller form had pre-momo placeholders** | "Enter account number", "Enter Ifsc", "Enter branch" → "Enter Momo Number", "Enter Network Name", "Enter Momo Name" (English only; the 18 other locales still carry the old strings as a known follow-up). |
+
+#### 📁 Files Changed (relative to 1.1.2+19)
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.1.2+19` → `1.1.4+21`; `+20` was a partial fix superseded by the patches in this cut) |
+| Buy Now → Paystack fast lane | `lib/View/MyApp/AppPages/product_detail.dart` (`onBuyNow` checks addToCart success + navigates to `/CheckOut` with `isBuyNow: true`), `lib/View/MyApp/AppPages/cheak_out.dart` (`autoStartGateway: "Paystack"` always passed on Continue), `lib/seller_pages/order_payment_page/controller/order_payment_controller.dart` (auto-fires Paystack on init when `autoStartGateway` set; silent-return fallback for system-back), `lib/seller_pages/order_payment_page/view/order_payment_view.dart` (hides picker tiles + Pay Now button in autoStart mode, shows "Opening Paystack…" spinner), `lib/PaymentMethod/paystack/paystack_service.dart` (new `onCancelled` callback) |
+| Checkout reactivity | `lib/View/MyApp/AppPages/cheak_out.dart` (4 GetBuilders pass `init:` explicitly; empty-cart fallback in initState; `isBuyNow` flag from Get.arguments) |
+| Support chat read receipts | `backend/server/support/support.controller.js` (`supportRead` broadcast on user/admin open), `backend/socket.js` (new `supportMarkRead` socket handler for live read-receipts), `lib/utils/socket_services.dart` (`supportReadStream` + `onSupportMarkRead` emit helper), `lib/user_pages/support_chat/controller/support_chat_controller.dart` (live mark-read on incoming admin messages + presence + tick state), `lib/user_pages/support_chat/view/support_chat_view.dart` (✓ / ✓✓ rendering + "Support is online" banner), `frontend/src/Component/Table/support/SupportInbox.js` (presence emit + tick rendering + live mark-read on incoming user messages + `type="button"` on every button to fix reload-on-send) |
+| Email CTA hardening | `backend/util/emailSender.js` (defensive `appOpenLink()` rejects backend-domain overrides), `backend/package.json` (`1.18.x` → `1.19.x`) |
+| Complete Seller momo placeholders | `lib/localization/language/english_language.dart` |
+
+#### 🚀 Deploy checklist for v1.1.4
+
+1. `git pull` in `waxxapp_admin/backend` and `pm2 restart backend` so the support read-receipt socket handler + the hardened email link are live.
+2. `cd waxxapp_admin/frontend && npm install --f && ./deploy.sh` so the admin panel's read-receipts + tick rendering land. (Or rely on the GitHub Action — already wired.)
+3. Upload `app-release.aab` (1.1.4+21) to the Production track.
+4. Smoke test on the new build:
+   - Buy Now → Checkout → Continue → Paystack webview opens.
+   - Press back from Paystack → returns to Checkout (not stuck on spinner).
+   - Buy Now on a product the buyer can't add to cart (e.g. their own listing) → toast surfaces the rejection, no blank Checkout.
+   - Cart-tab → Checkout → Continue → Paystack webview opens.
+   - Help & Support chat: send a message → ✓ (sent). Open admin panel and read it → ✓✓ (sky blue). Send another while admin is still viewing → also ticks to ✓✓ in real time.
+
+---
 ## ⚡ Version 1.1.2+19 — Buy Now fast path + city is free-text + empty Checkout fix
 
 **Version:** 1.1.2
