@@ -27,6 +27,12 @@ The Cart page is reached two ways: as a bottom-tab (no previous route — back s
 
 **Files touched**: `lib/View/MyApp/AppPages/cart_page.dart` (`PopScope.canPop` derived from `Navigator.canPop(context)`; `CartAppBarWidget` gains `showBack` param and renders an `IconButton(arrow_back_ios_new)` when true).
 
+**New Address — type a custom city when the preset list doesn't have it**
+
+The New Address city picker is keyed off the bundled `country_state_city.json` dataset. Many Ghana cities (and small towns elsewhere) aren't in that dataset, so users either had to pick a wrong approximation or got stuck. Added a "Use '<typed>'" CTA: when the user types a city that doesn't match any preset entry, an `+ add` tile appears in place of the empty-results message. Tapping it accepts the typed value AND persists it to local storage keyed by `customCities|<country>|<state>` so it appears alongside preset cities the next time the picker opens for the same state. The picker also now opens for any selected state (previously gated on `cities.isNotEmpty`), so users can add cities even for states whose preset list is empty.
+
+**Files touched**: `lib/View/MyApp/Profile/MyAddress/new_address.dart` (`_mergeCustomCities()` + `_persistCustomCity()` helpers, custom-entry params on the city sheet call, picker shown for any selected state), `lib/View/MyApp/Profile/MyAddress/widget/address_select_sheet.dart` (new `allowCustomEntry` + `onCustomEntry` params; renders a "Use '<typed>'" tile in the empty-results state).
+
 **No backend changes. No version bump.** Rebuild and re-upload `app-release.aab` on build number 21.
 
 ---

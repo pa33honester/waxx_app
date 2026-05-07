@@ -73,12 +73,48 @@ class _NewAddressState extends State<NewAddress> {
 
   void updateCityData(String selectedStateName) {
     selectedStateData = statesList?.firstWhereOrNull((element) => element.stateName == selectedStateName);
-    city = selectedStateData?.cities?.map((e) => e.cityName.toString()).toList();
+    city = selectedStateData?.cities?.map((e) => e.cityName.toString()).toList() ?? [];
+    _mergeCustomCities();
 
     // Clear city when state changes
     userAddAddressController.myCityController.clear();
 
     setState(() {});
+  }
+
+  String get _customCityKey {
+    final country = userAddAddressController.myCountryController.text.trim();
+    final state = userAddAddressController.myStateController.text.trim();
+    return "customCities|$country|$state";
+  }
+
+  void _mergeCustomCities() {
+    final stored = getStorage.read(_customCityKey);
+    if (stored is List) {
+      final existing = (city ?? <String>[]).map((e) => e.toLowerCase()).toSet();
+      for (final c in stored) {
+        if (c is String && !existing.contains(c.toLowerCase())) {
+          city ??= [];
+          city!.add(c);
+          existing.add(c.toLowerCase());
+        }
+      }
+    }
+  }
+
+  void _persistCustomCity(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
+    final stored = getStorage.read(_customCityKey);
+    final List<String> list = (stored is List)
+        ? stored.whereType<String>().toList()
+        : <String>[];
+    if (list.any((e) => e.toLowerCase() == trimmed.toLowerCase())) return;
+    list.add(trimmed);
+    getStorage.write(_customCityKey, list);
+    if (city != null && !city!.any((e) => e.toLowerCase() == trimmed.toLowerCase())) {
+      city!.add(trimmed);
+    }
   }
 
   // void updateStatesData(String selectedCountry) {
@@ -297,7 +333,7 @@ class _NewAddressState extends State<NewAddress> {
                       const SizedBox(height: 18),
                     },
 
-                    if (selectedStateData != null && selectedStateData!.cities != null && selectedStateData!.cities!.isNotEmpty) ...{
+                    if (selectedStateData != null) ...{
                       PrimaryTextField(
                         titleText: St.cityTFTitle.tr,
                         readOnly: true,
@@ -306,6 +342,12 @@ class _NewAddressState extends State<NewAddress> {
                         suffixIcon: Icon(Icons.keyboard_arrow_down_outlined, color: Colors.grey.shade400),
                         onTap: () {
                           if (userAddAddressController.myCountryController.text.isNotEmpty && userAddAddressController.myStateController.text.isNotEmpty) {
+                            // Re-merge any persisted custom cities every time
+                            // the picker opens — earlier saves on this device
+                            // for the same country/state should always be in
+                            // the list, even if the user navigated away and
+                            // came back.
+                            _mergeCustomCities();
                             addressSelectSheet(
                                 isStateValue: true,
                                 onStateTap: (value) {
@@ -318,6 +360,11 @@ class _NewAddressState extends State<NewAddress> {
                                 userAddAddressController: userAddAddressController,
                                 onTap: (value) {
                                   userAddAddressController.myCityController.text = value;
+                                },
+                                allowCustomEntry: true,
+                                onCustomEntry: (value) {
+                                  _persistCustomCity(value);
+                                  setState(() {});
                                 });
                           } else if (userAddAddressController.myCountryController.text.isEmpty && userAddAddressController.myStateController.text.isEmpty) {
                             displayToast(message: "Please Select country and state");

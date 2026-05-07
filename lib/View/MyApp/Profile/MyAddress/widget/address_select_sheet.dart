@@ -22,7 +22,9 @@ addressSelectSheet(
     required Function onStateTap,
     bool? isStateValue,
     String? hintText,
-    bool? updateStateValue}) {
+    bool? updateStateValue,
+    bool allowCustomEntry = false,
+    Function(String)? onCustomEntry}) {
   log("list>>>:${countries?.toList()}");
   searchCountryList?.clear();
   controller?.text = "";
@@ -108,7 +110,37 @@ addressSelectSheet(
                             },
                           )
                         : (controller?.text.isNotEmpty ?? true)
-                            ? Center(child: Text(St.noDataFound.tr))
+                            ? (allowCustomEntry && (controller?.text.trim().isNotEmpty ?? false))
+                                ? ListView(
+                                    shrinkWrap: true,
+                                    children: [
+                                      ListTile(
+                                        leading: Icon(Icons.add_circle_outline, color: AppColors.primary),
+                                        title: Text(
+                                          'Use "${controller!.text.trim()}"',
+                                          style: AppFontStyle.styleW500(AppColors.white, 17),
+                                        ),
+                                        subtitle: Text(
+                                          'Add this as a new entry',
+                                          style: AppFontStyle.styleW500(AppColors.unselected, 12),
+                                        ),
+                                        onTap: () {
+                                          final typed = controller.text.trim();
+                                          if (isStateValue == true) {
+                                            userAddAddressController?.stateController.text = typed;
+                                          } else {
+                                            userAddAddressController?.myCountryController.text = typed;
+                                          }
+                                          onTap(typed);
+                                          onStateTap(typed);
+                                          onCustomEntry?.call(typed);
+                                          Get.back();
+                                          FocusManager.instance.primaryFocus?.unfocus();
+                                        },
+                                      ),
+                                    ],
+                                  )
+                                : Center(child: Text(St.noDataFound.tr))
                             : (countries?.isNotEmpty ?? true)
                                 ? ListView.builder(
                                     shrinkWrap: true,
