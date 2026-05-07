@@ -30,6 +30,7 @@ class PaystackService {
   Future<void> pay({
     required int amount,
     required Future<void> Function(String reference) onVerified,
+    void Function()? onCancelled,
   }) async {
     final email = (Database.fetchLoginUserProfileModel?.user?.email ?? "").trim();
 
@@ -39,10 +40,12 @@ class PaystackService {
     // admin Settings page if it's ever exposed.
     if (paystackSecretKey.isEmpty) {
       Utils.showToast("Paystack is not configured. Contact support.");
+      onCancelled?.call();
       return;
     }
     if (email.isEmpty) {
       Utils.showToast("Add an email to your profile to pay with Paystack.");
+      onCancelled?.call();
       return;
     }
 
@@ -87,10 +90,12 @@ class PaystackService {
           await onVerified(paystackCallback.reference);
         } else {
           Utils.showToast("Payment couldn't be verified. Please try again.");
+          onCancelled?.call();
         }
       },
       onCancelled: (paystackCallback) {
         Utils.showLog("Paystack cancelled: ${paystackCallback.reference}");
+        onCancelled?.call();
       },
     );
   }

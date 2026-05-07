@@ -229,9 +229,24 @@ class OrderPaymentController extends GetxController {
             Utils.showLog("Paystack Payment verified by backend, ref=$reference");
             await handlePaymentSuccess("Paystack", paymentStatus, paymentReference: reference);
           },
+          // When the buyer taps back / cancel from the Paystack
+          // checkout webview, pop /PaymentPage too so they don't get
+          // stuck on the "Opening Paystack…" spinner forever (which
+          // happens because /PaymentPage is hidden under the gateway
+          // popup; closing the popup just reveals the spinner). Only
+          // pop in auto-start mode — the manual-pick path leaves the
+          // user on the picker so they can choose another gateway.
+          onCancelled: () {
+            if (autoStartGateway != null && Get.currentRoute == "/PaymentPage") {
+              Get.back();
+            }
+          },
         );
       } catch (e) {
         Utils.showLog("Paystack Payment Failed => $e");
+        if (autoStartGateway != null && Get.currentRoute == "/PaymentPage") {
+          Get.back();
+        }
       }
     }
   }
