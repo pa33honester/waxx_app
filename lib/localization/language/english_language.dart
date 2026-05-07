@@ -142,6 +142,8 @@ final Map<String, String> enUS = {
   "male": "Male",
   "female": "Female",
   "helpAndSupport": "Help and Support",
+  "contactUs": "Contact Us",
+  "customerSupport": "Customer Support",
   "supportEmptyTitle": "Live customer support",
   "supportEmptySubtitle": "Send us a message and our team will get back to you as soon as possible.",
   "supportComposeHint": "Type a message...",

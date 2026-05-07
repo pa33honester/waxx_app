@@ -164,6 +164,8 @@ class St {
   static String male = "male";
   static String female = "female";
   static String helpAndSupport = "helpAndSupport";
+  static String contactUs = "contactUs";
+  static String customerSupport = "customerSupport";
   // Customer-support live chat strings (v1.2 — Live Support feature).
   static String supportEmptyTitle = "supportEmptyTitle";
   static String supportEmptySubtitle = "supportEmptySubtitle";

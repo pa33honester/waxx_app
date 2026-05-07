@@ -51,6 +51,18 @@ A bare `Get.find<GetAllCartProductController>()` deep inside the cart-list and c
 
 **Files touched**: `lib/custom/delivery_options_picker.dart` (`Get.find` → `isRegistered ? find : put` with comment explaining why).
 
+**Three distinct labels for Help / Contact Us / Customer Support**
+
+The Settings page entry, the Profile page entry, and the support-chat AppBar all shared one string key (`helpAndSupport`) and rendered the same label everywhere. Per product direction, each surface now reads differently:
+
+- **Settings → "Help and Support"** — unchanged label, still uses `St.helpAndSupport.tr`. Icon stays as `icHelp` (question-mark / help glyph, fits the FAQ-style "Help and Support" page that opens beneath it).
+- **Profile → "Contact Us"** — new `contactUs` string key + new `ic_phone_mail.webp` icon registered as `AppAsset.icPhoneMail` (the asset already lived in `assets/icons/` but wasn't wired into `app_asset.dart`). The Profile entry that opens the live support chat thread uses both.
+- **Support chat thread AppBar → "Customer Support"** — new `customerSupport` string key. Distinguishes the actual conversation page from the entry-point label that got the user there.
+
+The two new keys are English-only (other 18 locales fall through to displaying the raw key, same known follow-up as the v1.1.4 momo placeholders and `support_*` chat strings).
+
+**Files touched**: `lib/utils/Strings/strings.dart` (new `contactUs` + `customerSupport` keys), `lib/localization/language/english_language.dart` (English values for the new keys), `lib/View/MyApp/Profile/main_profile.dart` (Profile entry switches to `St.contactUs.tr` + `AppAsset.icPhoneMail`), `lib/user_pages/support_chat/view/support_chat_view.dart` (AppBar title switches to `St.customerSupport.tr`), `lib/utils/app_asset.dart` (new `icPhoneMail` constant pointing at `ic_phone_mail.webp`).
+
 **No backend changes. No version bump.** Rebuild and re-upload `app-release.aab` on build number 21.
 
 ---

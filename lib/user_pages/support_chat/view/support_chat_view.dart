@@ -29,7 +29,7 @@ class SupportChatView extends StatelessWidget {
           automaticallyImplyLeading: false,
           backgroundColor: AppColors.transparent,
           surfaceTintColor: AppColors.transparent,
-          flexibleSpace: SimpleAppBarWidget(title: St.helpAndSupport.tr),
+          flexibleSpace: SimpleAppBarWidget(title: St.customerSupport.tr),
         ),
       ),
       body: SafeArea(

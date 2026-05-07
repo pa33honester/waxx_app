@@ -39,6 +39,7 @@ abstract class AppAsset {
   static const String icSecurity = "${getIconsPath}ic_security.webp";
   static const String icPolicies = "${getIconsPath}ic_ policies.webp";
   static const String icHelp = "${getIconsPath}ic_help.webp";
+  static const String icPhoneMail = "${getIconsPath}ic_phone_mail.webp";
 
   static const String icCategory = "${getIconsPath}ic_category.webp";
   static const String icStar_4 = "${getIconsPath}ic_star_4.webp";

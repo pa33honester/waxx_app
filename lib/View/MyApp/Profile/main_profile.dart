@@ -423,8 +423,8 @@ class _MainProfileState extends State<MainProfile> {
                       // entry: the controller bootstraps an existing thread
                       // or mints a fresh one on first tap.
                       ProfileItemWidget(
-                        title: St.helpAndSupport.tr,
-                        icon: AppAsset.icHelp,
+                        title: St.contactUs.tr,
+                        icon: AppAsset.icPhoneMail,
                         iconSize: 23,
                         callback: () => Get.toNamed("/SupportChat"),
                       ),
