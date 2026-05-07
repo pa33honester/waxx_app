@@ -617,6 +617,7 @@ class _CheckOutState extends State<CheckOut> {
                                                           // isLoading) never re-evaluated cart data so the picker
                                                           // visually stayed on its old selection.
                             GetBuilder<GetAllCartProductController>(
+                              init: getAllCartProductController,
                               builder: (cartCtrl) => ListView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
@@ -755,6 +756,7 @@ class _CheckOutState extends State<CheckOut> {
                             // Wrap in GetBuilder so the numbers re-aggregate
                             // when the buyer flips a delivery option.
                             GetBuilder<GetAllCartProductController>(
+                              init: getAllCartProductController,
                               builder: (cartCtrl) => Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -785,6 +787,7 @@ class _CheckOutState extends State<CheckOut> {
                             ],
                             10.height,
                             GetBuilder<GetAllCartProductController>(
+                              init: getAllCartProductController,
                               builder: (cartCtrl) => Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -803,6 +806,7 @@ class _CheckOutState extends State<CheckOut> {
                             // Total row stayed stale even though Sub Total +
                             // Shipping charge above had refreshed.
                             GetBuilder<GetAllCartProductController>(
+                              init: getAllCartProductController,
                               builder: (cartCtrl) {
                                 final sub = (cartCtrl.getAllCartProducts?.data?.subTotal ?? 0).toInt();
                                 final ship = (cartCtrl.getAllCartProducts?.data?.totalShippingCharges ?? 0).toInt();
