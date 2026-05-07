@@ -864,11 +864,17 @@ class _CheckOutState extends State<CheckOut> {
                             "promoCode": getAllPromoCodeController.promoCodeController.text,
                             "selectedPromoCodeId": getAllPromoCodeController.selectedPromoCodeId,
                             "isAuctionPayment": false,
-                            // Buy Now fast path: tells OrderPaymentController
-                            // to auto-launch Paystack on entry (skipping the
-                            // payment-method picker UI). Cart-tab buyers
-                            // still see the picker as before.
-                            if (isBuyNow) "autoStartGateway": "Paystack",
+                            // Always auto-launch Paystack on entry —
+                            // Paystack is the primary (and currently
+                            // only fully-wired) gateway for the Ghana
+                            // market, so the payment-method picker
+                            // adds an extra tap with no real choice.
+                            // Setting this for both Buy Now AND the
+                            // Cart-tab → Checkout path skips that
+                            // picker UI entirely. To re-enable the
+                            // picker later (e.g. once another gateway
+                            // is enabled), drop this key.
+                            "autoStartGateway": "Paystack",
                           },
                         );
                       }
