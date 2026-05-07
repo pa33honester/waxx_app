@@ -30,6 +30,10 @@ class SocketServices {
   // `ever()` and parses + appends. Plain `.obs` so we don't have to
   // import the model class into this file.
   static Rx<dynamic> supportMessageStream = Rx<dynamic>(null);
+  // Presence ping pushed on `supportPresence` events: `{adminPresent,
+  // name, conversationId}`. Buyer's SupportChatController shows a
+  // "Support is online" indicator while adminPresent=true.
+  static Rx<dynamic> supportPresenceStream = Rx<dynamic>(null);
   static ScrollController scrollController = ScrollController();
   static TextEditingController sellerCommentText = TextEditingController();
   static TextEditingController userCommentText = TextEditingController();
@@ -160,6 +164,13 @@ class SocketServices {
     socket!.on("supportMessage", (raw) {
       log("Socket Listen => Support Message : $raw");
       supportMessageStream.value = raw;
+    });
+
+    // Presence ping — admin opened/closed this user's support thread.
+    // SupportChatController flips a "Support is online" banner.
+    socket!.on("supportPresence", (raw) {
+      log("Socket Listen => Support Presence : $raw");
+      supportPresenceStream.value = raw;
     });
 
     socket!.on("endLiveSeller", (liveSellingHistoryId) {
@@ -333,6 +344,7 @@ class SocketServices {
     socket!.off("liveShareCount");
     socket!.off("comment");
     socket!.off("supportMessage");
+    socket!.off("supportPresence");
     socket!.off("endLiveSeller");
     socket!.off("selectedProductsUpdated");
     socket!.off("initiateAuction");

@@ -35,6 +35,33 @@ class SupportChatView extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
+            // Presence banner — visible only while an admin has this
+            // conversation open in the support panel. Reactive: flips
+            // automatically when the admin closes the thread.
+            Obx(() => controller.adminPresent.value
+                ? Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    color: AppColors.primary.withValues(alpha: 0.18),
+                    child: Row(
+                      children: [
+                        Container(
+                          height: 8,
+                          width: 8,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF22C55E), // green dot
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "${controller.adminName.value} is online",
+                          style: AppFontStyle.styleW600(AppColors.white, 12),
+                        ),
+                      ],
+                    ),
+                  )
+                : const SizedBox.shrink()),
             Expanded(
               child: Obx(() {
                 if (controller.isLoading.value) {

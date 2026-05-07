@@ -24,11 +24,18 @@ class SupportChatController extends GetxController {
   final RxList<SupportMessage> messages = <SupportMessage>[].obs;
   final RxBool isLoading = true.obs;
   final RxBool isSending = false.obs;
+  // Presence indicator — flips true while an admin has the buyer's
+  // conversation open in the React panel. The view uses this to render
+  // a "Support is online" banner above the message list so the buyer
+  // knows their messages are being seen in real time.
+  final RxBool adminPresent = false.obs;
+  final RxString adminName = "Support".obs;
   final TextEditingController inputController = TextEditingController();
   final ScrollController scrollController = ScrollController();
 
   String? _conversationId;
   Worker? _socketWorker;
+  Worker? _presenceWorker;
 
   String? get conversationId => _conversationId;
 
@@ -40,17 +47,37 @@ class SupportChatController extends GetxController {
     // closure capturing `this`, but the GetxController lifecycle calls
     // onClose where we dispose the Worker — clean up is automatic.
     _socketWorker = ever<dynamic>(SocketServices.supportMessageStream, _onSocketMessage);
+    _presenceWorker = ever<dynamic>(SocketServices.supportPresenceStream, _onPresence);
   }
 
   @override
   void onClose() {
     _socketWorker?.dispose();
+    _presenceWorker?.dispose();
     if (_conversationId != null && _conversationId!.isNotEmpty) {
       SocketServices.onSupportLeave(conversationId: _conversationId!);
     }
     inputController.dispose();
     scrollController.dispose();
     super.onClose();
+  }
+
+  void _onPresence(dynamic raw) {
+    if (raw == null) return;
+    try {
+      final map = raw is Map ? Map<String, dynamic>.from(raw) : null;
+      if (map == null) return;
+      // Ignore presence pings for OTHER conversations (a buyer should
+      // only have one anyway, but defend just in case the global stream
+      // ever multiplexes).
+      if (_conversationId != null &&
+          (map["conversationId"]?.toString() ?? "") != _conversationId) {
+        return;
+      }
+      adminPresent.value = map["adminPresent"] == true;
+      final n = (map["name"] ?? "").toString().trim();
+      if (n.isNotEmpty) adminName.value = n;
+    } catch (_) {}
   }
 
   Future<void> _bootstrap() async {
