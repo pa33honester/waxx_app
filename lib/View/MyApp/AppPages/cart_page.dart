@@ -30,9 +30,21 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   GalleryCategoryController galleryCategoryController = Get.put(GalleryCategoryController());
-  GetAllCartProductController getAllCartProductController = Get.put(GetAllCartProductController());
-  AddProductToCartController addProductToCartController = Get.put(AddProductToCartController());
-  RemoveProductToCartController removeProductToCartController = Get.put(RemoveProductToCartController());
+  // Guarded find-or-put: when entering Cart via Buy Now, Product
+  // Detail's State already put GetAllCartProductController.
+  // Re-putting here used to replace that singleton, killing the
+  // GetBuilder subscription set up below and breaking the Amount
+  // total recalc on +/-. Use the same pattern for the two cart
+  // mutators so concurrent Cart tab + Buy Now flows don't fight.
+  GetAllCartProductController getAllCartProductController = Get.isRegistered<GetAllCartProductController>()
+      ? Get.find<GetAllCartProductController>()
+      : Get.put(GetAllCartProductController());
+  AddProductToCartController addProductToCartController = Get.isRegistered<AddProductToCartController>()
+      ? Get.find<AddProductToCartController>()
+      : Get.put(AddProductToCartController());
+  RemoveProductToCartController removeProductToCartController = Get.isRegistered<RemoveProductToCartController>()
+      ? Get.find<RemoveProductToCartController>()
+      : Get.put(RemoveProductToCartController());
 
   late int totalQuantity = 1;
   int counter = 0;
@@ -50,8 +62,14 @@ class _CartPageState extends State<CartPage> {
 
   @override
   Widget build(BuildContext context) {
-    Get.put(GetAllCartProductController());
-    return GetBuilder(builder: (GetAllCartProductController getAllCartProductController) {
+    // GetBuilder bound explicitly to the State's controller field via
+    // init: — without this, GetBuilder falls back to Get.find each
+    // rebuild, which can subscribe to a different instance than the
+    // one increment/decrement callbacks hold (especially on the Buy
+    // Now → Cart push, where Product Detail's State also put one).
+    return GetBuilder<GetAllCartProductController>(
+        init: getAllCartProductController,
+        builder: (getAllCartProductController) {
       totalAmount = ((getAllCartProductController.getAllCartProducts?.data?.totalShippingCharges ?? 0) + (getAllCartProductController.getAllCartProducts?.data?.subTotal ?? 0)).toDouble();
 
       if (getAllCartProductController.firstLoading.value == true) {
@@ -267,9 +285,19 @@ class CartListTileWidget extends StatefulWidget {
 }
 
 class _CartListTileWidgetState extends State<CartListTileWidget> {
-  GetAllCartProductController getAllCartProductController = Get.put(GetAllCartProductController());
-  RemoveProductToCartController removeProductToCartController = Get.put(RemoveProductToCartController());
-  AddProductToCartController addProductToCartController = Get.put(AddProductToCartController());
+  // Guarded find-or-put — see _CartPageState for the rationale.
+  // These tiles are rebuilt on every cart fetch; replacing the
+  // singleton each time would invalidate the parent GetBuilder's
+  // subscription and break +/- recalculations.
+  GetAllCartProductController getAllCartProductController = Get.isRegistered<GetAllCartProductController>()
+      ? Get.find<GetAllCartProductController>()
+      : Get.put(GetAllCartProductController());
+  RemoveProductToCartController removeProductToCartController = Get.isRegistered<RemoveProductToCartController>()
+      ? Get.find<RemoveProductToCartController>()
+      : Get.put(RemoveProductToCartController());
+  AddProductToCartController addProductToCartController = Get.isRegistered<AddProductToCartController>()
+      ? Get.find<AddProductToCartController>()
+      : Get.put(AddProductToCartController());
 
   List<dynamic> attributesId = [];
   int localQuantity = 0;

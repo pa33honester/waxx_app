@@ -13,6 +13,7 @@ import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/custom/preview_image_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
 import 'package:waxxapp/seller_pages/live_page/controller/live_controller.dart';
+import 'package:waxxapp/seller_pages/live_page/widget/floating_hearts_overlay.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';
@@ -91,6 +92,13 @@ class LiveUi extends StatelessWidget {
 
           // Bottom gradient overlay
           _buildBottomGradient(),
+
+          // TikTok-style floating hearts. Sits above the gradient
+          // but below the action column / comments / products so
+          // taps don't hit it (FloatingHeartsOverlay also wraps
+          // itself in IgnorePointer for safety). Spawns one heart
+          // per liveLikeCount increase observed on the socket.
+          const FloatingHeartsOverlay(),
 
           // Top bar
           _buildTopBar(context),

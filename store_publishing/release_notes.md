@@ -1,6 +1,49 @@
 # Release Notes — Waxx App
 
 ---
+## 🛠 Version 1.1.7+24 — Cart calc on Buy Now, seller-edit custom city, floating hearts on live
+
+**Version:** 1.1.7
+**Build Number:** 24
+**Release Date:** May 2026
+**Type:** Patch on top of v1.1.6+23
+
+### Suggested Play Console release name
+`v1.1.7 — Cart math fix + floating hearts`
+
+### English (Default)
+
+```
+🔧 Update — v1.1.7
+
+🛒 Cart totals now recalc correctly when reaching Cart via Buy Now
+🏙 Seller "My Address" lets you type a custom city when not in the list
+❤️ Floating hearts on live streams — your taps + every viewer's likes drift up
+```
+
+### 📋 Full Internal Release Notes
+
+#### 🐛 Bug fixes
+
+| Issue | Fix |
+|---|---|
+| **Buy Now → Cart: +/- buttons didn't recalc the Amount total** (worked fine on bottom-tab Cart) | Cascade of `Get.put(GetAllCartProductController())` calls in `_CartPageState` field init, `build()`, and `_CartListTileWidgetState` — each Get.put REPLACED the singleton, killing the parent GetBuilder's subscription. On the Buy Now flow, Product Detail had already put the controller, so Cart's Get.put was the second-or-later replacer; on the bottom-tab flow the State is stable and re-puts don't fire. Switched all three controllers in `cart_page.dart` to guarded `Get.isRegistered ? Get.find : Get.put`, removed the redundant `Get.put` inside `build()`, and added explicit `init: getAllCartProductController` to the `GetBuilder`. Same root cause as the saved `feedback_get_find_in_descendants.md` memory. |
+| **Seller "My Address" couldn't add a city not in the preset list** (the user-side New Address / Update Address pages already had the "Use '<typed>'" CTA from v1.1.5) | Mirrored the same pattern on `seller_edit_address.dart`: added `_mergeCustomCities()` + `_persistCustomCity()` helpers, wired `allowCustomEntry: true` + `onCustomEntry` into the city sheet. Custom cities persist to local storage keyed by `customCities|<country>|<state>` so they appear alongside preset cities the next time the picker opens for the same state. |
+
+#### 🆕 New on live streams
+
+**Floating hearts** — TikTok-style. Whenever the room-wide `liveLikeCount` socket event ticks up (your tap or any other viewer's), a heart spawns near the bottom-right and drifts up ~55% of screen height with a sin-wave lateral sway, fades out. Up to 5 hearts per delta to keep catch-up bursts from flooding the scene. Varied size + colour palette (pink / red / orange / amber / brand blue). Wrapped in `IgnorePointer` so taps fall through to the action column / comments below.
+
+#### 📁 Files Changed (relative to 1.1.6+23)
+
+- `lib/View/MyApp/AppPages/cart_page.dart` — guarded find-or-put for the three cart controllers (page-level + tile-level), `init:` on the parent `GetBuilder`, removed redundant `Get.put` inside `build()`.
+- `lib/View/MyApp/Seller/SellerProfile/seller_edit_address.dart` — `_mergeCustomCities` / `_persistCustomCity` helpers, `allowCustomEntry: true` + `onCustomEntry` on the city sheet, `getStorage` import.
+- `lib/seller_pages/live_page/widget/floating_hearts_overlay.dart` (new) — listens to `SocketServices.liveLikeCount`, spawns animated hearts on every increase. Owns its own AnimationControllers + cleans them up on dispose.
+- `lib/seller_pages/live_page/widget/live_widget.dart` — mounts `FloatingHeartsOverlay` in the LiveUi root Stack between the gradient and the action column.
+
+**No backend changes.**
+
+---
 ## 🛡 Version 1.1.6+23 — Selfie verification (admin-issued blue tick) + private storage for KYC docs
 
 **Version:** 1.1.6

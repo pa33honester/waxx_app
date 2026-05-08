@@ -9,6 +9,7 @@ import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/model/ConutryDataModel.dart' as country_data;
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/textfields.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/Theme/theme_service.dart';
 import 'package:waxxapp/utils/Zego/ZegoUtils/device_orientation.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/font_style.dart';
@@ -61,9 +62,45 @@ class _SellerEditAddressState extends State<SellerEditAddress> {
   List<String>? city = [];
   void updateCityData(String selectedStateName) {
     country_data.StateData? tempData = statesList?.firstWhereOrNull((element) => element.stateName == selectedStateName);
-    city = tempData?.cities?.map((e) => e.cityName.toString()).toList();
+    city = tempData?.cities?.map((e) => e.cityName.toString()).toList() ?? [];
+    _mergeCustomCities();
 
     setState(() {});
+  }
+
+  String get _customCityKey {
+    final country = sellerEditProfileController.countryController.text.trim();
+    final state = sellerEditProfileController.stateCountroller.text.trim();
+    return "customCities|$country|$state";
+  }
+
+  void _mergeCustomCities() {
+    final stored = getStorage.read(_customCityKey);
+    if (stored is List) {
+      final existing = (city ?? <String>[]).map((e) => e.toLowerCase()).toSet();
+      for (final c in stored) {
+        if (c is String && !existing.contains(c.toLowerCase())) {
+          city ??= [];
+          city!.add(c);
+          existing.add(c.toLowerCase());
+        }
+      }
+    }
+  }
+
+  void _persistCustomCity(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
+    final stored = getStorage.read(_customCityKey);
+    final List<String> list = (stored is List)
+        ? stored.whereType<String>().toList()
+        : <String>[];
+    if (list.any((e) => e.toLowerCase() == trimmed.toLowerCase())) return;
+    list.add(trimmed);
+    getStorage.write(_customCityKey, list);
+    if (city != null && !city!.any((e) => e.toLowerCase() == trimmed.toLowerCase())) {
+      city!.add(trimmed);
+    }
   }
 
   @override
@@ -172,6 +209,7 @@ class _SellerEditAddressState extends State<SellerEditAddress> {
                   onTap: () {
                     if (sellerEditProfileController.countryController.text.isNotEmpty &&
                         sellerEditProfileController.stateCountroller.text.isNotEmpty) {
+                      _mergeCustomCities();
                       addressSelectSheet(
                           updateStateValue: true,
                           isStateValue: true,
@@ -183,7 +221,12 @@ class _SellerEditAddressState extends State<SellerEditAddress> {
                           countries: city,
                           controller: sheetCityController,
                           userAddAddressController: userAddAddressController,
-                          onTap: (value) {});
+                          onTap: (value) {},
+                          allowCustomEntry: true,
+                          onCustomEntry: (value) {
+                            _persistCustomCity(value);
+                            setState(() {});
+                          });
                     } else if (sellerEditProfileController.countryController.text.isEmpty &&
                         sellerEditProfileController.stateCountroller.text.isEmpty) {
                       displayToast(message: "Please Select country and state");
