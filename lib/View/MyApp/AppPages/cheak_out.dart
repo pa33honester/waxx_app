@@ -13,7 +13,6 @@ import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_asset.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/font_style.dart';
-import 'package:waxxapp/utils/database.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
 import 'package:waxxapp/utils/shimmers.dart';
 import 'package:waxxapp/utils/show_toast.dart';
@@ -930,37 +929,21 @@ class _CheckOutState extends State<CheckOut> {
   }
 
   String _buildContactPhone() {
-    // Preference order:
-    // 1. Per-address phoneNumber the buyer set on this delivery
-    //    address (recipient may differ from the signup user — e.g.
-    //    shipping to a friend / office).
-    // 2. The user's signup mobileNumber from the global (set on
-    //    login).
-    // 3. The freshly-loaded profile model — covers existing sessions
-    //    where login_controller hadn't yet captured the global.
+    // Per product direction: the Delivery Location card shows ONLY
+    // the phone number saved on the selected address. No fallback to
+    // the buyer's signup mobile — buyers shipping to someone else
+    // shouldn't have their personal number leak through, and the
+    // recipient phone is the one a courier needs.
+    //
+    // When the selected address has no phoneNumber set, return "" so
+    // the phone row in the card hides itself (it's gated on
+    // _buildContactPhone().isNotEmpty).
     final addressPhone = (getOnlySelectedUserAddressController
                 .userAddressSelect?.address?.phoneNumber ??
             "")
         .toString()
         .trim();
-    if (addressPhone.isNotEmpty) {
-      // Per-address numbers are stored exactly as the user typed
-      // them (often already including the dial code), so don't
-      // prepend anything.
-      return addressPhone;
-    }
-
-    final profile = Database.fetchLoginUserProfileModel?.user;
-    final number = mobileNumber.trim().isNotEmpty
-        ? mobileNumber.trim()
-        : (profile?.mobileNumber ?? "").toString().trim();
-    if (number.isEmpty) return "";
-    final rawCode = (dialCode != null && dialCode!.trim().isNotEmpty)
-        ? dialCode!.trim()
-        : (profile?.countryCode ?? "").toString().trim();
-    if (rawCode.isEmpty) return number;
-    final prefix = rawCode.startsWith("+") ? rawCode : "+$rawCode";
-    return "$prefix $number";
+    return addressPhone;
   }
 
   String _buildAddressString() {
