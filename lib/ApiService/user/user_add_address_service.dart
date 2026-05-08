@@ -15,6 +15,7 @@ class UserAddAddressApi extends GetxService {
     required String city,
     required String zipCode,
     required String address,
+    String? phoneNumber,
   }) async {
     final url = Uri.parse(Api.baseUrl + Api.userAddAddress);
 
@@ -26,6 +27,9 @@ class UserAddAddressApi extends GetxService {
       'city': city,
       'zipCode': zipCode,
       'address': address,
+      // Send "" when blank — backend normalises empty → null on save
+      // so the schema's default (null) takes effect.
+      'phoneNumber': phoneNumber ?? '',
     });
 
     log("call <<<<<<<<<<$body");

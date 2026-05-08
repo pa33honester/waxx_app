@@ -17,6 +17,7 @@ class UserUpdateAddressApi extends GetxService {
     required String city,
     required String zipCode,
     required String address,
+    String? phoneNumber,
   }) async {
     // String uri = Api.getDomainFromURL(Api.baseUrl);
     // var params = {
@@ -36,6 +37,8 @@ class UserUpdateAddressApi extends GetxService {
       'city': city,
       'zipCode': zipCode,
       'address': address,
+      // Send "" when blank — backend normalises empty → null on save.
+      'phoneNumber': phoneNumber ?? '',
     });
 
     final headers = {

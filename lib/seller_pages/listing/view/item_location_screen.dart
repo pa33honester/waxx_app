@@ -150,7 +150,7 @@ class ItemLocationScreen extends StatelessWidget {
                   ),
                   25.height,
                 },
-                if (controller.selectedStateData != null && controller.selectedStateData!.cities != null && controller.selectedStateData!.cities!.isNotEmpty) ...{
+                if (controller.selectedStateData != null) ...{
                   Text(
                     St.city.tr,
                     style: AppFontStyle.styleW500(AppColors.white, 14),
@@ -159,6 +159,7 @@ class ItemLocationScreen extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       if (controller.countryController.text.isNotEmpty && controller.stateController.text.isNotEmpty) {
+                        controller.mergeCustomCities();
                         addressSelectSheet(
                             updateStateValue: true,
                             isStateValue: true,
@@ -170,7 +171,11 @@ class ItemLocationScreen extends StatelessWidget {
                             countries: controller.city,
                             controller: controller.cityController,
                             // userAddAddressController: userAddAddressController,
-                            onTap: (value) {});
+                            onTap: (value) {},
+                            allowCustomEntry: true,
+                            onCustomEntry: (value) {
+                              controller.persistCustomCity(value);
+                            });
                       } else if (controller.countryController.text.isEmpty && controller.stateController.text.isEmpty) {
                         displayToast(message: St.pleaseSelectCountryAndState.tr);
                       } else if (controller.stateController.text.isEmpty) {

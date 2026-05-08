@@ -27,9 +27,11 @@ class UpdateAddress extends StatefulWidget {
   final String? getCity;
   final int? getZipCode;
   final String? getAddress;
+  final String? getPhoneNumber;
   const UpdateAddress({
     Key? key,
     this.getAddress,
+    this.getPhoneNumber,
     this.getName,
     this.getCountry,
     this.getState,
@@ -130,6 +132,7 @@ class _UpdateAddressState extends State<UpdateAddress> {
     userAddAddressController.myCountryController.text = widget.getCountry ?? "";
     userAddAddressController.myStateController.text = widget.getState ?? "";
     userAddAddressController.myCityController.text = widget.getCity ?? "";
+    userAddAddressController.phoneNumberController.text = widget.getPhoneNumber ?? "";
 
     loadJsonData();
   }
@@ -281,6 +284,16 @@ class _UpdateAddressState extends State<UpdateAddress> {
                   titleText: St.zipCode.tr,
                   hintText: St.zipCodeHintText.tr,
                   controllerType: "ZipCode",
+                ),
+                const SizedBox(height: 25),
+                // Optional per-address contact phone. Buyers can use
+                // this to ship to a friend / office without changing
+                // their signup phone. Checkout's Delivery Location
+                // card prefers this over the user's signup mobile.
+                PrimaryTextField(
+                  titleText: "Phone Number",
+                  hintText: "Enter contact phone number",
+                  controllerType: "UserPhoneNumber",
                 ),
                 const SizedBox(height: 25),
                 Padding(

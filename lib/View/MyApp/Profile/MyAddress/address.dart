@@ -220,6 +220,7 @@ class _UserAddressState extends State<UserAddress> {
                                                                       getCity: data.city,
                                                                       getZipCode: data.zipCode,
                                                                       getAddress: data.address,
+                                                                      getPhoneNumber: data.phoneNumber,
                                                                     ))?.then((value) => getAllUserAddressController.getAllUserAddressData(load: true));
                                                               },
                                                         child: Container(

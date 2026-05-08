@@ -21,9 +21,19 @@ class UserUpdateAddressController extends GetxController {
     required String city,
     required String zipCode,
     required String address,
+    String? phoneNumber,
   }) async {
     try {
-      var data = await UserUpdateAddressApi().userUpdateAddress(userId: userId, name: name, country: country, state: state, city: city, zipCode: zipCode, address: address);
+      var data = await UserUpdateAddressApi().userUpdateAddress(
+        userId: userId,
+        name: name,
+        country: country,
+        state: state,
+        city: city,
+        zipCode: zipCode,
+        address: address,
+        phoneNumber: phoneNumber,
+      );
       userAddAddress = data;
       if (userAddAddress!.status == true) {
         addressId = userAddAddress!.address!.id.toString();
@@ -48,7 +58,15 @@ class UserUpdateAddressController extends GetxController {
       /// **************** API CALLING *****************\\\
       displayToast(message: St.pleaseWaitToast.tr);
       await userUpdateAddressData(
-          userId: loginUserId, name: userAddAddressController.nameController.text, country: country, state: state, city: city, zipCode: userAddAddressController.zipCodeController.text, address: userAddAddressController.addressController.text);
+        userId: loginUserId,
+        name: userAddAddressController.nameController.text,
+        country: country,
+        state: state,
+        city: city,
+        zipCode: userAddAddressController.zipCodeController.text,
+        address: userAddAddressController.addressController.text,
+        phoneNumber: userAddAddressController.phoneNumberController.text.trim(),
+      );
       if (userAddAddress?.status == true) {
         Get.back();
         displayToast(message: "Address update successfully");

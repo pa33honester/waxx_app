@@ -70,6 +70,7 @@ class Address {
     String? city,
     int? zipCode,
     String? address,
+    String? phoneNumber,
     String? createdAt,
     String? updatedAt,
   }) {
@@ -82,6 +83,7 @@ class Address {
     _city = city;
     _zipCode = zipCode;
     _address = address;
+    _phoneNumber = phoneNumber;
     _createdAt = createdAt;
     _updatedAt = updatedAt;
   }
@@ -96,6 +98,7 @@ class Address {
     _city = json['city'];
     _zipCode = json['zipCode'];
     _address = json['address'];
+    _phoneNumber = json['phoneNumber'];
     _createdAt = json['createdAt'];
     _updatedAt = json['updatedAt'];
   }
@@ -109,6 +112,7 @@ class Address {
   String? _city;
   int? _zipCode;
   String? _address;
+  String? _phoneNumber;
   String? _createdAt;
   String? _updatedAt;
 
@@ -122,6 +126,7 @@ class Address {
     String? city,
     int? zipCode,
     String? address,
+    String? phoneNumber,
     String? createdAt,
     String? updatedAt,
   }) =>
@@ -135,6 +140,7 @@ class Address {
         city: city ?? _city,
         zipCode: zipCode ?? _zipCode,
         address: address ?? _address,
+        phoneNumber: phoneNumber ?? _phoneNumber,
         createdAt: createdAt ?? _createdAt,
         updatedAt: updatedAt ?? _updatedAt,
       );
@@ -157,6 +163,8 @@ class Address {
 
   String? get address => _address;
 
+  String? get phoneNumber => _phoneNumber;
+
   String? get createdAt => _createdAt;
 
   String? get updatedAt => _updatedAt;
@@ -174,6 +182,7 @@ class Address {
     map['city'] = _city;
     map['zipCode'] = _zipCode;
     map['address'] = _address;
+    map['phoneNumber'] = _phoneNumber;
     map['createdAt'] = _createdAt;
     map['updatedAt'] = _updatedAt;
     return map;

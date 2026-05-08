@@ -460,7 +460,9 @@ class PrimaryTextField extends StatelessWidget {
                     : readOnly,
                 keyboardType: (controllerType == "Pincode") || (controllerType == "AccountNumber") || (controllerType == "ProductPrice") || (controllerType == "MinimumOrder") || (controllerType == "ZipCode") || (controllerType == "ShippingCharge")
                     ? TextInputType.number
-                    : null,
+                    : (controllerType == "UserPhoneNumber")
+                        ? TextInputType.phone
+                        : null,
                 cursorColor: AppColors.unselected,
                 style: AppFontStyle.styleW700(AppColors.white, 14),
                 decoration: InputDecoration(
@@ -538,6 +540,8 @@ class PrimaryTextField extends StatelessWidget {
                                                                                                 ? userAddAddressController.nameController
                                                                                                 : (controllerType == "UserCity")
                                                                                                     ? userAddAddressController.cityController
+                                                                                                    : (controllerType == "UserPhoneNumber")
+                                                                                                        ? userAddAddressController.phoneNumberController
                                                                                                     : (controllerType == "TrackingId")
                                                                                                         ? updateStatusWiseOrderController.trackingIdController
                                                                                                         : (controllerType == "TrackingLink")

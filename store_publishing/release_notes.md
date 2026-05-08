@@ -1,6 +1,60 @@
 # Release Notes — Waxx App
 
 ---
+## 🛠 Version 1.1.8+25 — Item Location custom city + per-address phone number
+
+**Version:** 1.1.8
+**Build Number:** 25
+**Release Date:** May 2026
+**Type:** Patch on top of v1.1.7+24
+
+### Suggested Play Console release name
+`v1.1.8 — Item Location custom city + address phone`
+
+### English (Default)
+
+```
+🔧 Update — v1.1.8
+
+🏙 Sellers can type a custom city on Item Location when not in the list
+📞 Buyers can save a contact phone number per delivery address
+✓ Custom cities persist for next time (same as New / Update Address)
+```
+
+### 📋 Full Internal Release Notes
+
+#### 🐛 / 🆕 Changes
+
+| Item | Detail |
+|---|---|
+| **Item Location accepts custom city** (sellers, listing flow) | The item-location picker was gated on `selectedStateData!.cities!.isNotEmpty` — for states with no preset cities (and many that have them but miss the seller's town), the city field didn't even render. Dropped the `cities.isNotEmpty` gate so the picker shows for any selected state. Wired `allowCustomEntry: true` + `onCustomEntry` so typed-but-unmatched values land via the "Use '<typed>'" CTA, persisted to local storage under `customCities|<country>|<state>` and merged into the list on subsequent picker opens. New `mergeCustomCities()` + `persistCustomCity()` helpers on `ListingController`, mirroring the existing `new_address.dart` / `update_address.dart` / `seller_edit_address.dart` flow. |
+| **Per-address phone number** (buyers, New + Update Address) | The Address backend model had no phone field, so buyers shipping to someone else (friend / office) couldn't supply a recipient phone — Checkout's Delivery Location card was always falling back to the buyer's signup mobile. Added `phoneNumber: String` (nullable, default null) to `Address.model.js`. Address controller's store + update read & normalize it. Flutter Address models on both `UserAddressSelectModel` and `GetAllUserAddressModel` carry the new field. New `phoneNumberController` on `UserAddAddressController`, threaded through both the add + update API services. |
+| **New Phone Number input on New Address & Update Address forms** | Added below the Zip Code field. Numeric phone keyboard via the existing `PrimaryTextField` `controllerType: "UserPhoneNumber"` (registered in `textfields.dart` with `TextInputType.phone`). Pre-fills on Update Address when `data.phoneNumber` is set. The Address list screen now passes `getPhoneNumber:` into `UpdateAddress(...)` so existing values persist across edits. |
+| **Checkout Delivery Location card prefers the per-address phone** | `_buildContactPhone()` in `cheak_out.dart` now returns the per-address `phoneNumber` first (stored as the user typed, often already with dial code, so no prefix is added). Falls back to the global `mobileNumber` + `dialCode` (signup phone) only when the address has none, then to the freshly-loaded profile as last resort. |
+
+#### 📁 Files Changed (relative to 1.1.7+24)
+
+**Backend** (`waxxapp_admin/backend/`):
+- `server/address/address.model.js` — added `phoneNumber` field.
+- `server/address/address.controller.js` — store + update read `req.body.phoneNumber`, normalise empty → null.
+
+**Flutter** (`waxx_app/`):
+- `pubspec.yaml` — version bump.
+- `lib/seller_pages/listing/view/item_location_screen.dart` — drop `cities.isNotEmpty` gate, wire `allowCustomEntry`/`onCustomEntry`.
+- `lib/seller_pages/listing/controller/listing_controller.dart` — `mergeCustomCities()` + `persistCustomCity()` helpers; `getStorage` import via `Theme/theme_service`.
+- `lib/Controller/GetxController/user/user_add_address_controller.dart` — `phoneNumberController` + threaded through `userAddAddressData`.
+- `lib/Controller/GetxController/user/user_update_address_controller.dart` — threaded `phoneNumber` through `userUpdateAddressData`.
+- `lib/ApiService/user/user_add_address_service.dart` + `user_update_address_service.dart` — accept `phoneNumber`, send in JSON body (empty string when blank; backend normalises to null).
+- `lib/ApiModel/user/UserAddressSelectModel.dart` + `GetAllUserAddressModel.dart` — `phoneNumber` field on `Address` (ctor / fromJson / toJson / copyWith / getter).
+- `lib/utils/CoustomWidget/App_theme_services/textfields.dart` — new `controllerType: "UserPhoneNumber"` mapping to `userAddAddressController.phoneNumberController` + `TextInputType.phone` keyboard.
+- `lib/View/MyApp/Profile/MyAddress/new_address.dart` — Phone Number field below Zip Code; `phoneNumberController.clear()` on initState.
+- `lib/View/MyApp/Profile/MyAddress/update_address.dart` — `getPhoneNumber` constructor arg, prefill on initState, Phone Number field below Zip Code.
+- `lib/View/MyApp/Profile/MyAddress/address.dart` — passes `getPhoneNumber: data.phoneNumber` into `UpdateAddress(...)` from the address list.
+- `lib/View/MyApp/AppPages/cheak_out.dart` — `_buildContactPhone()` prefers the per-address phone before falling back to signup mobile.
+
+**No `flutter pub get` needed** (no new packages).
+
+---
 ## 🛠 Version 1.1.7+24 — Cart calc on Buy Now, seller-edit custom city, floating hearts on live
 
 **Version:** 1.1.7

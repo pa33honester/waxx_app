@@ -140,6 +140,7 @@ class _NewAddressState extends State<NewAddress> {
     userAddAddressController.myCityController.clear();
     userAddAddressController.zipCodeController.clear();
     userAddAddressController.nameController.clear();
+    userAddAddressController.phoneNumberController.clear();
     super.initState();
     loadJsonData();
   }
@@ -389,6 +390,14 @@ class _NewAddressState extends State<NewAddress> {
                       titleText: St.zipCode.tr,
                       hintText: St.zipCodeHintText.tr,
                       controllerType: "ZipCode",
+                    ),
+                    const SizedBox(height: 25),
+                    // Optional per-address contact phone (recipient
+                    // number, can differ from signup mobile).
+                    PrimaryTextField(
+                      titleText: "Phone Number",
+                      hintText: "Enter contact phone number",
+                      controllerType: "UserPhoneNumber",
                     ),
                     const SizedBox(height: 25),
                     PrimaryTextField(

@@ -930,11 +930,26 @@ class _CheckOutState extends State<CheckOut> {
   }
 
   String _buildContactPhone() {
-    // Prefer the global (populated from login). Fall back to the
-    // freshly-loaded profile model so existing sessions — where the
-    // global was never written, because login_controller didn't
-    // capture mobileNumber until this fix — still surface the phone
-    // without requiring a re-login.
+    // Preference order:
+    // 1. Per-address phoneNumber the buyer set on this delivery
+    //    address (recipient may differ from the signup user — e.g.
+    //    shipping to a friend / office).
+    // 2. The user's signup mobileNumber from the global (set on
+    //    login).
+    // 3. The freshly-loaded profile model — covers existing sessions
+    //    where login_controller hadn't yet captured the global.
+    final addressPhone = (getOnlySelectedUserAddressController
+                .userAddressSelect?.address?.phoneNumber ??
+            "")
+        .toString()
+        .trim();
+    if (addressPhone.isNotEmpty) {
+      // Per-address numbers are stored exactly as the user typed
+      // them (often already including the dial code), so don't
+      // prepend anything.
+      return addressPhone;
+    }
+
     final profile = Database.fetchLoginUserProfileModel?.user;
     final number = mobileNumber.trim().isNotEmpty
         ? mobileNumber.trim()

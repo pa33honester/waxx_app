@@ -12,6 +12,7 @@ import 'package:waxxapp/seller_pages/listing/api/fetch_category_sub_attributes_a
 import 'package:waxxapp/seller_pages/listing/controller/chat_gpt_controller.dart';
 import 'package:waxxapp/seller_pages/listing/dialog/listing_error_dialog.dart';
 import 'package:waxxapp/seller_pages/listing/model/fetch_category_sub_attr_model.dart';
+import 'package:waxxapp/utils/Theme/theme_service.dart';
 import 'package:waxxapp/utils/Zego/ZegoUtils/device_orientation.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/app_constant.dart';
@@ -1088,8 +1089,51 @@ class ListingController extends GetxController {
 
   void updateCityData(String selectedStateName) {
     selectedStateData = statesList?.firstWhereOrNull((element) => element.stateName == selectedStateName);
-    city = selectedStateData?.cities?.map((e) => e.cityName.toString()).toList();
+    city = selectedStateData?.cities?.map((e) => e.cityName.toString()).toList() ?? [];
+    mergeCustomCities();
     cityController.clear();
+    update([AppConstant.idCountries]);
+  }
+
+  // Persisted custom cities live under
+  // `customCities|<country>|<state>` in getStorage so the same
+  // entries surface across new_address.dart, update_address.dart,
+  // seller_edit_address.dart, and item_location_screen.dart for the
+  // same country/state pair. Mirrors the helpers added to those
+  // pages.
+  String get _customCityKey {
+    final country = countryController.text.trim();
+    final state = stateController.text.trim();
+    return "customCities|$country|$state";
+  }
+
+  void mergeCustomCities() {
+    final stored = getStorage.read(_customCityKey);
+    if (stored is List) {
+      final existing = (city ?? <String>[]).map((e) => e.toLowerCase()).toSet();
+      for (final c in stored) {
+        if (c is String && !existing.contains(c.toLowerCase())) {
+          city ??= [];
+          city!.add(c);
+          existing.add(c.toLowerCase());
+        }
+      }
+    }
+  }
+
+  void persistCustomCity(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
+    final stored = getStorage.read(_customCityKey);
+    final List<String> list = (stored is List)
+        ? stored.whereType<String>().toList()
+        : <String>[];
+    if (list.any((e) => e.toLowerCase() == trimmed.toLowerCase())) return;
+    list.add(trimmed);
+    getStorage.write(_customCityKey, list);
+    if (city != null && !city!.any((e) => e.toLowerCase() == trimmed.toLowerCase())) {
+      city!.add(trimmed);
+    }
     update([AppConstant.idCountries]);
   }
 

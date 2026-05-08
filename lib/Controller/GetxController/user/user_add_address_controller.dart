@@ -17,6 +17,7 @@ class UserAddAddressController extends GetxController {
   final TextEditingController cityController = TextEditingController();
   final TextEditingController zipCodeController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
+  final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController myCountryController = TextEditingController();
   final TextEditingController myStateController = TextEditingController();
   final TextEditingController myCityController = TextEditingController();
@@ -31,9 +32,19 @@ class UserAddAddressController extends GetxController {
     required String city,
     required String zipCode,
     required String address,
+    String? phoneNumber,
   }) async {
     try {
-      var data = await UserAddAddressApi().userAddAddress(userId: userId, name: name, country: country, state: state, city: city, zipCode: zipCode, address: address);
+      var data = await UserAddAddressApi().userAddAddress(
+        userId: userId,
+        name: name,
+        country: country,
+        state: state,
+        city: city,
+        zipCode: zipCode,
+        address: address,
+        phoneNumber: phoneNumber,
+      );
       userAddAddress = data;
       if (userAddAddress!.status == true) {
         addressId = userAddAddress!.address!.id.toString();
@@ -57,7 +68,16 @@ class UserAddAddressController extends GetxController {
     /// **************** API CALLING *****************\\\
 
     displayToast(message: St.pleaseWaitToast.tr);
-    await userAddAddressData(userId: loginUserId, name: nameController.text, country: country, state: state, city: city, zipCode: zipCodeController.text.trim(), address: addressController.text.trim());
+    await userAddAddressData(
+      userId: loginUserId,
+      name: nameController.text,
+      country: country,
+      state: state,
+      city: city,
+      zipCode: zipCodeController.text.trim(),
+      address: addressController.text.trim(),
+      phoneNumber: phoneNumberController.text.trim(),
+    );
     if (userAddAddress!.status == true) {
       Get.back();
       displayToast(message: "Address Add successfully");
