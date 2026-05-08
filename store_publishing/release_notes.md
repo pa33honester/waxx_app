@@ -1,11 +1,37 @@
 # Release Notes — Waxx App
 
 ---
-## 🛠 v1.1.4+21 — Follow-up patch (no version bump, rebuild on same build number)
+## ⚡ Version 1.1.5+22 — Buy Now → Cart, quantity counter, custom cities, distinct Help/Contact/Support labels
+
+**Version:** 1.1.5
+**Build Number:** 22
+**Release Date:** May 2026
+**Type:** Patch cluster on top of v1.1.4+21 (Buy Now flow re-routing + checkout polish + address polish + label cleanup)
+
+### Suggested Play Console release name
+`v1.1.5 — Buy Now via Cart + quantity + city polish`
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🔧 Update — v1.1.5
+
+🛒 Buy Now now goes through Cart so you can review before paying
+🔢 Quantity counter on the product page (works for Buy Now & Add to Cart)
+📞 Buyer phone now visible on Checkout's Delivery Location card
+🏙 Type your own city when it's not in the list — saved for next time
+↩️ Cart page now has a back arrow when reached via Buy Now
+✨ Distinct Help / Contact Us / Customer Support labels + new icon
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🆕 Changes in v1.1.5
 
 **Buy Now flow change + product-detail quantity counter**
 
-Two product-direction tweaks bundled on top of the v1.1.4+21 cut, shipped as a same-version rebuild:
+Two product-direction tweaks bundled on top of the v1.1.4+21 cut:
 
 - **Buy Now now lands on Cart, not Checkout.** Tapping Buy Now on Product Detail still adds the product to cart, but the post-add navigation goes to `/CartPage` instead of `/CheckOut`. Buyers review the cart (line items + per-item delivery picker + promo input) and tap Checkout from there. This restores the "review before pay" step that the v1.1.4 fast lane bypassed when going directly to Checkout. The cart-tab Continue → Paystack auto-launch is unchanged — only the Buy Now entry point shifts.
 - **Quantity selector on Product Detail.** A new "Quantity − N +" row sits above the Buy Now / Add to Cart action buttons. Both buttons honour the chosen quantity (was hardcoded to 1). Min is 1; no upper cap (matching cart-page UX). Resets to 1 each time the page is opened.
@@ -63,7 +89,31 @@ The two new keys are English-only (other 18 locales fall through to displaying t
 
 **Files touched**: `lib/utils/Strings/strings.dart` (new `contactUs` + `customerSupport` keys), `lib/localization/language/english_language.dart` (English values for the new keys), `lib/View/MyApp/Profile/main_profile.dart` (Profile entry switches to `St.contactUs.tr` + `AppAsset.icPhoneMail`), `lib/user_pages/support_chat/view/support_chat_view.dart` (AppBar title switches to `St.customerSupport.tr`), `lib/utils/app_asset.dart` (new `icPhoneMail` constant pointing at `ic_phone_mail.webp`).
 
-**No backend changes. No version bump.** Rebuild and re-upload `app-release.aab` on build number 21.
+#### 📁 Files Changed (relative to 1.1.4+21)
+
+| Area | Files |
+|---|---|
+| Version | `pubspec.yaml` (`1.1.4+21` → `1.1.5+22`) |
+| Buy Now → Cart + quantity selector | `lib/View/MyApp/AppPages/product_detail.dart` |
+| Cart back arrow + system-back routing | `lib/View/MyApp/AppPages/cart_page.dart` |
+| Checkout phone row + profile fallback | `lib/View/MyApp/AppPages/cheak_out.dart`, `lib/Controller/GetxController/login/login_controller.dart` |
+| New + Update Address custom city | `lib/View/MyApp/Profile/MyAddress/new_address.dart`, `lib/View/MyApp/Profile/MyAddress/update_address.dart`, `lib/View/MyApp/Profile/MyAddress/widget/address_select_sheet.dart` |
+| DeliveryOptionsPicker hot-reload safety | `lib/custom/delivery_options_picker.dart` |
+| Help / Contact Us / Customer Support split | `lib/utils/Strings/strings.dart`, `lib/localization/language/english_language.dart`, `lib/View/MyApp/Profile/main_profile.dart`, `lib/user_pages/support_chat/view/support_chat_view.dart`, `lib/utils/app_asset.dart` |
+
+#### 🚀 Deploy checklist for v1.1.5
+
+1. Upload `app-release.aab` (1.1.5+22) to the Production track.
+2. Smoke test on the new build:
+   - Tap Buy Now on a product → lands on Cart, not Checkout. Tap the back arrow → returns to Product Detail (no tab switch).
+   - Use the quantity counter on Product Detail → both Buy Now and Add to Cart respect the chosen quantity.
+   - Open Checkout while logged in → Delivery Location card shows the buyer's phone (with dial code) below the address. Existing sessions show it without re-login.
+   - New Address → state with cities → type a city not in the list → "Use 'X'" tile appears → tap → city saves → reopen the picker, the typed city is in the list.
+   - Update Address → same custom-city UX as New Address.
+   - Settings page → "Help and Support" entry (icon: question-mark / `icHelp`).
+   - Profile page → "Contact Us" entry (icon: phone+mail / `icPhoneMail`) → tap → support thread AppBar reads "Customer Support".
+
+**No backend changes.** No DB migration needed.
 
 ---
 ## ⚡ Version 1.1.4+21 — Buy Now → Paystack fast lane + checkout polish + support chat read receipts
