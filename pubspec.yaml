@@ -114,6 +114,11 @@ dependencies:
   internet_connection_checker: ^3.0.1
   flutter_launcher_icons: ^0.14.4
   flutter_svg: ^2.2.4
+  # Selfie verification — on-device face detection. Used to gate
+  # selfie submissions for usability (face present, eyes open,
+  # sufficient size) before the user uploads. Admin still reviews
+  # every submission; ML Kit is NOT used for auto-pass.
+  google_mlkit_face_detection: ^0.13.1
 
 dev_dependencies:
   flutter_test:

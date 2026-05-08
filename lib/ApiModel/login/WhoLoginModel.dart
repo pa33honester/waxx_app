@@ -76,6 +76,7 @@ class User {
     int? loginType,
     String? identity,
     String? fcmToken,
+    String? verificationStatus,
     String? createdAt,
     String? updatedAt,
   }) {
@@ -103,6 +104,7 @@ class User {
     _loginType = loginType;
     _identity = identity;
     _fcmToken = fcmToken;
+    _verificationStatus = verificationStatus;
     _createdAt = createdAt;
     _updatedAt = updatedAt;
   }
@@ -132,6 +134,7 @@ class User {
     _loginType = json['loginType'];
     _identity = json['identity'];
     _fcmToken = json['fcmToken'];
+    _verificationStatus = json['verificationStatus'];
     _createdAt = json['createdAt'];
     _updatedAt = json['updatedAt'];
   }
@@ -159,6 +162,7 @@ class User {
   int? _loginType;
   String? _identity;
   String? _fcmToken;
+  String? _verificationStatus;
   String? _createdAt;
   String? _updatedAt;
   User copyWith({
@@ -241,6 +245,7 @@ class User {
   int? get loginType => _loginType;
   String? get identity => _identity;
   String? get fcmToken => _fcmToken;
+  String? get verificationStatus => _verificationStatus;
   String? get createdAt => _createdAt;
   String? get updatedAt => _updatedAt;
 

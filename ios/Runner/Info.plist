@@ -57,7 +57,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>$(PRODUCT_NAME) camera description.</string>
+	<string>Waxxapp uses the camera so you can take and upload product photos, record live broadcasts, and submit a selfie for identity verification.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>To add sounds to the videos you record.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

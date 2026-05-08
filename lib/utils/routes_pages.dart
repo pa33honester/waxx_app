@@ -1,3 +1,4 @@
+import 'package:waxxapp/user_pages/selfie_verification/view/selfie_verification_view.dart';
 import 'package:waxxapp/View/MyApp/Seller/SellerAccount/seller_document_verification.dart';
 import 'package:waxxapp/View/MyApp/Seller/SellerAccount/seller_email_verify.dart';
 import 'package:waxxapp/View/MyApp/Seller/SellerAccount/seller_store_details.dart';
@@ -223,6 +224,11 @@ class AppPages {
     GetPage(
       name: "/CartPage",
       page: () => const CartPage(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: "/SelfieVerification",
+      page: () => const SelfieVerificationView(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

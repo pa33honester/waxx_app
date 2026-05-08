@@ -98,6 +98,15 @@ bool isGovIdActive = false;
 bool isGovIdRequired = false;
 bool isRegistrationCertActive = false;
 bool isRegistrationCertRequired = false;
+// Selfie verification (admin-issued blue tick). Mirrors the
+// settingJSON.selfieVerification block and is hydrated on splash.
+bool isSelfieVerificationActive = false;
+bool isSelfieVerificationRequired = false;
+// Latest known selfie verification status for the logged-in user
+// ("none" / "pending_review" / "verified" / "rejected"). Captured
+// from the WhoLoginApi profile after login + cached for badge reads
+// across the app. Refresh by calling /verification/myStatus.
+RxString verificationStatus = "none".obs;
 
 String termsAndConditionsLink = '';
 String privacyPolicyLink = '';

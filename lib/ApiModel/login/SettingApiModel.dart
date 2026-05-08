@@ -36,6 +36,7 @@ class Setting {
   AddressProof? addressProof;
   AddressProof? govId;
   AddressProof? registrationCert;
+  AddressProof? selfieVerification;
   Currency? currency;
   String? id;
   String? privacyPolicyLink;
@@ -76,6 +77,7 @@ class Setting {
     this.addressProof,
     this.govId,
     this.registrationCert,
+    this.selfieVerification,
     this.currency,
     this.id,
     this.privacyPolicyLink,
@@ -117,6 +119,7 @@ class Setting {
         addressProof: json["addressProof"] == null ? null : AddressProof.fromJson(json["addressProof"]),
         govId: json["govId"] == null ? null : AddressProof.fromJson(json["govId"]),
         registrationCert: json["registrationCert"] == null ? null : AddressProof.fromJson(json["registrationCert"]),
+        selfieVerification: json["selfieVerification"] == null ? null : AddressProof.fromJson(json["selfieVerification"]),
         currency: json["currency"] == null ? null : Currency.fromJson(json["currency"]),
         id: json["_id"],
         privacyPolicyLink: json["privacyPolicyLink"],
@@ -158,6 +161,7 @@ class Setting {
         "addressProof": addressProof?.toJson(),
         "govId": govId?.toJson(),
         "registrationCert": registrationCert?.toJson(),
+        "selfieVerification": selfieVerification?.toJson(),
         "currency": currency?.toJson(),
         "_id": id,
         "privacyPolicyLink": privacyPolicyLink,

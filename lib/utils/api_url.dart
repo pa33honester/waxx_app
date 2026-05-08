@@ -22,6 +22,10 @@ class Api {
   static const checkUser = "user/checkUser";
   static const reviewCreate = "review/create";
   static const requestCreate = "request/create"; // seller create request
+
+  // Selfie identity verification (admin-issued blue tick).
+  static const submitSelfieVerification = "verification/submitSelfie";
+  static const getSelfieVerificationStatus = "verification/myStatus";
   static const createProduct = "product/create";
   static const sellerAllData = "request/sellerBecomeOrNot";
   static const favoriteUnFavorite = "favorite/favoriteUnfavorite";

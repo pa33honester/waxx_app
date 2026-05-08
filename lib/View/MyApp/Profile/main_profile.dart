@@ -428,6 +428,25 @@ class _MainProfileState extends State<MainProfile> {
                         iconSize: 23,
                         callback: () => Get.toNamed("/SupportChat"),
                       ),
+                      // Selfie verification entry — gated by the admin
+                      // setting so it stays hidden until the feature is
+                      // turned on in production. The trailing chip
+                      // mirrors the latest verificationStatus.
+                      if (isSelfieVerificationActive) ...[
+                        15.height,
+                        Obx(() => ProfileItemWidget(
+                              title: verificationStatus.value == "verified"
+                                  ? "Verified ✓"
+                                  : verificationStatus.value == "pending_review"
+                                      ? "Verification — Pending"
+                                      : verificationStatus.value == "rejected"
+                                          ? "Verification — Retry"
+                                          : "Verify your account",
+                              icon: AppAsset.icSecurity,
+                              iconSize: 23,
+                              callback: () => Get.toNamed("/SelfieVerification"),
+                            )),
+                      ],
                       100.height,
 
                       // ProfileOptions(

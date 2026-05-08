@@ -65,6 +65,10 @@ class LoginController extends GetxController {
         // without making another profile fetch.
         mobileNumber = (Database.fetchLoginUserProfileModel?.user?.mobileNumber ?? "").toString();
         dialCode = (Database.fetchLoginUserProfileModel?.user?.countryCode ?? "").toString();
+        // Capture the latest selfie verification status so the badge
+        // + Profile tile render correctly without a separate fetch.
+        verificationStatus.value =
+            Database.fetchLoginUserProfileModel?.user?.verificationStatus ?? "none";
         if (userLogin?.user?.isSeller == true) {
           isSeller = true;
           await sellerDataController.getSellerAllData();

@@ -206,6 +206,8 @@ class SplashScreenController extends GetxController {
         isGovIdRequired = settingApiController.setting?.setting?.govId?.isRequired ?? false;
         isRegistrationCertActive = settingApiController.setting?.setting?.registrationCert?.isActive ?? false;
         isRegistrationCertRequired = settingApiController.setting?.setting?.registrationCert?.isRequired ?? false;
+        isSelfieVerificationActive = settingApiController.setting?.setting?.selfieVerification?.isActive ?? false;
+        isSelfieVerificationRequired = settingApiController.setting?.setting?.selfieVerification?.isRequired ?? false;
         termsAndConditionsLink = settingApiController.setting?.setting?.termsAndConditionsLink ?? '';
         privacyPolicyLink = settingApiController.setting?.setting?.privacyPolicyLink ?? '';
         print("stripPublishableKey:::::$stripPublishableKey");
@@ -219,6 +221,12 @@ class SplashScreenController extends GetxController {
       await whoLoginController.getUserWhoLoginData();
       await PushNotificationService.instance.syncTokenToBackendIfPossible();
       log("isSeller :: ${whoLoginController.whoLoginData?.user?.isSeller}");
+
+      // Hydrate the verification status global from the just-loaded
+      // profile so badge rendering + the Profile tile reflect the
+      // server's current view on the very first frame after splash.
+      verificationStatus.value =
+          whoLoginController.whoLoginData?.user?.verificationStatus ?? "none";
 
       if (whoLoginController.whoLoginData?.user?.isSeller == false) {
         log("Become seller is false");
