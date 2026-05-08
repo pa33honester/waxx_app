@@ -1,6 +1,100 @@
 # Release Notes — Waxx App
 
 ---
+## 🛡 Version 1.1.6+23 — Selfie verification (admin-issued blue tick) + private storage for KYC docs
+
+**Version:** 1.1.6
+**Build Number:** 23
+**Release Date:** May 2026
+**Type:** Feature cut on top of v1.1.5+22
+
+### Suggested Play Console release name
+`v1.1.6 — Verify your account (blue tick)`
+
+### English (Default)
+*(Max 500 characters on Play Store)*
+
+```
+🆕 Update — v1.1.6
+
+🛡 New "Verify your account" flow — submit a selfie, get a blue tick on your profile
+🔒 Identity documents (selfies + seller KYC) now stored privately, not on a public URL
+✓ Existing buyers AND sellers can verify
+```
+
+### 📋 Full Internal Release Notes (for your team)
+
+#### 🆕 Selfie verification — opt-in, admin-issued blue tick
+
+A new identity-verification flow for both buyers and sellers. Optional / encouraged from Profile (no blocking). Six small PRs landed in this cut, sequenced so each could be reviewed independently:
+
+1. **Backend schema + settings toggle + private storage controller.** New `Verification` Mongo collection (one row per submission, history preserved). New `User.verificationStatus` denormalized field for hot-path badge reads. New `Setting.selfieVerification: { isRequired, isActive }` field, off by default. Reuses the existing `handleFieldSwitch` toggle endpoint by whitelisting the new field name.
+2. **Verification endpoints + KYC migration.** New `/verification/submitSelfie` (multipart, 3/24h rate-limit, ML Kit `autoCheckResult` stored as admin context), `/verification/myStatus`, `/verification/admin/list`, `/verification/admin/review` (admin-JWT-gated, FCM push on decision). New `kycAwareStorage` multer config + `fileUrlFor` helper that route fields named `selfie` / `govId` / `addressProof` / `registrationCert` to a non-public `private_storage/` dir served via the auth-gated `/private-file/:filename` controller. Existing seller KYC uploads migrated via `scripts/migrateKycToPrivate.js` (idempotent, `--dry` mode). Logo + profile images keep using the public `storage/` path.
+3. **Admin React: Verifications queue + Settings toggle row.** New `/admin/verification` page — paginated queue with a default `pending_review` filter (switchable to `verified` / `rejected` / `all`). Per-row Approve / Reject (with rejection-reason textarea modal). Selfie thumbnail click shows full-size preview. ML Kit autoCheckResult shown inline so admins can triage quickly. New "Selfie Verification" toggle row on the Settings page mirrors the existing Address Proof / Government ID layout.
+4. **Flutter capture flow + Profile entry.** New `/SelfieVerification` route with a feature folder (view + controller). Front-camera-only `ImagePicker` (no gallery — defeats the purpose). On-device `google_mlkit_face_detection` 0.13.x gates the Submit button: face count == 1, both eyes open above 0.4 probability, face area ≥ 18% of the frame. Failures show a friendly retake CTA; ML Kit is NOT used for auto-pass — admin reviews every submission. After submit, the screen shows "Pending review" with copy explaining the ~24h SLA; rejection reasons surface on the next visit so users can fix and retry. Profile main page gains a status-aware tile ("Verify your account" / "Pending" / "Verified ✓" / "Retry"), gated by the admin's `selfieVerification.isActive` flag.
+5. **Verified badge rollout.** New generic `VerifiedUserBadge` widget driven by a status string — renders the existing blue tick only when `status == "verified"`. Existing `VerifiedSellerBadge` kept for backwards compat but now delegates to the new widget, which means the soft `businessTag != ""` trigger that everyone could fake by typing a tag is gone — the badge now only appears when admin has actually approved the user. Initial surfaces: own Profile header, seller-profile preview. The seller profile API now joins `User.verificationStatus` into its aggregate so the badge can render server-driven. Other surfaces (product detail seller row, live host card, search results, order detail "sold by") are tracked as a backend-payload follow-up.
+6. **Ship.** Default `Setting.selfieVerification.isActive` stays `false` after deploy so admins can sanity-check the queue with internal accounts before users see the entry tile. Flip the toggle on the new Setting row to enable in production.
+
+#### 🔒 Private storage for KYC documents
+
+Selfies are biometric PII. Backend `/storage/` is publicly served — anyone with a URL could fetch any selfie, gov ID, address proof, or registration cert. This cut closes that hole for **all four document types**:
+
+- New `private_storage/` dir, NOT served by the static `/storage` middleware.
+- New `/private-file/:filename` controller — auth-gated. Admin (JWT in Authorization header) OR document owner (`userId` in request body/query, validated against ownership across `Verification` / `Seller` / `SellerRequest` collections) can fetch; everyone else gets 401/403.
+- One-shot migration script `scripts/migrateKycToPrivate.js` moves existing files and rewrites the URL fields on `Seller` and `SellerRequest`. Run BEFORE deploying so the static `/storage` handler can't serve them publicly anymore. Idempotent + has a `--dry` mode.
+
+#### 📁 Files Changed (relative to 1.1.5+22)
+
+**Backend** (`waxxapp_admin/backend/`):
+- `server/verification/{verification.model,verification.controller,verification.route}.js` (new)
+- `server/privateFile/{privateFile.controller,privateFile.route}.js` (new)
+- `server/user/user.model.js` — `verificationStatus`
+- `server/setting/{setting.model,setting.controller}.js` — `selfieVerification` field + `validFields` whitelist
+- `server/seller/seller.controller.js` — `fetchSellerProfile` aggregate joins `User.verificationStatus`
+- `server/sellerRequest/{sellerRequest.route,sellerRequest.controller}.js` — `mixedUpload` (kycAwareStorage) + `fileUrlFor`
+- `util/multer.js` — `privateStorage`, `kycAwareStorage`, `fileUrlFor` helper, `KYC_FIELDNAMES`
+- `route.js` — mounts `/private-file` and `/verification`
+- `scripts/migrateKycToPrivate.js` (new, one-shot, `--dry` mode)
+- `.gitignore` — `/private_storage/*`
+
+**Flutter** (`waxx_app/`):
+- `pubspec.yaml` — `google_mlkit_face_detection: ^0.13.1` + version bump
+- `ios/Runner/Info.plist` — `NSCameraUsageDescription` mentions identity verification
+- `lib/user_pages/selfie_verification/{view,controller}/...` (new)
+- `lib/ApiService/user/{submit_selfie_verification,get_selfie_verification_status}_service.dart` (new)
+- `lib/ApiModel/user/SelfieVerificationModel.dart` (new)
+- `lib/custom/verified_user_badge.dart` (new), `verified_seller_badge.dart` (delegates)
+- `lib/utils/api_url.dart`, `globle_veriables.dart`, `routes_pages.dart`
+- `lib/Controller/GetxController/login/{splash_screen,login}_controller.dart` — hydrate `verificationStatus`
+- `lib/View/MyApp/Profile/main_profile.dart` — entry tile + badge in header
+- `lib/user_pages/preview_seller_profile_page/{view,model}/...` — badge swap
+- `lib/ApiModel/login/{SettingApiModel,WhoLoginModel}.dart` — new fields
+
+**Admin** (`waxxapp_admin/frontend/`):
+- `src/Component/Table/verification/Verification.js` (new)
+- `src/Component/store/verification/{verification.action,verification.reducer,verification.type}.js` (new)
+- `src/Component/store/index.js` — register slice
+- `src/Component/Pages/{Admin,Sidebar}.js` — route + nav
+- `src/Component/Table/setting/Setting.js` — toggle row
+
+#### 🚀 Deploy checklist for v1.1.6
+
+1. **Run migration BEFORE deploy.** On the server: `cd waxxapp_admin/backend && node scripts/migrateKycToPrivate.js --dry` to preview, then re-run without `--dry` to actually move files. Restart the backend.
+2. **Deploy backend + admin React.** `git pull`, `pm2 restart backend`, `cd ../frontend && npm install --f && ./deploy.sh`.
+3. **Sanity-check the admin queue.** Sign up an internal test account, take a selfie via the app, confirm it lands in `/admin/verification` with the auto-check details + selfie preview. Approve. Confirm `User.verificationStatus` is now `verified` and the badge appears on the user's profile header.
+4. **Sanity-check the migration.** Open a SellerRequest record's `govId` URL — it should be `/private-file/<filename>` not `/storage/<filename>`. Try to fetch it without admin JWT → 401/403.
+5. **Flip the feature on.** In the admin Settings page, toggle "Selfie Verification → Active" on. The Profile entry tile now appears for all users.
+6. **Upload `app-release.aab` (1.1.6+23) to Production.**
+
+#### ⚠️ Risks / out-of-scope
+
+- **Globals only refresh on cold start.** Toggling `selfieVerification.isActive` won't propagate mid-session — existing logged-in users keep their previous tile state until kill + reopen. Matches existing settings-toggle behavior.
+- **No auto-pass.** Admins shoulder every decision. ML Kit only gates submission for usability. If queue volume becomes unwieldy, the next iteration can add a paper-code + head-turn challenge for an `auto_verified` lane.
+- **Right-to-erasure.** When a user deletes their account, `Verification` rows + the underlying selfie files should be removed. Wire this into the existing user-deletion controller as a follow-up if not already covered.
+- **Other 18 locales.** New strings (entry tile, status chip, capture screen copy, rejection-reason text) are English-only on first ship; matches the v1.1.4 momo-placeholder pattern (known follow-up).
+- **Other badge surfaces** (product detail seller row, live host card, search results, order detail "sold by") are tracked as a follow-up — each needs the relevant backend payload to also expose `verificationStatus`.
+
+---
 ## ⚡ Version 1.1.5+22 — Buy Now → Cart, quantity counter, custom cities, distinct Help/Contact/Support labels
 
 **Version:** 1.1.5
