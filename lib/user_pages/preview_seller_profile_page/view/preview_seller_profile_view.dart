@@ -5,7 +5,7 @@ import 'package:waxxapp/custom/custom_share.dart';
 import 'package:waxxapp/custom/main_button_widget.dart';
 import 'package:waxxapp/custom/preview_profile_image_widget.dart';
 import 'package:waxxapp/custom/simple_app_bar_widget.dart';
-import 'package:waxxapp/custom/verified_seller_badge.dart';
+import 'package:waxxapp/custom/verified_user_badge.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/api/fetch_seller_profile_api.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/controller/preview_seller_profile_controller.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/widget/store_product_tab_bar_widget.dart';
@@ -153,8 +153,8 @@ class _PreviewSellerProfileViewState extends State<PreviewSellerProfileView> wit
                                                   ),
                                                 ),
                                                 const SizedBox(width: 4),
-                                                VerifiedSellerBadge(
-                                                  isVerified: (controller.fetchSellerProfileModel?.data?.businessTag ?? '').toString().trim().isNotEmpty,
+                                                VerifiedUserBadge(
+                                                  status: controller.fetchSellerProfileModel?.data?.verificationStatus,
                                                   size: 14,
                                                 ),
                                               ],

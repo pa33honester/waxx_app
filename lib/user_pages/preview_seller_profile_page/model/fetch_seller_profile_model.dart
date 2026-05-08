@@ -43,6 +43,10 @@ class Data {
   int? following;
   List<ProductsByCategory>? productsByCategory;
   bool? isFollow;
+  // Selfie verification status of the seller's owning user. Drives
+  // the blue tick badge on the seller's profile + product cards.
+  // Backend serves "none" / "pending_review" / "verified" / "rejected".
+  String? verificationStatus;
 
   Data({
     this.id,
@@ -55,6 +59,7 @@ class Data {
     this.following,
     this.productsByCategory,
     this.isFollow,
+    this.verificationStatus,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
@@ -68,6 +73,7 @@ class Data {
         following: json["following"],
         productsByCategory: json["productsByCategory"] == null ? [] : List<ProductsByCategory>.from(json["productsByCategory"]!.map((x) => ProductsByCategory.fromJson(x))),
         isFollow: json["isFollow"],
+        verificationStatus: json["verificationStatus"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -81,6 +87,7 @@ class Data {
         "following": following,
         "productsByCategory": productsByCategory == null ? [] : List<dynamic>.from(productsByCategory!.map((x) => x.toJson())),
         "isFollow": isFollow,
+        "verificationStatus": verificationStatus,
       };
 }
 

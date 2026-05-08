@@ -6,6 +6,7 @@ import 'package:waxxapp/Controller/GetxController/user/delete_user_account_contr
 import 'package:waxxapp/custom/circle_button_widget.dart';
 import 'package:waxxapp/custom/custom_color_bg_widget.dart';
 import 'package:waxxapp/custom/main_button_widget.dart';
+import 'package:waxxapp/custom/verified_user_badge.dart';
 import 'package:waxxapp/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/all_images.dart';
@@ -146,10 +147,23 @@ class _MainProfileState extends State<MainProfile> {
                               ),
                             ),
                             10.height,
-                            Text(
-                              "${editFirstName.capitalizeFirst}",
-                              style: AppFontStyle.styleW700(AppColors.white, 18),
-                            ),
+                            Obx(() => Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "${editFirstName.capitalizeFirst}",
+                                      style: AppFontStyle.styleW700(AppColors.white, 18),
+                                    ),
+                                    if (verificationStatus.value == "verified") ...[
+                                      6.width,
+                                      VerifiedUserBadge(
+                                        status: verificationStatus.value,
+                                        size: 16,
+                                      ),
+                                    ],
+                                  ],
+                                )),
                             3.height,
                             Text(
                               "ID : $uniqueID",
