@@ -9,13 +9,35 @@ import 'package:waxxapp/utils/font_style.dart';
 import 'package:waxxapp/utils/show_toast.dart';
 import 'package:waxxapp/utils/utils.dart';
 
-class SelfieVerificationView extends StatelessWidget {
+class SelfieVerificationView extends StatefulWidget {
   const SelfieVerificationView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Get.put(SelfieVerificationController());
+  State<SelfieVerificationView> createState() => _SelfieVerificationViewState();
+}
 
+class _SelfieVerificationViewState extends State<SelfieVerificationView> {
+  // Own the controller's lifecycle from State, not from build(). The
+  // controller holds a native ML Kit FaceDetector; calling
+  // Get.put(...) inside build() replaced the instance on every
+  // rebuild, churning FaceDetector create/close cycles. Now it's
+  // created once on mount and torn down on pop.
+  late final SelfieVerificationController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(SelfieVerificationController());
+  }
+
+  @override
+  void dispose() {
+    Get.delete<SelfieVerificationController>();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
@@ -232,6 +254,30 @@ class SelfieVerificationView extends StatelessWidget {
               child: Text(
                 c.gateError.value!,
                 style: AppFontStyle.styleW500(AppColors.red, 13),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Non-blocking tip (e.g. "move closer") — the photo is still
+    // submittable; this just nudges the user toward a clearer shot.
+    if (c.softHint.value != null) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.lightbulb_outline, color: AppColors.primary, size: 20),
+            10.width,
+            Expanded(
+              child: Text(
+                c.softHint.value!,
+                style: AppFontStyle.styleW500(AppColors.unselected, 13),
               ),
             ),
           ],

@@ -30,9 +30,13 @@ class SelfieVerificationController extends GetxController {
   // the admin reviewer + future analytics. Decision is still manual.
   final RxMap<String, dynamic> autoCheckResult = <String, dynamic>{}.obs;
 
-  // The reason ML Kit gating failed (null when it passed). Surfaced
-  // to the user as a friendly retake message.
+  // Hard blocker: set when ML Kit found zero or multiple faces.
+  // Non-null disables the Submit button and shows a retake prompt.
   final RxnString gateError = RxnString();
+
+  // Soft hint: a non-blocking suggestion (e.g. "move closer", "open
+  // your eyes"). Shown as a tip; the Submit button stays enabled.
+  final RxnString softHint = RxnString();
 
   // Latest server-side status — drives the screen header chip.
   // Cleared / refreshed by refreshStatus() after a submit.
@@ -99,6 +103,7 @@ class SelfieVerificationController extends GetxController {
     final file = File(picked.path);
     selfieFile.value = file;
     gateError.value = null;
+    softHint.value = null;
     autoCheckResult.clear();
 
     await _runMlKit(file);
@@ -107,24 +112,34 @@ class SelfieVerificationController extends GetxController {
   void retake() {
     selfieFile.value = null;
     gateError.value = null;
+    softHint.value = null;
     autoCheckResult.clear();
   }
 
   // Read the intrinsic pixel dimensions of an image file via
   // dart:ui's codec. Returns null if the bytes don't decode. Cheap
-  // — done once per submit attempt, not per frame.
+  // — done once per capture, not per frame.
+  //
+  // CRITICAL: both the Codec and the decoded Image hold native
+  // memory and MUST be disposed. Leaking the Codec across a few
+  // captures exhausts the native heap and crashes the app — that
+  // was the "3rd selfie restarts the app" bug.
   Future<(int, int)?> _readImageSize(File file) async {
+    ui.Codec? codec;
+    ui.FrameInfo? frame;
     try {
       final bytes = await file.readAsBytes();
-      final codec = await ui.instantiateImageCodec(bytes);
-      final frame = await codec.getNextFrame();
+      codec = await ui.instantiateImageCodec(bytes);
+      frame = await codec.getNextFrame();
       final w = frame.image.width;
       final h = frame.image.height;
-      frame.image.dispose();
       return (w, h);
     } catch (e) {
       log("_readImageSize error: $e");
       return null;
+    } finally {
+      frame?.image.dispose();
+      codec?.dispose();
     }
   }
 
@@ -167,6 +182,14 @@ class SelfieVerificationController extends GetxController {
         "mlKitVersion": "google_mlkit_face_detection 0.13.x",
       });
 
+      // Only the unambiguous cases BLOCK submission. The eye-open
+      // and face-area heuristics are unreliable (ML Kit's
+      // classification probabilities swing wildly with lighting and
+      // EXIF orientation), and since an admin reviews every
+      // submission anyway, gating on them just traps users who
+      // actually look fine. Block on zero faces / multiple faces;
+      // for the rest, surface a soft hint via softHint but leave
+      // the Submit button enabled.
       if (faces.isEmpty) {
         gateError.value = "We couldn't detect a face. Make sure your face is centred and well-lit, then retake.";
         return;
@@ -175,27 +198,29 @@ class SelfieVerificationController extends GetxController {
         gateError.value = "We see more than one face. Please be alone in the photo.";
         return;
       }
-      if (areaRatio < _minFaceAreaRatio) {
-        gateError.value = "Move closer to the camera so your face fills more of the frame.";
-        return;
-      }
-      if ((leftEye ?? 0) < _eyeOpenThreshold || (rightEye ?? 0) < _eyeOpenThreshold) {
-        gateError.value = "Please keep both eyes open and look at the camera.";
-        return;
-      }
 
-      // All checks passed — submit button enables.
+      // Passed the hard gate — clear the blocker. Compute a soft
+      // hint for the UI but don't prevent submit.
       gateError.value = null;
+      if (areaRatio < _minFaceAreaRatio) {
+        softHint.value = "Tip: move a little closer so your face fills more of the frame.";
+      } else if ((leftEye ?? 1) < _eyeOpenThreshold || (rightEye ?? 1) < _eyeOpenThreshold) {
+        softHint.value = "Tip: keep both eyes open and look straight at the camera.";
+      } else {
+        softHint.value = null;
+      }
     } catch (e, st) {
       log("ML Kit error: $e\n$st");
       // Don't block submission on a tooling error; the admin queue
-      // will still catch a bad photo. Just record that the on-device
-      // check didn't run.
+      // will still catch a bad photo. Record the failure cause for
+      // the admin reviewer.
       autoCheckResult.assignAll({
         "faceCount": null,
         "mlKitVersion": "error",
+        "mlKitError": e.toString(),
       });
       gateError.value = null;
+      softHint.value = null;
     } finally {
       isAnalyzing.value = false;
     }

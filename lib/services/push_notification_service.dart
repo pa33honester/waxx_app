@@ -141,6 +141,12 @@ class PushNotificationService {
       }
     } else if (type == 'SUPPORT_REPLY') {
       getStorage.write('pendingDeepLinkSupport', true);
+    } else if (type == 'FOLLOWED_SELLER_NEW_PRODUCT') {
+      final pId = (message.data['productId'] as String? ?? '').trim();
+      if (pId.isNotEmpty) {
+        getStorage.write('pendingDeepLinkProductId', pId);
+        log('Cold-start: stashed pendingDeepLinkProductId=$pId');
+      }
     }
     // Other types don't navigate — splash's default route is fine.
   }
@@ -218,6 +224,37 @@ class PushNotificationService {
           if (pId != null) {
             productId = pId;
             Get.toNamed('/SellerProductDetails');
+          }
+        },
+      );
+    } else if (type == 'FOLLOWED_SELLER_NEW_PRODUCT') {
+      // A seller the buyer follows just listed a new product.
+      // Backend payload: { type, productId, sellerId }. Warm tap →
+      // open the buyer-facing product detail page directly. Cold
+      // start taps are stashed in _stashColdStartTap and replayed
+      // by SplashScreenController after the BottomTabBar nav lands
+      // (same race-avoidance pattern as LIVE_STARTED). Foreground →
+      // snackbar with a tap-to-view CTA.
+      final pId = (message.data['productId'] as String? ?? '').trim();
+      final sellerName = message.data['sellerName'] ?? 'A seller you follow';
+      if (fromTap) {
+        if (pId.isNotEmpty) {
+          productId = pId;
+          Get.toNamed('/ProductDetail');
+        }
+        return;
+      }
+      Get.snackbar(
+        message.notification?.title ?? '$sellerName listed a new product',
+        message.notification?.body ?? 'Tap to view the product',
+        backgroundColor: AppColors.tabBackground,
+        colorText: AppColors.white,
+        icon: Icon(Icons.shopping_bag_rounded, color: AppColors.primary),
+        duration: const Duration(seconds: 5),
+        onTap: (_) {
+          if (pId.isNotEmpty) {
+            productId = pId;
+            Get.toNamed('/ProductDetail');
           }
         },
       );

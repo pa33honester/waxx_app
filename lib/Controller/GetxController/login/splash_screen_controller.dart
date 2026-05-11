@@ -115,6 +115,19 @@ class SplashScreenController extends GetxController {
       Future.delayed(const Duration(milliseconds: 200), () {
         Get.toNamed("/SupportChat");
       });
+      return;
+    }
+
+    // Followed-seller new-product tap. Sets the global productId
+    // (the ProductDetail page reads it) then routes. Deferred so the
+    // BottomTabBar nav has landed first.
+    final pendingProduct = getStorage.read("pendingDeepLinkProductId");
+    if (pendingProduct is String && pendingProduct.isNotEmpty) {
+      getStorage.remove("pendingDeepLinkProductId");
+      Future.delayed(const Duration(milliseconds: 200), () {
+        productId = pendingProduct;
+        Get.toNamed("/ProductDetail");
+      });
     }
   }
 

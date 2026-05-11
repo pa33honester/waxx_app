@@ -54,6 +54,31 @@ class _CartPageState extends State<CartPage> {
     Get.toNamed("/CheckOut") /*?.then((value) => getAllCartProductController.getAllCartProductData())*/; // open if need
   }
 
+  // Items the cart UI actually shows — anything at productQuantity 0
+  // (a stale row the backend's $pull cleanup missed) is excluded so
+  // it neither renders as a tile nor contributes to the displayed
+  // Amount. Single source of truth for both the list and the total.
+  List<dynamic> get _visibleCartItems {
+    final allItems = getAllCartProductController.getAllCartProducts?.data?.items ?? [];
+    return allItems.where((it) => (it.productQuantity?.toInt() ?? 0) > 0).toList();
+  }
+
+  // Client-side subtotal computed from the visible items only.
+  // Trusting the backend's stored `subTotal` directly produced wrong
+  // numbers when a stale qty-0 row left the stored value out of sync
+  // (e.g. showing GH¢900 with the only item at quantity 0). Summing
+  // purchasedTimeProductPrice × productQuantity over the visible rows
+  // always matches what the user sees.
+  num get _visibleSubTotal {
+    num sum = 0;
+    for (final it in _visibleCartItems) {
+      final price = (it.purchasedTimeProductPrice ?? 0);
+      final qty = (it.productQuantity ?? 0);
+      sum += (price as num) * (qty as num);
+    }
+    return sum;
+  }
+
   @override
   void initState() {
     getAllCartProductController.getCartProductData();
@@ -133,8 +158,7 @@ class _CartPageState extends State<CartPage> {
                         // render the no-data state inline so the user
                         // doesn't sit on a blank page with a stale
                         // Amount.
-                        final allItems = getAllCartProductController.getAllCartProducts?.data?.items ?? [];
-                        final visibleItems = allItems.where((it) => (it.productQuantity?.toInt() ?? 0) > 0).toList();
+                        final visibleItems = _visibleCartItems;
 
                         if (visibleItems.isEmpty) {
                           return Expanded(
@@ -195,8 +219,10 @@ class _CartPageState extends State<CartPage> {
                                   AppFontStyle.styleW900(getAllCartProductController.updateLoading.value || addProductToCartController.isLoading.value || removeProductToCartController.isLoading.value ? AppColors.grayLight : AppColors.primary, 14),
                               fontWeight: FontWeight.w900,
                               isLoading: getAllCartProductController.updateLoading.value,
-                              // text: "$currencySymbol$totalAmount",
-                              text: "$currencySymbol${getAllCartProductController.getAllCartProducts?.data?.subTotal?.toString() ?? "0.0"}",
+                              // Compute from the visible items rather than
+                              // the backend's stored subTotal — see
+                              // _visibleSubTotal for why.
+                              text: "$currencySymbol${_visibleSubTotal.toString()}",
                             ),
                           ),
                         ],
