@@ -22,7 +22,7 @@ class RemoveProductToCartController extends GetxController {
       isLoading(true);
       var data = await RemoveProductToCartApi().removeProductToCart(userId: loginUserId, productId: productId, productQuantity: productQuantity, attributes: attributes);
       removeProductToCartModel = data;
-      log("Remove product Status :: ${removeProductToCartModel?.status}");
+      log("Remove product Status :: ${removeProductToCartModel?.status} Message :: ${removeProductToCartModel?.message}");
       if (removeProductToCartModel?.status == true) {
         // Just toast — the cart page reloads itself via getCartProductData.
         // The previous code force-jumped the bottom bar to index 2, which
@@ -30,7 +30,22 @@ class RemoveProductToCartController extends GetxController {
         // pressing the minus button kicked users out to Reels.
         displayToast(message: "Product Removed");
       } else {
-        displayToast(message: "Something Wrong Please Try Again");
+        // Backend may return status:false with a message that actually
+        // means "already removed" — typically when the user's last
+        // decrement deleted the cart and a follow-up tap on a stale
+        // tile sends another remove. Treat those as benign — the
+        // refetch will sync the UI to the real (empty) state. Only
+        // surface the alarming "Something Wrong" toast for genuine
+        // failures.
+        final msg = (removeProductToCartModel?.message ?? "").toLowerCase();
+        final benignNotFound = msg.contains("cart does not found") ||
+            msg.contains("cart not found") ||
+            msg.contains("product with specified attributes not found");
+        if (benignNotFound) {
+          displayToast(message: "Product Removed");
+        } else {
+          displayToast(message: "Something Wrong Please Try Again");
+        }
       }
     } catch (e) {
       log('REMOVE PRODUCT TO CART: $e');

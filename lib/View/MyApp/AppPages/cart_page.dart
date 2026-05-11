@@ -356,7 +356,17 @@ class _CartListTileWidgetState extends State<CartListTileWidget> {
         _refetchCart();
       });
     } else if (localQuantity == 1) {
-      // Remove last quantity
+      // Remove last quantity. Optimistically hide the +/- by zeroing
+      // localQuantity so the user doesn't see the tile flash "1" while
+      // the API + refetch round-trips. The parent's onCartChanged
+      // callback fires a setState((){}) after the refetch lands, at
+      // which point the cart's tile list is rebuilt from the fresh
+      // payload — this tile gets either reused with the new item (if
+      // removal failed) or unmounted entirely (if cart is now empty).
+      setState(() {
+        localQuantity = 0;
+      });
+
       productId = widget.productId;
       log("Removing last product >>>> $productId");
 
