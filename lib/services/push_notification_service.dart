@@ -83,6 +83,12 @@ class PushNotificationService {
 
     FirebaseMessaging.onMessage.listen((message) async {
       log('FCM foreground message received: ${message.messageId}');
+      // Verification decisions don't need user interaction — they
+      // just need to keep the local denormalized status in sync so
+      // the badge / Profile tile redraw without waiting for a cold
+      // restart. Apply the global Rx mutation before the local
+      // notification shows.
+      _applyVerificationStatusFromPush(message);
       await showForegroundNotification(message);
     });
 
@@ -110,6 +116,20 @@ class PushNotificationService {
   // splash controller can replay it after navigation lands. We don't
   // touch any GetX dialogs / routes here because they'd race against
   // splash's own navigation.
+  // Mutate the global verificationStatus Rx whenever a
+  // VERIFICATION_APPROVED / VERIFICATION_REJECTED push lands. Called
+  // from both onMessage (foreground) and handleRemoteMessage (warm
+  // tap) so the Profile badge + Selfie Verification tile redraw
+  // without waiting for a cold restart or a status refetch.
+  void _applyVerificationStatusFromPush(RemoteMessage message) {
+    final type = message.data['type']?.toString() ?? '';
+    if (type == 'VERIFICATION_APPROVED') {
+      verificationStatus.value = 'verified';
+    } else if (type == 'VERIFICATION_REJECTED') {
+      verificationStatus.value = 'rejected';
+    }
+  }
+
   void _stashColdStartTap(RemoteMessage message) {
     final type = message.data['type']?.toString() ?? '';
     log('Cold-start FCM tap: type=$type');
@@ -137,6 +157,12 @@ class PushNotificationService {
     }
 
     notificationVisit.value = !notificationVisit.value;
+
+    // Verification decisions need the global Rx mutation regardless
+    // of which path delivers the push (cold-start replay, warm tap,
+    // foreground). onMessage already handles foreground; this also
+    // covers the cold-start + warm-tap paths.
+    _applyVerificationStatusFromPush(message);
 
     final type = message.data['type'];
 

@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:get/get.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -109,6 +110,24 @@ class SelfieVerificationController extends GetxController {
     autoCheckResult.clear();
   }
 
+  // Read the intrinsic pixel dimensions of an image file via
+  // dart:ui's codec. Returns null if the bytes don't decode. Cheap
+  // — done once per submit attempt, not per frame.
+  Future<(int, int)?> _readImageSize(File file) async {
+    try {
+      final bytes = await file.readAsBytes();
+      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      final w = frame.image.width;
+      final h = frame.image.height;
+      frame.image.dispose();
+      return (w, h);
+    } catch (e) {
+      log("_readImageSize error: $e");
+      return null;
+    }
+  }
+
   Future<void> _runMlKit(File file) async {
     isAnalyzing.value = true;
     try {
@@ -126,21 +145,18 @@ class SelfieVerificationController extends GetxController {
         final f = faces.first;
         leftEye = f.leftEyeOpenProbability;
         rightEye = f.rightEyeOpenProbability;
-        // Image dimensions aren't directly on Face; use bbox vs.
-        // input bbox by reading image bytes. Simpler proxy: the
-        // ratio of face bbox to the InputImage's metadata size.
-        // ML Kit returns the bbox in image-pixel coords. Use the
-        // file's intrinsic dimensions read separately would be a
-        // round-trip; instead, trust the bbox area against an
-        // assumed-square crop ratio. For our purposes this is
-        // good enough — the threshold is permissive (18%).
+        // H3 fix: use the actual image dimensions instead of the
+        // previous hardcoded 1280×1280 assumption. The earlier
+        // assumption was square but ImagePicker with maxWidth:1280
+        // + imageQuality:80 actually produces 1280×960 (or 960×1280
+        // for portrait), which underestimated the face-area ratio
+        // by ~25% on portrait selfies and made the 18% threshold
+        // harder to pass.
+        final size = await _readImageSize(file);
+        final imgW = (size?.$1 ?? 1280).toDouble();
+        final imgH = (size?.$2 ?? 1280).toDouble();
         final bb = f.boundingBox;
-        // Without authoritative image dimensions, treat 1280×960 as
-        // the upper bound that imageQuality:80 + maxWidth:1280 will
-        // produce; this is documented in the controller.
-        const double assumedW = 1280;
-        const double assumedH = 1280;
-        areaRatio = (bb.width * bb.height) / (assumedW * assumedH);
+        areaRatio = (bb.width * bb.height) / (imgW * imgH);
       }
 
       autoCheckResult.assignAll({
