@@ -24,11 +24,19 @@ class RemoveProductToCartController extends GetxController {
       removeProductToCartModel = data;
       log("Remove product Status :: ${removeProductToCartModel?.status} Message :: ${removeProductToCartModel?.message}");
       if (removeProductToCartModel?.status == true) {
-        // Just toast — the cart page reloads itself via getCartProductData.
-        // The previous code force-jumped the bottom bar to index 2, which
-        // was Cart before Live was inserted at index 1 but is now Reels;
-        // pressing the minus button kicked users out to Reels.
-        displayToast(message: "Product Removed");
+        // Only toast "Product Removed" when the item actually left
+        // the cart — i.e. the backend deleted the cart (data == null)
+        // or said so explicitly. A plain quantity reduction (4 → 3)
+        // also returns status:true but the item is still there, so
+        // toasting "Product Removed" then was misleading. For those
+        // the visual quantity change is feedback enough — stay silent.
+        final msg = (removeProductToCartModel?.message ?? "").toLowerCase();
+        final actuallyRemoved =
+            removeProductToCartModel?.data == null || msg.contains("cart deleted");
+        if (actuallyRemoved) {
+          displayToast(message: "Product Removed");
+        }
+        // else: quantity reduced; no toast.
       } else {
         // Backend may return status:false with a message that actually
         // means "already removed" — typically when the user's last

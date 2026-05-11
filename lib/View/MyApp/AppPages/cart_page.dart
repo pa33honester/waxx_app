@@ -361,13 +361,18 @@ class _CartListTileWidgetState extends State<CartListTileWidget> {
       : Get.put(AddProductToCartController());
 
   List<dynamic> attributesId = [];
-  int localQuantity = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    localQuantity = widget.productQuantity;
-  }
+  // We deliberately do NOT keep a separate optimistic `localQuantity`
+  // any more. Rapid +/- taps used to push the local counter ahead of
+  // what actually persisted server-side (only some of the async
+  // addToCart calls land before the next tap), leaving the tile
+  // showing e.g. "4" while the cart truly had 2 — and the Amount
+  // line (computed from the cart payload) said 2's worth. The
+  // displayed quantity is now always `widget.productQuantity` (the
+  // authoritative value the parent re-passes after each refetch),
+  // and `_busy` blocks a second op until the first one's refetch has
+  // landed, so taps can't queue up out of sync.
+  bool _busy = false;
 
   // After the cart refetch completes, fire the parent's
   // onCartChanged callback. That callback is wired in _CartPageState
@@ -381,50 +386,30 @@ class _CartListTileWidgetState extends State<CartListTileWidget> {
     widget.onCartChanged?.call();
   }
 
-  increment() {
-    setState(() {
-      localQuantity++; // UI fast update thase
-    });
-
+  void increment() {
+    if (_busy) return;
+    setState(() => _busy = true);
     productId = widget.productId;
     log('product id >>>> $productId');
-
-    addProductToCartController.addProductToCartData(productQuantity: 1, attributes: widget.attributesArray).then((value) {
-      _refetchCart();
+    addProductToCartController
+        .addProductToCartData(productQuantity: 1, attributes: widget.attributesArray)
+        .then((value) => _refetchCart())
+        .whenComplete(() {
+      if (mounted) setState(() => _busy = false);
     });
   }
 
-  decrement() {
-    if (localQuantity > 1) {
-      setState(() {
-        localQuantity--;
-      });
-
-      productId = widget.productId;
-      log("product id >>>> $productId");
-
-      removeProductToCartController.removeProductToCartData(productQuantity: 1, attributes: widget.attributesArray).then((value) {
-        _refetchCart();
-      });
-    } else if (localQuantity == 1) {
-      // Remove last quantity. Optimistically hide the +/- by zeroing
-      // localQuantity so the user doesn't see the tile flash "1" while
-      // the API + refetch round-trips. The parent's onCartChanged
-      // callback fires a setState((){}) after the refetch lands, at
-      // which point the cart's tile list is rebuilt from the fresh
-      // payload — this tile gets either reused with the new item (if
-      // removal failed) or unmounted entirely (if cart is now empty).
-      setState(() {
-        localQuantity = 0;
-      });
-
-      productId = widget.productId;
-      log("Removing last product >>>> $productId");
-
-      removeProductToCartController.removeProductToCartData(productQuantity: 1, attributes: widget.attributesArray).then((value) {
-        _refetchCart();
-      });
-    }
+  void decrement() {
+    if (_busy) return;
+    setState(() => _busy = true);
+    productId = widget.productId;
+    log("Removing one of product >>>> $productId");
+    removeProductToCartController
+        .removeProductToCartData(productQuantity: 1, attributes: widget.attributesArray)
+        .then((value) => _refetchCart())
+        .whenComplete(() {
+      if (mounted) setState(() => _busy = false);
+    });
   }
 
   @override
@@ -533,53 +518,47 @@ class _CartListTileWidgetState extends State<CartListTileWidget> {
               child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      log('product index ${widget.index}');
-                      decrement();
-                    },
+                    onTap: _busy
+                        ? null
+                        : () {
+                            log('product index ${widget.index}');
+                            decrement();
+                          },
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: AppColors.black,
+                        color: AppColors.black.withValues(alpha: _busy ? 0.4 : 1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Icon(Icons.remove, color: AppColors.white, size: 14),
                     ),
                   ),
-                  // Quantity Text
+                  // Quantity Text — always the authoritative backend
+                  // value re-passed by the parent after each refetch;
+                  // shows a tiny spinner while an op is in flight so
+                  // the user knows the number is about to change.
                   8.width,
-                  // Obx(
-                  //   () => getAllCartProductController
-                  //               .updateLoading.value ||
-                  //           addProductToCartController
-                  //               .isLoading.value ||
-                  //           removeProductToCartController
-                  //               .isLoading.value
-                  //       ? const SizedBox(
-                  //           height: 10,
-                  //           width: 10,
-                  //           child: CupertinoActivityIndicator())
-                  //       : Text(
-                  //           '${widget.productQuantity}',
-                  //           style: AppFontStyle.styleW500(
-                  //             AppColors.black,
-                  //             15,
-                  //           ),
-                  //         ),
-                  // ),
-                  Text(
-                    localQuantity.toString(),
-                    style: AppFontStyle.styleW500(AppColors.black, 15),
-                  ),
+                  _busy
+                      ? const SizedBox(
+                          height: 14,
+                          width: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                        )
+                      : Text(
+                          widget.productQuantity.toString(),
+                          style: AppFontStyle.styleW500(AppColors.black, 15),
+                        ),
                   8.width,
                   GestureDetector(
-                    onTap: () {
-                      increment();
-                    },
+                    onTap: _busy
+                        ? null
+                        : () {
+                            increment();
+                          },
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: AppColors.black,
+                        color: AppColors.black.withValues(alpha: _busy ? 0.4 : 1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Icon(Icons.add, color: AppColors.white, size: 14),
