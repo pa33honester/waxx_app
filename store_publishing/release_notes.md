@@ -1,6 +1,70 @@
 # Release Notes — Waxx App
 
 ---
+## 🛠 Version 1.1.10+27 — Followed-seller push opens the product, cart quantity sync, selfie crash fix
+
+**Version:** 1.1.10
+**Build Number:** 27
+**Release Date:** May 2026
+**Type:** Bug-fix cut on top of v1.1.9+26
+
+### Suggested Play Console release name
+`v1.1.10 — Cart quantity fix + selfie stability + product-push deep link`
+
+### English (Default)
+
+```
+🔧 Update — v1.1.10
+
+🔔 Tapping a "new product" notification now opens that exact product
+🛒 Cart quantity & total now stay in sync — no more wrong amounts on +/-
+📸 Fixed the selfie screen crashing on repeated captures
+```
+
+### 📋 Full Internal Release Notes
+
+#### 🐛 Bug fixes
+
+**1. Followed-seller "new product" notification didn't open the product page**
+The `FOLLOWED_SELLER_NEW_PRODUCT` push (sent when a seller you follow lists a product) had no case in the Flutter FCM handler, so taps fell through to the default route (Home). Added:
+- Warm tap → sets the global `productId` then `Get.toNamed('/ProductDetail')`.
+- Foreground → snackbar with a "tap to view" CTA.
+- Cold-start tap → stashed in `getStorage` (`pendingDeepLinkProductId`) and replayed by `SplashScreenController` after the `BottomTabBar` nav lands, so the `ProductDetail` push isn't clobbered (same race-avoidance pattern as `LIVE_STARTED`).
+- No backend change — the backend already sends `data.type` + `productId`.
+
+**2. Buy Now → Cart: total amount counted wrong on +/-**
+The tile kept its own optimistic `localQuantity` that incremented instantly on tap, but rapid taps pushed it ahead of what actually persisted server-side — only some of the async `addToCart` calls land before the next tap. The tile would show e.g. "4" while the cart truly had 2, and the Amount line (computed from the cart payload) said 2's worth. Fixes:
+- Removed the optimistic `localQuantity` — the tile now displays `widget.productQuantity`, the authoritative value the parent re-passes after each refetch. A per-tile `_busy` flag blocks a second +/- until the first op's refetch lands; the +/- buttons dim and a tiny spinner replaces the number while an op is in flight. Quantity, line price, and Amount can no longer disagree.
+- The Amount line already computes `_visibleSubTotal` client-side from the qty-filtered visible items (from v1.1.9) rather than trusting the backend's stored `subTotal`, which drifted out of sync with stale qty-0 rows.
+
+**3. "Product Removed" toast firing on plain quantity reductions**
+`removeFromCart` returns `status: true` for a 4 → 3 decrement too, so the controller toasted "Product Removed" on every decrement, even when the item stayed in the cart. Now it only toasts when the item actually left (backend deleted the cart / `data == null` / message says "cart deleted"). Plain reductions are silent — the quantity change is feedback enough.
+
+**4. Selfie screen crashed on repeated captures (~3rd attempt restarted the app)**
+Two native-memory leaks plus an over-strict gate:
+- `_readImageSize` (added in v1.1.9 for the H3 face-area fix) disposed `frame.image` but **not** the `ui.Codec` — leaking native memory on every capture until OOM → app restart. Now both are disposed in a `finally` block.
+- The view called `Get.put(SelfieVerificationController())` inside `build()`, replacing the controller — and its native ML Kit `FaceDetector` — on every rebuild, churning create/close cycles. Converted the view to a `StatefulWidget` that creates the controller in `initState` and `Get.delete()`s it in `dispose`, so the FaceDetector is created once per page mount and torn down once on pop.
+- Relaxed the ML Kit gate: the eye-open / face-area heuristics (flaky — ML Kit's classification probabilities swing with lighting and EXIF orientation) are now **non-blocking soft hints** ("Tip: move a little closer…"). Only zero-faces / multiple-faces still block the Submit button. The ML Kit error string is now captured in `autoCheckResult.mlKitError` for the admin reviewer.
+
+#### 📁 Files Changed (relative to 1.1.9+26)
+
+**Flutter** (`waxx_app/`):
+- `pubspec.yaml` — `1.1.9+26` → `1.1.10+27`.
+- `lib/services/push_notification_service.dart` — `FOLLOWED_SELLER_NEW_PRODUCT` warm-tap + foreground + cold-start stash.
+- `lib/Controller/GetxController/login/splash_screen_controller.dart` — `pendingDeepLinkProductId` replay.
+- `lib/View/MyApp/AppPages/cart_page.dart` — dropped optimistic `localQuantity`, `_busy` lock, spinner-while-busy, displays `widget.productQuantity`.
+- `lib/Controller/GetxController/user/remove_product_to_cart_controller.dart` — "Product Removed" toast only on real removal.
+- `lib/user_pages/selfie_verification/controller/selfie_verification_controller.dart` — Codec disposal in `finally`, relaxed gate (`gateError` vs `softHint`), `mlKitError` capture.
+- `lib/user_pages/selfie_verification/view/selfie_verification_view.dart` — `StatefulWidget` lifecycle (`Get.put` in `initState`, `Get.delete` in `dispose`), soft-hint card.
+
+**No backend / admin changes in this cut.**
+
+#### 🚀 Deploy checklist for v1.1.10
+
+1. Upload `app-release.aab` (1.1.10+27) to the Production track.
+2. No server-side action needed for these fixes (backend already sends the right push payload; the v1.1.9 backend `removeFromCart` clamp + `pm2 restart` is still on the v1.1.9 checklist if not done yet).
+
+---
 ## 🛠 Version 1.1.9+26 — Selfie verification hardening + new notifications + cart removal fixes
 
 **Version:** 1.1.9
