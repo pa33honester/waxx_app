@@ -560,7 +560,9 @@ class PrimaryTextField extends StatelessWidget {
                                                                                                                                     ? sellerEditProfileController.countryController
                                                                                                                                     : (controllerType == "updateStateController")
                                                                                                                                         ? sellerEditProfileController.stateCountroller
-                                                                                                                                        : (controllerType == "myCityController")
+                                                                                                                                        : (controllerType == "updateCityController")
+                                                                                                                                            ? sellerEditProfileController.cityCountroller
+                                                                                                                                            : (controllerType == "myCityController")
                                                                                                                                             ? userAddAddressController.myCityController
                                                                                                                                             : (controllerType == "addCountryController")
                                                                                                                                                 ? sellerCommonController.countryController
