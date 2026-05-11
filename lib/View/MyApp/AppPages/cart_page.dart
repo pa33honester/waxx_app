@@ -119,38 +119,63 @@ class _CartPageState extends State<CartPage> {
                               )
                             : SizedBox(height: 3),
                       ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: ListView.builder(
-                            itemCount: getAllCartProductController.getAllCartProducts?.data?.items?.length,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              final List attributesArray = getAllCartProductController.getAllCartProducts?.data?.items?[index].attributesArray ?? [];
-                              // List productCounts =
-                              //     List.generate(getAllCartProductController.getAllCartProducts!.data!.items!.length, (index) => false);
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: CartListTileWidget(
-                                  index: index,
-                                  productImage: getAllCartProductController.getAllCartProducts?.data?.items?[index].productId!.mainImage.toString() ?? "",
-                                  productName: getAllCartProductController.getAllCartProducts?.data?.items?[index].productId!.productName.toString() ?? "",
-                                  attributesArray: jsonDecode(jsonEncode(attributesArray)),
-                                  productPrice: getAllCartProductController.getAllCartProducts?.data?.items?[index].purchasedTimeProductPrice!.toInt() ?? 0,
-                                  productId: "${getAllCartProductController.getAllCartProducts?.data?.items?[index].productId?.id}",
-                                  productQuantity: getAllCartProductController.getAllCartProducts?.data?.items?[index].productQuantity?.toInt() ?? 0,
-                                  productShippingCharge: getAllCartProductController.getAllCartProducts?.data?.items?[index].purchasedTimeShippingCharges?.toInt() ?? 0,
-                                  deliveryOptions: getAllCartProductController.getAllCartProducts?.data?.items?[index].productId?.deliveryOptions,
-                                  chosenDeliveryType: getAllCartProductController.getAllCartProducts?.data?.items?[index].chosenDeliveryType,
-                                  onCartChanged: () {
-                                    if (mounted) setState(() {});
-                                  },
-                                ),
-                              );
-                            },
+                      Builder(builder: (context) {
+                        // Defensive filter: hide any cart items the
+                        // backend has left at productQuantity == 0.
+                        // Those can occur if a previous decrement
+                        // reduced the qty to 0 but the server-side
+                        // $pull cleanup didn't run (race, error, or
+                        // partial response). Without this filter the
+                        // user sees a tile they can't decrement (the
+                        // backend's 0 >= 1 precondition fails) and
+                        // the cart total stays wrong. If the cart
+                        // ends up entirely empty after the filter,
+                        // render the no-data state inline so the user
+                        // doesn't sit on a blank page with a stale
+                        // Amount.
+                        final allItems = getAllCartProductController.getAllCartProducts?.data?.items ?? [];
+                        final visibleItems = allItems.where((it) => (it.productQuantity?.toInt() ?? 0) > 0).toList();
+
+                        if (visibleItems.isEmpty) {
+                          return Expanded(
+                            child: noDataFound(
+                              image: "assets/no_data_found/basket.png",
+                            ).paddingOnly(bottom: Get.height * .20),
+                          );
+                        }
+
+                        return Expanded(
+                          child: SingleChildScrollView(
+                            child: ListView.builder(
+                              itemCount: visibleItems.length,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                final item = visibleItems[index];
+                                final List attributesArray = item.attributesArray ?? [];
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: CartListTileWidget(
+                                    index: index,
+                                    productImage: item.productId!.mainImage.toString(),
+                                    productName: item.productId!.productName.toString(),
+                                    attributesArray: jsonDecode(jsonEncode(attributesArray)),
+                                    productPrice: item.purchasedTimeProductPrice!.toInt(),
+                                    productId: "${item.productId?.id}",
+                                    productQuantity: item.productQuantity?.toInt() ?? 0,
+                                    productShippingCharge: item.purchasedTimeShippingCharges?.toInt() ?? 0,
+                                    deliveryOptions: item.productId?.deliveryOptions,
+                                    chosenDeliveryType: item.chosenDeliveryType,
+                                    onCartChanged: () {
+                                      if (mounted) setState(() {});
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      }),
                       DottedLine(dashColor: AppColors.unselected.withValues(alpha: 0.4)),
                       10.height,
                       Row(
