@@ -142,6 +142,9 @@ class _CartPageState extends State<CartPage> {
                                   productShippingCharge: getAllCartProductController.getAllCartProducts?.data?.items?[index].purchasedTimeShippingCharges?.toInt() ?? 0,
                                   deliveryOptions: getAllCartProductController.getAllCartProducts?.data?.items?[index].productId?.deliveryOptions,
                                   chosenDeliveryType: getAllCartProductController.getAllCartProducts?.data?.items?[index].chosenDeliveryType,
+                                  onCartChanged: () {
+                                    if (mounted) setState(() {});
+                                  },
                                 ),
                               );
                             },
@@ -264,6 +267,7 @@ class CartListTileWidget extends StatefulWidget {
     required this.index,
     this.deliveryOptions,
     this.chosenDeliveryType,
+    this.onCartChanged,
   });
 
   final String productImage;
@@ -279,6 +283,12 @@ class CartListTileWidget extends StatefulWidget {
   // shipping; the tile then renders no picker.
   final List<dynamic>? deliveryOptions;
   final String? chosenDeliveryType;
+  // Fired after every successful +/- API refetch. The parent Cart
+  // Page wires this to setState((){}) so the Amount / Sub Total
+  // numbers redraw even when the GetBuilder subscription is in a
+  // bad state (e.g. Buy Now → Cart push, where Product Detail's
+  // State has already touched the controller registry).
+  final VoidCallback? onCartChanged;
 
   @override
   State<CartListTileWidget> createState() => _CartListTileWidgetState();
@@ -308,6 +318,18 @@ class _CartListTileWidgetState extends State<CartListTileWidget> {
     localQuantity = widget.productQuantity;
   }
 
+  // After the cart refetch completes, fire the parent's
+  // onCartChanged callback. That callback is wired in _CartPageState
+  // to a plain setState((){}) so the Amount / Sub Total / line-item
+  // totals redraw even when the GetBuilder subscription is in a
+  // bad state. Without this, Buy Now → Cart left stale numbers on
+  // the screen until the user navigated to Checkout, because the
+  // GetBuilder's update() never reached the right subscription.
+  Future<void> _refetchCart() async {
+    await getAllCartProductController.getCartProductData(updatedData: true);
+    widget.onCartChanged?.call();
+  }
+
   increment() {
     setState(() {
       localQuantity++; // UI fast update thase
@@ -317,7 +339,7 @@ class _CartListTileWidgetState extends State<CartListTileWidget> {
     log('product id >>>> $productId');
 
     addProductToCartController.addProductToCartData(productQuantity: 1, attributes: widget.attributesArray).then((value) {
-      getAllCartProductController.getCartProductData(updatedData: true);
+      _refetchCart();
     });
   }
 
@@ -331,7 +353,7 @@ class _CartListTileWidgetState extends State<CartListTileWidget> {
       log("product id >>>> $productId");
 
       removeProductToCartController.removeProductToCartData(productQuantity: 1, attributes: widget.attributesArray).then((value) {
-        getAllCartProductController.getCartProductData(updatedData: true);
+        _refetchCart();
       });
     } else if (localQuantity == 1) {
       // Remove last quantity
@@ -339,7 +361,7 @@ class _CartListTileWidgetState extends State<CartListTileWidget> {
       log("Removing last product >>>> $productId");
 
       removeProductToCartController.removeProductToCartData(productQuantity: 1, attributes: widget.attributesArray).then((value) {
-        getAllCartProductController.getCartProductData(updatedData: true);
+        _refetchCart();
       });
     }
   }
