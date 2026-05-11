@@ -1,6 +1,106 @@
 # Release Notes — Waxx App
 
 ---
+## 🛠 Version 1.1.9+26 — Selfie verification hardening + new notifications + cart removal fixes
+
+**Version:** 1.1.9
+**Build Number:** 26
+**Release Date:** May 2026
+**Type:** Hardening + feature cut on top of v1.1.8+25 (consolidates the patches that had been riding on the same build number)
+
+### Suggested Play Console release name
+`v1.1.9 — Verification hardening + followed-seller alerts + cart fixes`
+
+### English (Default)
+
+```
+🔧 Update — v1.1.9
+
+🛡 Hardened the new identity-verification flow ahead of go-live
+🔔 Get notified when a seller you follow lists a new product
+🛒 Cart removal fixes — decreasing to 0 now removes the item cleanly
+✅ Verified badge updates instantly when an admin approves you
+🏙 Seller "My Address" city field now shows the value the moment you pick it
+```
+
+### 📋 Full Internal Release Notes
+
+#### 🆕 New features
+
+**Push notification when a seller you follow lists a new product** — Whenever an `Approved` product goes live (created directly or admin-approved from a Pending request), `notifyFollowersOfNewProduct(product)` in `product.controller.js` queries the `Follower` collection by `sellerId`, writes a `Notification` row per follower (`insertMany`, `ordered:false`), hydrates FCM tokens from `User`, and sends a `sendEachForMulticast` with `data.type: "FOLLOWED_SELLER_NEW_PRODUCT"`. Best-effort — errors log + swallow. Hooked from `createProduct` (when `createStatus === "Approved"`) and `acceptCreateRequest` (when admin approves). No Flutter change required — the existing FCM handler routes the `productId` payload.
+
+**Admin Broadcast page** — New `/admin/broadcast` standalone React page lets the admin compose title / message / optional image and broadcast it to all buyers or all sellers via the existing `notification/send?notificationType=User|Seller` endpoint. New "Broadcast" sidebar entry (lucide `Megaphone` icon). No backend change — the endpoint already supported the multicast pattern; it just wasn't exposed in the UI. `BroadcastNotification.js` is a fresh inline form; the legacy modal-style `Notification.js` stays untouched.
+
+#### 🛡 Selfie verification hardening (audit follow-up)
+
+Six fixes from the pre-go-live audit of the v1.1.6+23 selfie verification feature. C1-C3 were blocking; H1-H5 landed in the same cut.
+
+| ID | Sev | What |
+|---|---|---|
+| C1 | 🔴 | **User-delete cascade now removes Verification rows + selfie files.** `_purgeUserCascade` was leaving biometric data on disk forever after account deletion. Now finds the user's `Verification` rows, deletes each selfie file from `private_storage/`, and `Verification.deleteMany({ userId })`. |
+| C2 | 🔴 | **`adminReview` is now atomic.** Snapshots the Verification row's prior state before `save()`; if the follow-up `User.verificationStatus` update fails, rolls the Verification back so the two records can't desync (the "verified row but badge never appears" scenario). |
+| C3 | 🔴 | **FCM handler updates the badge live.** New `_applyVerificationStatusFromPush()` mutates the global `verificationStatus.value` on `VERIFICATION_APPROVED` / `VERIFICATION_REJECTED` data pushes, wired into both `onMessage` (foreground) and `handleRemoteMessage` (warm tap / cold-start replay). Before this, admin approvals were invisible until a cold restart or a manual status refetch. |
+| H1 | 🟠 | **Resubmission cleans up the previous selfie file.** `submitSelfie` now deletes the user's previous `rejected` / `pending_review` selfie files from disk before saving the new row. Verified rows' files stay (audit trail). |
+| H2 | 🟠 | **Admin queue uses server-side pagination.** Was fetching `limit=200` once and paginating client-side, so pending rows beyond 200 were invisible. Now refetches on every page change with the proper `page` + `limit`; `Table` + `Pagination` switched to `type="server"` with `count={total}`. |
+| H3 | 🟠 | **ML Kit face-area ratio uses real image dimensions.** Was assuming 1280×1280 (square), which underestimated portrait selfies' area ratio by ~25% and made the 18% gate threshold harder to pass. New `_readImageSize()` reads the actual pixel dimensions via `dart:ui`'s `instantiateImageCodec`. |
+| H4 | 🟠 | **`/private-file` validates `userId` + escapes the regex.** Rejects any `userId` that isn't a valid ObjectId; escapes the filename inside the ownership-lookup regex so multer's `.` in the random suffix can't be exploited. |
+| H5 | 🟠 | **KYC migration script rolls back on partial failure.** If `Model.updateOne` throws after `fs.renameSync` succeeded, the file is moved back to `storage/` so the static handler doesn't permanently 404 the URL. |
+
+#### 🐛 Cart removal fixes
+
+| Issue | Fix |
+|---|---|
+| **Decrement from quantity 1 → "Something Wrong Please Try Again" toast while the cart was actually already empty** | `remove_product_to_cart_controller` now treats benign "cart not found" / "product not found in cart" backend responses as already-removed (success toast) instead of a generic failure. Those fire when a stale tile click sends a duplicate remove after a previous tap already deleted the cart server-side. |
+| **Cart tile flashed "1" while the API + refetch round-tripped on the last-item decrement** | `cart_page.dart`'s tile decrement from 1 optimistically zeros `localQuantity` via `setState` so the tile stops showing "1" immediately; the parent's `onCartChanged` → `setState((){})` then rebuilds the list from the refetched payload (tile unmounts if cart empty, re-mounts with fresh data otherwise). |
+| **Cart kept showing a tile at quantity 0 (un-decrementable, Amount line wrong)** | Two-sided fix. **Backend** `removeFromCart` now clamps the effective decrement to the stored quantity instead of rejecting on `storedQty >= requestedQty` — so a stale qty-0 row (where a prior decrement zeroed it but the `$pull` cleanup didn't run) gets removed cleanly rather than returning "Product's productQuantity does not found in the cart." **Flutter** also defensively filters any `productQuantity == 0` cart items out of the rendered list, and renders the no-data state inline if that empties the visible list. |
+| **Buy Now → Cart: Amount + Sub Total not recalc'ing on +/-** (carried over from the v1.1.8+25 patch series) | `CartListTileWidget` gained an `onCartChanged` `VoidCallback`; the tile `await`s the refetch then fires it, and the parent passes `() { if (mounted) setState((){}); }` so the page rebuilds via Flutter's setState — route-independent, no GetBuilder propagation reliance. |
+
+#### 🐛 Other fixes
+
+| Issue | Fix |
+|---|---|
+| **Seller "My Address" city input stayed blank after picking a city** (value still saved correctly — only the visual binding was broken) | The `PrimaryTextField`'s `controllerTypes()` switch had no case for `"updateCityController"`, so the field rendered with no `TextEditingController` bound. The picker's `onStateTap` was correctly setting `sellerEditProfileController.cityCountroller.text` (which the save reads), but the widget wasn't listening to it. Added the missing mapping → field updates the instant the user picks (preset or custom). |
+| **Checkout Delivery Location card showed the buyer's signup phone for ship-to-someone-else cases** | `_buildContactPhone()` now returns ONLY the address's saved `phoneNumber` — no fallback to the buyer's signup `mobileNumber`. The recipient phone is what a courier needs, and falling back leaked the buyer's personal number. Row hides itself when the address has no phone. |
+
+#### 📁 Files Changed (relative to 1.1.8+25)
+
+**Backend** (`waxxapp_admin/backend/`):
+- `server/user/user.controller.js` — C1: Verification cascade in `_purgeUserCascade`.
+- `server/verification/verification.controller.js` — C2 atomic `adminReview`, H1 resubmit cleanup.
+- `server/privateFile/privateFile.controller.js` — H4 ObjectId validation + regex escape.
+- `scripts/migrateKycToPrivate.js` — H5 rollback on partial failure.
+- `server/product/product.controller.js` — `notifyFollowersOfNewProduct` + invocations.
+- `server/cart/cart.controller.js` — `removeFromCart` clamps decrement to stored qty.
+
+**Admin frontend** (`waxxapp_admin/frontend/`):
+- `src/Component/Table/verification/Verification.js` — H2 server-side pagination.
+- `src/Component/Table/admin/BroadcastNotification.js` (new) — broadcast composer.
+- `src/Component/Pages/Admin.js` — `/admin/broadcast` route.
+- `src/Component/Pages/Sidebar.js` — "Broadcast" entry.
+
+**Flutter** (`waxx_app/`):
+- `pubspec.yaml` — `1.1.8+25` → `1.1.9+26`.
+- `lib/services/push_notification_service.dart` — C3 verification-status FCM handler.
+- `lib/user_pages/selfie_verification/controller/selfie_verification_controller.dart` — H3 real image dimensions.
+- `lib/View/MyApp/AppPages/cart_page.dart` — qty-0 filter, `onCartChanged` callback, optimistic zero on last-item decrement.
+- `lib/Controller/GetxController/user/remove_product_to_cart_controller.dart` — benign-not-found → success toast.
+- `lib/utils/CoustomWidget/App_theme_services/textfields.dart` — `"updateCityController"` mapping.
+- `lib/View/MyApp/AppPages/cheak_out.dart` — `_buildContactPhone()` address-only.
+
+#### 🚀 Deploy checklist for v1.1.9
+
+1. `cd waxxapp_admin/backend && git pull && pm2 restart backend` — picks up C1/C2/H1/H4, the followed-seller push, and the `removeFromCart` clamp.
+2. `cd ../frontend && git pull && npm install --f && ./deploy.sh` — exposes H2 pagination + the `/admin/broadcast` page.
+3. Re-run the KYC migration script if it hasn't been run yet (H5 rollback applies to that run).
+4. Upload `app-release.aab` (1.1.9+26) to the Production track.
+5. (Selfie verification still gated behind `Setting.selfieVerification.isActive` — flip it on once you've sanity-checked the queue with internal accounts.)
+
+#### ⚠️ Out-of-scope
+
+- The MEDIUM/LOW items from the selfie audit (rejection-reason can be empty, settings toggle invariant, English-only strings, GetX binding on the route, the remaining 4 badge surfaces) are still in the backlog.
+- Throttling on the followed-seller push (a seller listing N products fires N pushes per follower) — acceptable for v1.
+
+---
 ## 🛠 Version 1.1.8+25 — Item Location custom city + per-address phone number
 
 **Version:** 1.1.8
