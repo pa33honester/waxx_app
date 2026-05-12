@@ -168,28 +168,32 @@ class SplashScreenController extends GetxController {
 
   Future storageData() async {
     if (getStorage.read("isLogin") == true) {
-      loginUserId = getStorage.read("userId");
-      editImage = getStorage.read("editImage");
-      editFirstName = getStorage.read("editFirstName");
-      editLastName = getStorage.read("editLastName");
-      editEmail = getStorage.read("editEmail");
-      editDateOfBirth = getStorage.read("dob");
-      genderSelect = getStorage.read("genderSelect");
-      editLocation = getStorage.read("location");
-      editUserCountry = getStorage.read("country") ?? "";
-      editUserAddress = getStorage.read("address") ?? "";
-      uniqueID = getStorage.read("uniqueID");
-      isSellerRequestSand = getStorage.read("isSellerRequestSand");
-
-      if (getStorage.read("becomeSeller") == null) {
-        isSeller = false;
-      } else {
-        isSeller = getStorage.read("becomeSeller");
-      }
-      if (getStorage.read("mobileNumber") == null) {
-        mobileNumber = "";
-      } else {
-        mobileNumber = getStorage.read("mobileNumber");
+      // Defensive: getStorage.read returns dynamic (possibly null);
+      // these globals are non-nullable Strings. A single missing key
+      // (old login, partial write, a version-update gap) used to
+      // throw a TypeError here and abort the whole method — which
+      // meant the /setting fetch + flag hydration below (including
+      // isSelfieVerificationActive) never ran, so the Selfie menu
+      // stayed hidden. Always coerce to a safe default.
+      try {
+        loginUserId = (getStorage.read("userId") ?? "").toString();
+        editImage = (getStorage.read("editImage") ?? "").toString();
+        editFirstName = (getStorage.read("editFirstName") ?? "").toString();
+        editLastName = (getStorage.read("editLastName") ?? "").toString();
+        editEmail = (getStorage.read("editEmail") ?? "").toString();
+        editDateOfBirth = (getStorage.read("dob") ?? "").toString();
+        genderSelect = (getStorage.read("genderSelect") ?? "Male").toString();
+        editLocation = (getStorage.read("location") ?? "").toString();
+        editUserCountry = (getStorage.read("country") ?? "").toString();
+        editUserAddress = (getStorage.read("address") ?? "").toString();
+        uniqueID = (getStorage.read("uniqueID") ?? "").toString();
+        isSellerRequestSand = getStorage.read("isSellerRequestSand");
+        isSeller = getStorage.read("becomeSeller") == true;
+        mobileNumber = (getStorage.read("mobileNumber") ?? "").toString();
+      } catch (e) {
+        // Even if something here still throws, don't let it block the
+        // settings fetch below — that's what powers feature gating.
+        print("storageData getStorage hydration error: $e");
       }
 
       //******************************************************
@@ -200,7 +204,10 @@ class SplashScreenController extends GetxController {
         stripeTestSecretKey = settingApiController.setting?.setting?.stripeSecretKey ?? "";
         razorPayKey = settingApiController.setting?.setting?.razorSecretKey ?? "";
         flutterWaveId = settingApiController.setting?.setting?.flutterWaveId ?? "";
-        appID = int.parse(settingApiController.setting?.setting?.zegoAppId ?? '');
+        // tryParse, not parse — a blank/non-numeric zegoAppId used to
+        // throw a FormatException here and skip the rest of this
+        // block (including the verification flags).
+        appID = int.tryParse(settingApiController.setting?.setting?.zegoAppId ?? '') ?? 0;
         appSign = settingApiController.setting?.setting?.zegoAppSignIn ?? "";
         isShowRazorPayPaymentMethod = settingApiController.setting?.setting?.razorPaySwitch ?? false;
         isShowStripePaymentMethod = settingApiController.setting?.setting?.stripeSwitch ?? false;
