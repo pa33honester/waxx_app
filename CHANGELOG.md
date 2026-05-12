@@ -37,6 +37,11 @@ All notable changes to the Waxxapp Flutter app are documented here.
   - Admin panel (`waxxapp_admin/frontend`): new **Account Requests** page
     (under *User Management* in the sidebar) — list pending requests with
     Approve / Reject / Delete actions.
+  - **Currently hidden** behind the `kSignupAssistantEnabled` flag
+    ([lib/custom/signup_assistant_chip.dart](lib/custom/signup_assistant_chip.dart),
+    `false` by default) — the chip renders nothing and the bot is unreachable
+    until the flag is flipped to `true`. The backend `/accountRequest` endpoints
+    and the admin **Account Requests** page stay live regardless (harmless).
 
 ## [1.1.13+30] — May 2026
 

@@ -4,10 +4,19 @@ import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/font_style.dart';
 
+/// Kill switch for the in-app sign-up assistant chatbot. While `false`, the
+/// "Need help signing up?" chip is hidden everywhere it's placed (Sign In /
+/// Sign Up / Create Account / email-login / onboarding pager) — the bot code
+/// and the `/SignupAssistant` route stay in place but become unreachable.
+/// Flip to `true` to turn the feature back on.
+const bool kSignupAssistantEnabled = false;
+
 /// Small "Need help signing up?" pill shown on the entry / login screens.
 /// Tapping it opens the in-app sign-up assistant chatbot (`/SignupAssistant`).
 /// Styled to read on dark backgrounds; pass [floating] for the translucent
 /// variant used overlaid on the onboarding pager's full-bleed images.
+///
+/// Renders nothing while [kSignupAssistantEnabled] is `false`.
 class SignupAssistantChip extends StatelessWidget {
   const SignupAssistantChip({super.key, this.floating = false});
 
@@ -17,6 +26,7 @@ class SignupAssistantChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!kSignupAssistantEnabled) return const SizedBox.shrink();
     return InkWell(
       borderRadius: BorderRadius.circular(24),
       onTap: () => Get.toNamed("/SignupAssistant"),
