@@ -1,6 +1,52 @@
 # Release Notes — Waxx App
 
 ---
+## 🛠 Version 1.1.12+29 — Cart +/- now reliable on Buy Now path; selfie-menu hydration hardened
+
+**Version:** 1.1.12
+**Build Number:** 29
+**Release Date:** May 2026
+**Type:** Bug-fix cut on top of v1.1.11+28
+
+### English (Default)
+
+```
+🔧 Update — v1.1.12
+
+🛒 Cart +/- now works reliably whether you opened Cart via Buy Now or the tab
+✓ Selfie verification menu now shows consistently when enabled
+```
+
+### 📋 Full Internal Release Notes
+
+**1. Buy Now → Cart: +/- intermittently no-op (worked from the bottom-tab Cart, not after Buy Now)**
+
+Root cause was a controller-instance race. On the Buy Now path, Product Detail's State `Get.put`s a `GetAllCartProductController` (instance A), then `Get.back()` pops Product Detail, then `/CartPage` is pushed. The cart page's State field initializer and the cart-tile States each independently run `Get.isRegistered ? Get.find : Get.put` — and depending on timing/disposal, the page and a tile could end up holding **different** instances. The tile's `+/-` did its refetch on *its* controller; the page rendered from *its* controller — they never synced, so the quantity (and Amount) didn't update. The bottom-tab Cart is stable, so there both always resolved to the same instance.
+
+Fix: the cart tile no longer keeps a `GetAllCartProductController` at all. On `+/-` it triggers the mutation API (`addToCart` / `removeFromCart`) then calls `onCartChanged`, which the parent implements to refetch on **its own** controller and `setState`. One canonical controller; the tile's displayed quantity is always `widget.productQuantity` re-passed by the parent. A per-tile `_busy` flag (dims the buttons + shows a tiny spinner on the count) still blocks overlapping taps.
+
+> Also note (already shipped, separate cut): the backend's cart-line matching now uses a structural `sameAttributes()` compare instead of `JSON.stringify` equality (commit `56c2528`) — that was a *separate* intermittency: `removeFromCart` silently rejected and `addToCart` duplicated lines for any product with attributes, because Mongoose's array-subdoc `_id` made the stringified arrays never match. Needs `pm2 restart backend`.
+
+**2. Selfie verification menu didn't always appear (even though `/setting` returns `selfieVerification.isActive: true`)**
+
+`SplashScreenController.storageData()` assigned `getStorage.read(...)` (dynamic, possibly null) straight to non-nullable `String` globals (`loginUserId`, `editFirstName`, `uniqueID`, …). One missing login key — an old login, a partial write, a version-update gap — threw a `TypeError` there, abandoning the rest of the method, so the `/setting` fetch + feature-flag hydration (`isSelfieVerificationActive`, `isAddressProofActive`, …) below it never ran and the flag stayed `false` → menu hidden. Whether it worked depended on whether the stored login data was complete → the intermittency. Also `int.parse(zegoAppId ?? '')` threw a `FormatException` if `zegoAppId` were ever blank, skipping the rest of the same block.
+
+Fix: every `getStorage.read` in `storageData()` is coerced to a safe default and the block is wrapped in try/catch so it can't take down the settings fetch; `int.parse` → `int.tryParse`. The `/setting` fetch + flag hydration now always run as long as the user is logged in.
+
+#### 📁 Files Changed (relative to 1.1.11+28)
+
+- `pubspec.yaml` — `1.1.11+28` → `1.1.12+29`.
+- `lib/View/MyApp/AppPages/cart_page.dart` — tile drops its own cart controller; `onCartChanged` is now an async callback the parent implements (refetch on the parent's controller + setState); `_runMutation` helper; `_busy` lock.
+- `lib/Controller/GetxController/login/splash_screen_controller.dart` — null-safe `storageData` reads + try/catch + `int.tryParse` so the `/setting` hydration always runs.
+
+(Backend `sameAttributes` fix is in `waxxapp_admin` commit `56c2528` — deploy with `pm2 restart backend`.)
+
+#### 🚀 Deploy
+
+1. `pm2 restart backend` on the server (for the cart attribute-matching fix).
+2. Upload `app-release.aab` (1.1.12+29) to the Production track.
+
+---
 ## 🛠 Version 1.1.11+28 — Responsive home top bar
 
 **Version:** 1.1.11

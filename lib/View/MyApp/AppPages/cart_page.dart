@@ -190,7 +190,21 @@ class _CartPageState extends State<CartPage> {
                                     productShippingCharge: item.purchasedTimeShippingCharges?.toInt() ?? 0,
                                     deliveryOptions: item.productId?.deliveryOptions,
                                     chosenDeliveryType: item.chosenDeliveryType,
-                                    onCartChanged: () {
+                                    onCartChanged: () async {
+                                      // Refetch on the PARENT's
+                                      // controller — the one this
+                                      // page renders from. The tile
+                                      // used to refetch on its OWN
+                                      // controller field, which on
+                                      // the Buy Now → Cart push can
+                                      // be a different instance
+                                      // (Product Detail put one,
+                                      // Get.back disposed it, the
+                                      // parent + tile then raced to
+                                      // re-register) — so the tile's
+                                      // refetch updated an instance
+                                      // the page never reads.
+                                      await getAllCartProductController.getCartProductData(updatedData: true);
                                       if (mounted) setState(() {});
                                     },
                                   ),
@@ -334,25 +348,26 @@ class CartListTileWidget extends StatefulWidget {
   // shipping; the tile then renders no picker.
   final List<dynamic>? deliveryOptions;
   final String? chosenDeliveryType;
-  // Fired after every successful +/- API refetch. The parent Cart
-  // Page wires this to setState((){}) so the Amount / Sub Total
-  // numbers redraw even when the GetBuilder subscription is in a
-  // bad state (e.g. Buy Now → Cart push, where Product Detail's
-  // State has already touched the controller registry).
-  final VoidCallback? onCartChanged;
+  // Called by the tile right after its +/- API call lands. The
+  // parent Cart page implements this to refetch the cart on ITS
+  // OWN controller (the one it renders from) and setState — so the
+  // tile never has to guess which controller instance is canonical
+  // (a real hazard on the Buy Now → Cart push). Returns a Future
+  // the tile awaits before clearing its busy flag.
+  final Future<void> Function()? onCartChanged;
 
   @override
   State<CartListTileWidget> createState() => _CartListTileWidgetState();
 }
 
 class _CartListTileWidgetState extends State<CartListTileWidget> {
-  // Guarded find-or-put — see _CartPageState for the rationale.
-  // These tiles are rebuilt on every cart fetch; replacing the
-  // singleton each time would invalidate the parent GetBuilder's
-  // subscription and break +/- recalculations.
-  GetAllCartProductController getAllCartProductController = Get.isRegistered<GetAllCartProductController>()
-      ? Get.find<GetAllCartProductController>()
-      : Get.put(GetAllCartProductController());
+  // The mutation controllers (add / remove). These are stable
+  // singletons; the tile doesn't keep a GetAllCartProductController
+  // any more — the parent owns the cart fetch + state, and the tile
+  // just triggers the mutation API then calls widget.onCartChanged,
+  // which refetches on the parent's controller. That removes the
+  // "tile and parent on different controller instances" hazard that
+  // made Buy Now → Cart +/- intermittently no-op.
   RemoveProductToCartController removeProductToCartController = Get.isRegistered<RemoveProductToCartController>()
       ? Get.find<RemoveProductToCartController>()
       : Get.put(RemoveProductToCartController());
@@ -362,54 +377,48 @@ class _CartListTileWidgetState extends State<CartListTileWidget> {
 
   List<dynamic> attributesId = [];
 
-  // We deliberately do NOT keep a separate optimistic `localQuantity`
-  // any more. Rapid +/- taps used to push the local counter ahead of
-  // what actually persisted server-side (only some of the async
-  // addToCart calls land before the next tap), leaving the tile
-  // showing e.g. "4" while the cart truly had 2 — and the Amount
-  // line (computed from the cart payload) said 2's worth. The
-  // displayed quantity is now always `widget.productQuantity` (the
-  // authoritative value the parent re-passes after each refetch),
-  // and `_busy` blocks a second op until the first one's refetch has
-  // landed, so taps can't queue up out of sync.
+  // No separate optimistic `localQuantity`. The displayed quantity
+  // is always `widget.productQuantity` (the authoritative value the
+  // parent re-passes after each refetch); `_busy` blocks a second
+  // op until the first one's refetch has landed so taps can't queue
+  // up out of sync.
   bool _busy = false;
 
-  // After the cart refetch completes, fire the parent's
-  // onCartChanged callback. That callback is wired in _CartPageState
-  // to a plain setState((){}) so the Amount / Sub Total / line-item
-  // totals redraw even when the GetBuilder subscription is in a
-  // bad state. Without this, Buy Now → Cart left stale numbers on
-  // the screen until the user navigated to Checkout, because the
-  // GetBuilder's update() never reached the right subscription.
-  Future<void> _refetchCart() async {
-    await getAllCartProductController.getCartProductData(updatedData: true);
-    widget.onCartChanged?.call();
+  // Run a cart mutation (add or remove), then ask the parent to
+  // refetch + redraw, then clear the busy flag. The mutation sets
+  // the global `productId` first because the mutation controllers
+  // read it. Everything is best-effort — the API + refetch each
+  // swallow their own errors — so `_busy` always resets.
+  Future<void> _runMutation(Future Function() mutation) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    productId = widget.productId;
+    try {
+      await mutation();
+      if (widget.onCartChanged != null) {
+        await widget.onCartChanged!();
+      }
+    } catch (e) {
+      log("cart mutation error: $e");
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   void increment() {
-    if (_busy) return;
-    setState(() => _busy = true);
-    productId = widget.productId;
-    log('product id >>>> $productId');
-    addProductToCartController
-        .addProductToCartData(productQuantity: 1, attributes: widget.attributesArray)
-        .then((value) => _refetchCart())
-        .whenComplete(() {
-      if (mounted) setState(() => _busy = false);
-    });
+    log('increment product >>>> ${widget.productId}');
+    _runMutation(() => addProductToCartController.addProductToCartData(
+          productQuantity: 1,
+          attributes: widget.attributesArray,
+        ));
   }
 
   void decrement() {
-    if (_busy) return;
-    setState(() => _busy = true);
-    productId = widget.productId;
-    log("Removing one of product >>>> $productId");
-    removeProductToCartController
-        .removeProductToCartData(productQuantity: 1, attributes: widget.attributesArray)
-        .then((value) => _refetchCart())
-        .whenComplete(() {
-      if (mounted) setState(() => _busy = false);
-    });
+    log('decrement product >>>> ${widget.productId}');
+    _runMutation(() => removeProductToCartController.removeProductToCartData(
+          productQuantity: 1,
+          attributes: widget.attributesArray,
+        ));
   }
 
   @override
