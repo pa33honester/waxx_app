@@ -99,8 +99,14 @@ bool isGovIdRequired = false;
 bool isRegistrationCertActive = false;
 bool isRegistrationCertRequired = false;
 // Selfie verification (admin-issued blue tick). Mirrors the
-// settingJSON.selfieVerification block and is hydrated on splash.
-bool isSelfieVerificationActive = false;
+// settingJSON.selfieVerification block. Reactive so the Profile tab's
+// "Verify your account" row appears the moment /setting hydrates the
+// flag — it's set both on splash (storageData) and on every
+// BottomTabBar mount (settingApiCall), and the Profile tab is kept
+// alive in the bottom-bar PageView, so a non-reactive bool that was
+// read as `false` before /setting landed would stay hidden for the
+// whole session.
+RxBool isSelfieVerificationActive = false.obs;
 bool isSelfieVerificationRequired = false;
 // Latest known selfie verification status for the logged-in user
 // ("none" / "pending_review" / "verified" / "rejected"). Captured

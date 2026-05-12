@@ -226,7 +226,7 @@ class SplashScreenController extends GetxController {
         isGovIdRequired = settingApiController.setting?.setting?.govId?.isRequired ?? false;
         isRegistrationCertActive = settingApiController.setting?.setting?.registrationCert?.isActive ?? false;
         isRegistrationCertRequired = settingApiController.setting?.setting?.registrationCert?.isRequired ?? false;
-        isSelfieVerificationActive = settingApiController.setting?.setting?.selfieVerification?.isActive ?? false;
+        isSelfieVerificationActive.value = settingApiController.setting?.setting?.selfieVerification?.isActive ?? false;
         isSelfieVerificationRequired = settingApiController.setting?.setting?.selfieVerification?.isRequired ?? false;
         termsAndConditionsLink = settingApiController.setting?.setting?.termsAndConditionsLink ?? '';
         privacyPolicyLink = settingApiController.setting?.setting?.privacyPolicyLink ?? '';

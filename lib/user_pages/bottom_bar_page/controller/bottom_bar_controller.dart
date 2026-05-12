@@ -136,7 +136,11 @@ class BottomBarController extends GetxController {
       stripeTestSecretKey = settingApiController.setting?.setting?.stripeSecretKey ?? "";
       razorPayKey = settingApiController.setting?.setting?.razorSecretKey ?? "";
       flutterWaveId = settingApiController.setting?.setting?.flutterWaveId ?? "";
-      appID = int.parse(settingApiController.setting?.setting?.zegoAppId ?? '');
+      // tryParse, not parse — a blank/non-numeric zegoAppId throws a
+      // FormatException here, which (since settingApiCall runs un-awaited
+      // and un-guarded from onInit) silently abandons the rest of this
+      // block, including the verification flags below.
+      appID = int.tryParse(settingApiController.setting?.setting?.zegoAppId ?? '') ?? 0;
       appSign = settingApiController.setting?.setting?.zegoAppSignIn ?? "";
       isShowRazorPayPaymentMethod = settingApiController.setting?.setting?.razorPaySwitch ?? false;
       isShowStripePaymentMethod = settingApiController.setting?.setting?.stripeSwitch ?? false;
@@ -154,6 +158,13 @@ class BottomBarController extends GetxController {
       isGovIdRequired = settingApiController.setting?.setting?.govId?.isRequired ?? false;
       isRegistrationCertActive = settingApiController.setting?.setting?.registrationCert?.isActive ?? false;
       isRegistrationCertRequired = settingApiController.setting?.setting?.registrationCert?.isRequired ?? false;
+      // Re-hydrate the selfie-verification gate on every BottomTabBar
+      // mount (matching storageData on splash). Without this, a fresh
+      // sign-in or a transient /setting failure at splash left the flag
+      // at its default false for the rest of the session and the
+      // "Verify your account" row never showed.
+      isSelfieVerificationActive.value = settingApiController.setting?.setting?.selfieVerification?.isActive ?? false;
+      isSelfieVerificationRequired = settingApiController.setting?.setting?.selfieVerification?.isRequired ?? false;
       termsAndConditionsLink = settingApiController.setting?.setting?.termsAndConditionsLink ?? "";
       privacyPolicyLink = settingApiController.setting?.setting?.privacyPolicyLink ?? "";
       print("stripPublishableKey:::::$stripPublishableKey");

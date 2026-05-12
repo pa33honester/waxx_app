@@ -444,11 +444,22 @@ class _MainProfileState extends State<MainProfile> {
                       ),
                       // Selfie verification entry — gated by the admin
                       // setting so it stays hidden until the feature is
-                      // turned on in production. The trailing chip
-                      // mirrors the latest verificationStatus.
-                      if (isSelfieVerificationActive) ...[
-                        15.height,
-                        Obx(() => ProfileItemWidget(
+                      // turned on in production. Both the gate flag and
+                      // the trailing status label are reactive so the
+                      // row appears as soon as /setting hydrates the
+                      // flag (it may land after this tab first builds,
+                      // since the Profile tab is kept alive in the
+                      // bottom-bar PageView).
+                      Obx(() {
+                        if (!isSelfieVerificationActive.value) {
+                          return const SizedBox.shrink();
+                        }
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            15.height,
+                            ProfileItemWidget(
                               title: verificationStatus.value == "verified"
                                   ? "Verified ✓"
                                   : verificationStatus.value == "pending_review"
@@ -459,8 +470,10 @@ class _MainProfileState extends State<MainProfile> {
                               icon: AppAsset.icSecurity,
                               iconSize: 23,
                               callback: () => Get.toNamed("/SelfieVerification"),
-                            )),
-                      ],
+                            ),
+                          ],
+                        );
+                      }),
                       100.height,
 
                       // ProfileOptions(

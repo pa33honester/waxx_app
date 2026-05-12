@@ -53,3 +53,23 @@ All notable changes to the Waxxapp Flutter app are documented here.
   as `contentType:` — matching the pattern already used by the seller
   registration and product upload services.
   ([lib/ApiService/user/submit_selfie_verification_service.dart](lib/ApiService/user/submit_selfie_verification_service.dart))
+- **"Verify your account" row in Profile appeared only sometimes.** The row is
+  gated by `isSelfieVerificationActive`, which was a non-reactive global `bool`
+  (default `false`) hydrated in exactly one place — `SplashScreenController.storageData()`,
+  which only runs its body when the app cold-started already logged in *and*
+  `/setting` returned `status == true`. A fresh sign-in (logged-out → login,
+  which never fetches `/setting`) or a transient `/setting` failure at splash
+  left the flag `false` for the rest of the session, and the bottom-bar's own
+  `/setting` re-fetch (`BottomBarController.settingApiCall`) re-hydrated ~20
+  other feature flags but **skipped this one**, so it couldn't recover. The
+  Profile tab is kept alive in the bottom-bar `PageView`, so a value read as
+  `false` before `/setting` landed stayed hidden permanently. Fixes:
+  `isSelfieVerificationActive` is now an `RxBool`; `settingApiCall` re-hydrates
+  it (and `isSelfieVerificationRequired`) on every `BottomTabBar` mount, with
+  `int.parse(zegoAppId)` → `int.tryParse(...) ?? 0` so a blank Zego ID can't
+  abort that block first; the Profile row is wrapped in `Obx` keyed on the flag
+  + `verificationStatus` so it appears as soon as the flag flips.
+  ([lib/utils/globle_veriables.dart](lib/utils/globle_veriables.dart),
+  [lib/Controller/GetxController/login/splash_screen_controller.dart](lib/Controller/GetxController/login/splash_screen_controller.dart),
+  [lib/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart](lib/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart),
+  [lib/View/MyApp/Profile/main_profile.dart](lib/View/MyApp/Profile/main_profile.dart))
