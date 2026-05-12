@@ -2,7 +2,7 @@
 
 All notable changes to the Waxxapp Flutter app are documented here.
 
-## [Unreleased]
+## [1.1.13+30] — May 2026
 
 ### Fixed
 - **Selfie verification: "Couldn't submit. Please try again." on every upload.**

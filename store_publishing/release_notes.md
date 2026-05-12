@@ -1,6 +1,46 @@
 # Release Notes — Waxx App
 
 ---
+## 🛠 Version 1.1.13+30 — Selfie verification submit fixed
+
+**Version:** 1.1.13
+**Build Number:** 30
+**Release Date:** May 2026
+**Type:** Bug-fix cut on top of v1.1.12+29
+
+### Suggested Play Console release name
+`v1.1.13 — Selfie verification submit fixed`
+
+### English (Default)
+
+```
+🔧 Update — v1.1.13
+
+✓ "Verify Your Account" — taking and submitting a selfie now works
+```
+
+### 📋 Full Internal Release Notes
+
+**Selfie verification: "Couldn't submit. Please try again." on every upload.**
+
+`SubmitSelfieVerificationApi.submit` (`lib/ApiService/user/submit_selfie_verification_service.dart`) built the multipart `selfie` part with `http.MultipartFile.fromPath('selfie', path)` and **no `contentType`**. Dart's `http` package does not infer a MIME type from the filename — it sends `application/octet-stream`. The selfie endpoint (`POST /verification/submitSelfie`) wraps the upload in multer with the strict KYC `fileFilter` in `waxxapp_admin/backend/util/multer.js`, which only accepts `image/jpeg|png|gif|webp|jpg`. So multer rejected the file *before* the `submitSelfie` controller ran, the request came back non-200, and the app showed its generic submit-failed toast — every time. The camera/preview/ML-Kit gate all worked; only the upload failed.
+
+Why other uploads were unaffected: every other multipart image upload in the app (`seller_login_service.dart`, `add_product_service.dart`, `product_edit_service.dart`, `seller_edit_profile_service.dart`) already has a `_getMediaType(path)` helper and passes `contentType:`. The selfie service was the one that never got it.
+
+Fix: added the same `_getMediaType(path)` helper to `SubmitSelfieVerificationApi` (maps the file extension to an `image/*` `MediaType`, defaulting to `image/jpeg` — what `ImagePicker` produces with `imageQuality` set) and passed it as `contentType:` to `MultipartFile.fromPath`. No backend change needed.
+
+#### 📁 Files Changed (relative to 1.1.12+29)
+
+- `pubspec.yaml` — `1.1.12+29` → `1.1.13+30`.
+- `lib/ApiService/user/submit_selfie_verification_service.dart` — `_getMediaType` helper; `contentType:` passed on the `selfie` multipart part.
+- `CHANGELOG.md` — added (new file) with the 1.1.13+30 entry.
+
+#### 🚀 Deploy
+
+1. No backend deploy required.
+2. Upload `app-release.aab` (1.1.13+30) to the Production track.
+
+---
 ## 🛠 Version 1.1.12+29 — Cart +/- now reliable on Buy Now path; selfie-menu hydration hardened
 
 **Version:** 1.1.12
