@@ -1,6 +1,96 @@
 # Release Notes — Waxx App
 
 ---
+## ✨ Unreleased — In-app sign-up / login assistant chatbot
+
+**Version:** _(no bump yet — pending next cut)_
+**Type:** Feature, on top of v1.1.13+30
+
+### Suggested Play Console release name
+`v1.1.x — Sign-up help assistant`
+
+### English (Default)
+
+```
+✨ New — Sign-up help
+
+✓ Stuck signing up or logging in? Tap "Need help signing up?" on the login
+  screen — our assistant will walk you through it and our team sets up your
+  account
+```
+
+### 📋 Full Internal Release Notes
+
+**New in-app sign-up / login assistant chatbot.**
+
+New buyers sometimes get stuck on the sign-up / login screens (Firebase
+"blocked all requests from this device", OTP failures, mistyped emails, etc.)
+and abandon. This adds a small **in-app chatbot** — a fixed, deterministic
+step-by-step flow, no AI, no WhatsApp — reachable from a "Need help signing
+up? 💬" chip on the entry screen, Sign In, Sign Up, Create Account, the
+email-login screen, and the onboarding pager. The chip opens a full-screen
+chat assistant (`/SignupAssistant`) styled like the existing Support Chat.
+
+The bot greets the user and asks whether they're stuck on **Signing up**,
+**Logging in**, or **Something else**:
+
+- **Signing up** → the bot collects first name, last name, email, an optional
+  phone number, and a password (8+ chars, confirmed; never echoed in the
+  transcript), shows a summary, then `POST`s a **pending account request** to
+  the backend. The conversation state machine lives entirely on the client —
+  there is no server-side bot.
+- **Logging in** → the bot hands off to the existing flows: "Reset my
+  password" → the Forgot Password flow; "Chat with support" → the in-app
+  Support Chat (already wired to a human admin). No new backend for this
+  branch.
+
+An admin reviews each pending request in the admin panel (new **Account
+Requests** page under *User Management*) and **Approves** it — which creates
+the real `User` (`loginType: 3`, the password the user chose, a fresh
+9-digit `uniqueId`), marks the request approved, and emails the user that
+their account is ready (the password is *not* included in the email). Admins
+can also **Reject** (optional reason → email) or **Delete** a request.
+
+Security notes: the `create` endpoint is gated by the app's shared secret
+(`checkAccessWithSecretKey()`) plus a light per-device rate-limit (≤ 3
+pending requests per device per day) and a duplicate-email guard. The
+password is collected client-side, sent over HTTPS, and stored
+Cryptr-encrypted at rest — the same reversible scheme every existing user
+password uses (not a regression).
+
+#### 📁 Files Changed (relative to 1.1.13+30)
+
+**Flutter (`waxx_app`)**
+- `lib/user_pages/signup_assistant/controller/signup_assistant_controller.dart` — new; the conversation state machine.
+- `lib/user_pages/signup_assistant/view/signup_assistant_view.dart` — new; the chat UI.
+- `lib/custom/signup_assistant_chip.dart` — new; the launcher pill.
+- `lib/ApiService/login/signup_assistant_service.dart`, `lib/ApiModel/login/account_request_model.dart` — new; submit DTO + HTTP.
+- `lib/utils/api_url.dart` — `Api.submitAccountRequest = "accountRequest/create"`.
+- `lib/utils/routes_pages.dart` — registered `/SignupAssistant`.
+- `lib/View/UserLogin/demo_sign_in.dart`, `sign_in_email.dart`, `sign_up.dart`, `create_account.dart`, `lib/View/OnboardingScreens/page_manage.dart` — added the `SignupAssistantChip`.
+- `lib/utils/Strings/strings.dart` + all 18 `lib/localization/language/*.dart` — `signupAssistant*` / `bot*` keys (English; other locales seeded with English placeholders).
+
+**Backend (`waxxapp_admin/backend`)**
+- `server/accountRequest/accountRequest.model.js`, `.controller.js`, `.route.js` — new feature folder.
+- `route.js` — mounted `/accountRequest`.
+- `util/emailSender.js` — added `templates.accountApproved` and `templates.accountRejected`.
+
+**Admin panel (`waxxapp_admin/frontend`)**
+- `src/Component/store/accountRequest/{type,reducer,action}.js` — new Redux slice; combined in `src/Component/store/index.js`.
+- `src/Component/Table/accountRequest/AccountRequests.js` — new page (table + Approve / Reject / Delete).
+- `src/Component/Pages/Admin.js` — route `/admin/accountRequests`.
+- `src/Component/Pages/Sidebar.js` — "Account Requests" entry under *User Management*.
+
+#### 🚀 Deploy
+
+1. Backend deploy required (`waxxapp_admin/backend` — `pm2 restart`). Mongo
+   creates the `accountrequests` collection on first write; no migration.
+2. Admin panel rebuild + deploy (`waxxapp_admin/frontend` — `npm run build`,
+   `./deploy.sh`).
+3. App: cut a new `app-release.aab` whenever the next version is bumped and
+   upload to the Production track.
+
+---
 ## 🛠 Version 1.1.13+30 — Selfie verification submit fixed
 
 **Version:** 1.1.13

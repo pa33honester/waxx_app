@@ -1,5 +1,6 @@
 import 'package:waxxapp/View/OnboardingScreens/on_boarding.dart';
 import 'package:waxxapp/custom/exit_app_dialog.dart';
+import 'package:waxxapp/custom/signup_assistant_chip.dart';
 import 'package:waxxapp/utils/app_colors.dart';
 import 'package:waxxapp/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,11 @@ class _PageManageState extends State<PageManage> {
                 itemBuilder: (context, index) {
                   return onBoardingImage[index];
                 },
+              ),
+              const Positioned(
+                top: 12,
+                right: 12,
+                child: SafeArea(child: SignupAssistantChip(floating: true)),
               ),
               Align(
                 alignment: Alignment.bottomLeft,

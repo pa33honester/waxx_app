@@ -2,6 +2,43 @@ class St {
   static String appName = "appName";
   static String appNameProduct = "appNameProduct";
 
+  //================= SIGN-UP ASSISTANT CHATBOT ==================
+  static String signupAssistantChip = "signupAssistantChip";
+  static String signupAssistantTitle = "signupAssistantTitle";
+  static String botGreeting = "botGreeting";
+  static String botOptionSignup = "botOptionSignup";
+  static String botOptionLogin = "botOptionLogin";
+  static String botOptionOther = "botOptionOther";
+  static String botSignupIntro = "botSignupIntro";
+  static String botAskFirstName = "botAskFirstName";
+  static String botAskLastName = "botAskLastName";
+  static String botAskEmail = "botAskEmail";
+  static String botAskPhone = "botAskPhone";
+  static String botSkip = "botSkip";
+  static String botAskPassword = "botAskPassword";
+  static String botAskConfirmPassword = "botAskConfirmPassword";
+  static String botInvalidEmail = "botInvalidEmail";
+  static String botInvalidPhone = "botInvalidPhone";
+  static String botPasswordTooShort = "botPasswordTooShort";
+  static String botPasswordMismatch = "botPasswordMismatch";
+  static String botSummaryIntro = "botSummaryIntro";
+  static String botSummaryName = "botSummaryName";
+  static String botSummaryEmail = "botSummaryEmail";
+  static String botSummaryPhone = "botSummaryPhone";
+  static String botNotProvided = "botNotProvided";
+  static String botEdit = "botEdit";
+  static String botSubmit = "botSubmit";
+  static String botSubmitting = "botSubmitting";
+  static String botSubmitSuccess = "botSubmitSuccess";
+  static String botSubmitFailed = "botSubmitFailed";
+  static String botBackToLogin = "botBackToLogin";
+  static String botLoginHelp = "botLoginHelp";
+  static String botResetPassword = "botResetPassword";
+  static String botChatSupport = "botChatSupport";
+  static String botOtherHelp = "botOtherHelp";
+  static String botComposeHint = "botComposeHint";
+  static String botAssistantLabel = "botAssistantLabel";
+
   //================= ON BOARDING SCREES ==================
   static String nextText = "nextText";
 

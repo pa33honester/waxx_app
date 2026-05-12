@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:waxxapp/custom/signup_assistant_chip.dart';
 import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/common_sign_in_button.dart';
 import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/common_sign_in_textfield.dart';
 import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/dont_account.dart';
@@ -117,6 +118,10 @@ class CreateAccount extends StatelessWidget {
                                             text: St.alreadyHaveAccount.tr),
                                       ],
                                     ),
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 16),
+                                    child: Center(child: SignupAssistantChip()),
                                   ),
                                 ],
                               ),

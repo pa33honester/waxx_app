@@ -28,6 +28,7 @@ import 'package:waxxapp/seller_pages/seller_wallet_page/view/seller_wallet_view.
 import 'package:waxxapp/seller_pages/seller_withdraw_history_page/view/seller_withdraw_history_view.dart';
 import 'package:waxxapp/user_pages/bottom_bar_page/view/bottom_bar_view.dart';
 import 'package:waxxapp/user_pages/support_chat/view/support_chat_view.dart';
+import 'package:waxxapp/user_pages/signup_assistant/view/signup_assistant_view.dart';
 import 'package:waxxapp/user_pages/home_page/view/home_view.dart';
 import 'package:waxxapp/user_pages/language_page/view/language_view.dart';
 import 'package:waxxapp/user_pages/popular_products_page/view/popular_product_view_all.dart';
@@ -309,6 +310,11 @@ class AppPages {
     GetPage(
       name: "/SupportChat",
       page: () => const SupportChatView(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: "/SignupAssistant",
+      page: () => const SignupAssistantView(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

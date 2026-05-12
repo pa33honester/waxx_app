@@ -129,6 +129,9 @@ class Api {
   // Customer-support chat (user ↔ admin operator pool).
   static const supportMyConversation = "support/myConversation";
   static const supportSendUserMessage = "support/sendUserMessage";
+  // In-app sign-up assistant chatbot — submits a pending account request
+  // that an admin reviews + approves in the admin panel.
+  static const submitAccountRequest = "accountRequest/create";
   static const createWithdraw = "withdrawRequest/initiateCashOut";
   static const getWithdrawalRequestsBySeller = "withdrawRequest/getWithdrawalRequestsBySeller";
   static const getSellerWalletHistory = "sellerWallet/retrieveSellerWalletHistory";
