@@ -365,55 +365,65 @@ class HomeAppbarWidget extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () {
-                final bottomBarController = Get.find<BottomBarController>();
-                bottomBarController.onChangeBottomBar(4);
-              },
-              child: Row(
-                children: [
-                  Container(
-                    height: 48,
-                    width: 48,
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.white),
-                    ),
-                    child: Container(
+            // Left section (avatar + name + subtitle) — wrapped in
+            // Expanded so a long display name ellipsizes instead of
+            // pushing the action buttons off the right edge (the
+            // overflow stripes). The name + subtitle texts are
+            // single-line with ellipsis.
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  final bottomBarController = Get.find<BottomBarController>();
+                  bottomBarController.onChangeBottomBar(4);
+                },
+                child: Row(
+                  children: [
+                    Container(
                       height: 48,
                       width: 48,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: const BoxDecoration(shape: BoxShape.circle),
-                      child: imageXFile == null
-                          ? CachedNetworkImage(
-                              imageUrl: editImage,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Image.asset(AppAsset.profilePlaceholder),
-                              errorWidget: (context, url, error) => Image.asset(AppAsset.profilePlaceholder),
-                            )
-                          : Image.file(
-                              File(imageXFile?.path ?? ""),
-                              fit: BoxFit.cover,
-                            ),
-                    ),
-                  ),
-                  10.width,
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GeneralTitle(title: "${St.hi.tr},$editFirstName"),
-                      Text(
-                        St.exploreTheLatestLiveDeals.tr,
-                        style: GoogleFonts.plusJakartaSans(color: AppColors.white, fontSize: 12, fontWeight: FontWeight.w500),
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.white),
                       ),
-                    ],
-                  ),
-                ],
+                      child: Container(
+                        height: 48,
+                        width: 48,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: const BoxDecoration(shape: BoxShape.circle),
+                        child: imageXFile == null
+                            ? CachedNetworkImage(
+                                imageUrl: editImage,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Image.asset(AppAsset.profilePlaceholder),
+                                errorWidget: (context, url, error) => Image.asset(AppAsset.profilePlaceholder),
+                              )
+                            : Image.file(
+                                File(imageXFile?.path ?? ""),
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                    ),
+                    10.width,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          GeneralTitle(title: "${St.hi.tr}, $editFirstName"),
+                          Text(
+                            St.exploreTheLatestLiveDeals.tr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.plusJakartaSans(color: AppColors.white, fontSize: 12, fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const Spacer(),
             10.width,
             CircleButtonWidget(
               callback: () => Get.to(() => const UnifiedSearchView()),

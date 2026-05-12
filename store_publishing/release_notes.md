@@ -1,6 +1,40 @@
 # Release Notes — Waxx App
 
 ---
+## 🛠 Version 1.1.11+28 — Responsive home top bar
+
+**Version:** 1.1.11
+**Build Number:** 28
+**Release Date:** May 2026
+**Type:** UI fix on top of v1.1.10+27 (carries all of v1.1.10's fixes — see below)
+
+### Suggested Play Console release name
+`v1.1.11 — Home header handles long names`
+
+### English (Default)
+
+```
+🔧 Update — v1.1.11
+
+📱 Home header no longer overflows when your display name is long
+```
+
+### 📋 Full Internal Release Notes
+
+**Home top bar — responsive name section.** The greeting row on Home (`home_view.dart`) put the avatar + "Hi, <name>" + "Explore the latest live deals!" in an unconstrained `Row`/`Column`, so a long display name ("Hi, Unique Quick Tutorials") pushed the search / wishlist / etc. action buttons off the right edge — the yellow-black overflow stripes. Fix: the left section (avatar + name column) is now wrapped in `Expanded`, and the name column itself in `Expanded`, so a long name ellipsizes ("Hi, Unique Quick…") instead of overflowing. The subtitle line also gets `maxLines: 1` + `overflow: ellipsis`. Action buttons always stay on screen.
+
+**Note on the "+/- not working" and "Selfie menu missing" reports:** both of those fixes already shipped in earlier cuts — the cart +/- quantity-sync rewrite in v1.1.9+26 / v1.1.10+27, the Selfie menu hydration in v1.1.6+23. They work in a local `flutter run` because that builds the current source. If they're not working "after published", the build on the store/internal track is older than those cuts — uploading this AAB (1.1.11+28, which includes all of them) fixes it. R8 minification is off (`minifyEnabled false`), so there's no release-only stripping at play.
+
+#### 📁 Files Changed (relative to 1.1.10+27)
+
+- `pubspec.yaml` — `1.1.10+27` → `1.1.11+28`.
+- `lib/user_pages/home_page/view/home_view.dart` — left section + name column wrapped in `Expanded`; subtitle `maxLines: 1` + ellipsis.
+
+#### 🚀 Deploy
+
+Upload `app-release.aab` (1.1.11+28) to the Production track. No server-side action needed for this cut.
+
+---
 ## 🛠 Version 1.1.10+27 — Followed-seller push opens the product, cart quantity sync, selfie crash fix
 
 **Version:** 1.1.10
