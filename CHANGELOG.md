@@ -73,3 +73,19 @@ All notable changes to the Waxxapp Flutter app are documented here.
   [lib/Controller/GetxController/login/splash_screen_controller.dart](lib/Controller/GetxController/login/splash_screen_controller.dart),
   [lib/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart](lib/user_pages/bottom_bar_page/controller/bottom_bar_controller.dart),
   [lib/View/MyApp/Profile/main_profile.dart](lib/View/MyApp/Profile/main_profile.dart))
+- **Spurious "No Internet Connection" dialog when taking a selfie.** The root
+  `_MyAppState` polled connectivity every 5s by doing a `InternetAddress.lookup('google.com')`
+  with a 3s timeout. While `image_picker`'s system camera activity is in front
+  (or an OS permission prompt), the app is backgrounded and that lookup
+  routinely times out — the OS deprioritises a backgrounded process's network —
+  so the poll popped the blocking, non-dismissible "No Internet" dialog over
+  the camera / on return. `_MyAppState` mixed in `WidgetsBindingObserver` but
+  never implemented `didChangeAppLifecycleState`, so it had no idea it was
+  backgrounded. Fixes: poll only while the app is `resumed` (cancel the timer +
+  ignore connectivity events otherwise, and run one check on resume so a real
+  outage that ended while away — or a dialog we suppressed — is reconciled
+  immediately); require two consecutive failed checks before showing the
+  dialog so a single transient lookup hiccup can't trigger it; guard against a
+  timer tick overlapping an in-flight check and against acting on a check that
+  completed after we went to the background.
+  ([lib/main.dart](lib/main.dart))

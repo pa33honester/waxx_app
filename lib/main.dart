@@ -162,22 +162,37 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   final Connectivity connectivity = Connectivity();
-  late StreamSubscription<List<ConnectivityResult>>? subscription;
+  StreamSubscription<List<ConnectivityResult>>? subscription;
   Timer? timer;
   bool dialogShowing = false;
+
+  // The connectivity check is a DNS lookup against google.com. When the
+  // app is backgrounded — most often because image_picker launched the
+  // system camera activity for a selfie, or an OS permission prompt is
+  // up — that lookup routinely times out (the OS deprioritises a
+  // backgrounded process's network), which made the periodic poll throw
+  // up the blocking "No Internet" dialog over the camera / on return.
+  // Two guards close that:
+  //   1. Only poll while the app is in the foreground (resumed); cancel
+  //      the timer and ignore connectivity events otherwise, then run
+  //      one check on resume so a real outage that ended while we were
+  //      away (or a dialog we suppressed) is reconciled immediately.
+  //   2. Require two consecutive failed checks before showing the
+  //      dialog, so a single transient lookup hiccup can't trigger it.
+  bool _isForeground = true;
+  bool _isChecking = false;
+  int _consecutiveFailures = 0;
+
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
 
-    // Listen to connectivity changes
-    subscription = connectivity.onConnectivityChanged.listen((result) {
-      checkInternetWithPing();
+    // Listen to connectivity changes (ignored while backgrounded).
+    subscription = connectivity.onConnectivityChanged.listen((_) {
+      if (_isForeground) checkInternetWithPing();
     });
 
-    // ✅ Periodically check internet (every 5 seconds)
-    timer = Timer.periodic(const Duration(seconds: 5), (_) {
-      checkInternetWithPing();
-    });
+    _startConnectivityPolling();
 
     super.initState();
   }
@@ -190,16 +205,58 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  Future<void> checkInternetWithPing() async {
-    bool hasInternet = await hasRealInternet();
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    final isForeground = state == AppLifecycleState.resumed;
+    if (isForeground == _isForeground) return;
+    _isForeground = isForeground;
+    if (isForeground) {
+      _consecutiveFailures = 0;
+      _startConnectivityPolling();
+      checkInternetWithPing();
+    } else {
+      timer?.cancel();
+      timer = null;
+    }
+  }
 
-    if (!hasInternet && !dialogShowing) {
-      showNoInternetDialog();
-    } else if (hasInternet && dialogShowing) {
-      if (Get.isDialogOpen ?? false) {
-        Get.back(); // close dialog
+  void _startConnectivityPolling() {
+    timer?.cancel();
+    // ✅ Periodically check internet (every 5 seconds) while foreground.
+    timer = Timer.periodic(const Duration(seconds: 5), (_) {
+      checkInternetWithPing();
+    });
+  }
+
+  Future<void> checkInternetWithPing() async {
+    // Don't run (or act on) a check while backgrounded, and don't let a
+    // timer tick overlap an in-flight check.
+    if (!_isForeground || _isChecking) return;
+    _isChecking = true;
+    bool hasInternet;
+    try {
+      hasInternet = await hasRealInternet();
+    } finally {
+      _isChecking = false;
+    }
+    // Lifecycle may have flipped during the await.
+    if (!_isForeground) return;
+
+    if (hasInternet) {
+      _consecutiveFailures = 0;
+      if (dialogShowing) {
+        if (Get.isDialogOpen ?? false) {
+          Get.back(); // close dialog
+        }
+        dialogShowing = false;
       }
-      dialogShowing = false;
+      return;
+    }
+
+    _consecutiveFailures++;
+    if (_consecutiveFailures >= 2 && !dialogShowing) {
+      showNoInternetDialog();
     }
   }
 
@@ -218,6 +275,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       NoInternetDialog(onRetry: () async {
         final hasInternet = await hasRealInternet();
         if (hasInternet) {
+          _consecutiveFailures = 0;
           if (Get.isDialogOpen ?? false) {
             Get.back();
           }
