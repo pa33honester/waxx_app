@@ -112,12 +112,19 @@ class MobileLoginController extends GetxController {
     Get.toNamed('/FillProfileScreen');
   }
 
-  static const _testPhoneNumber = '+15555551234';
+  // Single source of truth lives in globle_veriables.dart so the same
+  // list also drives the selfie-prompt skip (see isTestPhoneUser()).
   static const _testOtpCode = '123456';
   static const _testVerificationId = 'TEST_BYPASS';
 
-  bool get _isTestNumber =>
-      _buildPhoneNumber().replaceAll(RegExp(r'[\s\-()]'), '') == _testPhoneNumber;
+  bool get _isTestNumber {
+    final typed = _buildPhoneNumber().replaceAll(RegExp(r'[^0-9]'), '');
+    if (typed.isEmpty) return false;
+    for (final tp in gv.kTestPhoneNumbers) {
+      if (tp.replaceAll(RegExp(r'[^0-9]'), '') == typed) return true;
+    }
+    return false;
+  }
 
   void sendOtp() async {
     final number = numberController.text.trim();
@@ -138,7 +145,7 @@ class MobileLoginController extends GetxController {
 
     // ── Test-number bypass ──────────────────────────────────────────────────
     if (_isTestNumber) {
-      log('TEST_BYPASS sendOtp: skipping Firebase for $_testPhoneNumber');
+      log('TEST_BYPASS sendOtp: skipping Firebase for ${_buildPhoneNumber()}');
       verificationId = _testVerificationId;
       update();
       Get.toNamed("/VerifyOtpScreen");
@@ -221,7 +228,7 @@ class MobileLoginController extends GetxController {
         Utils.showToast("Invalid OTP. Use $_testOtpCode for the test number.");
         return;
       }
-      log('TEST_BYPASS verifyOtp: accepted for $_testPhoneNumber');
+      log('TEST_BYPASS verifyOtp: accepted for ${_buildPhoneNumber()}');
       Get.dialog(LoadingUi(), barrierDismissible: false);
       await _loginOrRouteToSignup();
       return;

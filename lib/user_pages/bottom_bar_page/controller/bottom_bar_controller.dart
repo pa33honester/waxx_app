@@ -10,6 +10,7 @@ import 'package:waxxapp/View/MyApp/AppPages/reels_page/view/reels_view.dart';
 import 'package:waxxapp/View/MyApp/Profile/main_profile.dart';
 import 'package:waxxapp/user_pages/account_settings/change_email/view/email_backfill_dialog.dart';
 import 'package:waxxapp/user_pages/home_page/view/home_view.dart';
+import 'package:waxxapp/user_pages/selfie_verification/view/selfie_required_dialog.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/api/fetch_seller_profile_api.dart';
 import 'package:waxxapp/user_pages/preview_seller_profile_page/view/preview_seller_profile_view.dart';
 import 'package:waxxapp/utils/Zego/create_engine.dart';
@@ -104,7 +105,13 @@ class BottomBarController extends GetxController {
     // Phone-signup users from before the "email required" change have an
     // empty email. Prompt them once per session to add one. The dialog
     // exits early when the user already has an email or has been prompted.
-    EmailBackfillDialog.showIfNeeded();
+    // Awaited so the selfie prompt below doesn't race the email modal —
+    // for users who don't need the email backfill it returns immediately.
+    await EmailBackfillDialog.showIfNeeded();
+
+    // Selfie identity verification. Re-prompts on every cold start until
+    // the user's verificationStatus becomes "verified" or "pending_review".
+    await SelfieRequiredDialog.showIfNeeded();
   }
 
   // Tab order: Home, Live, Reels, Cart, Profile — promotes live shopping

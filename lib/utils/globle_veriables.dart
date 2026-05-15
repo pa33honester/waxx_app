@@ -117,6 +117,27 @@ RxString verificationStatus = "none".obs;
 String termsAndConditionsLink = '';
 String privacyPolicyLink = '';
 
+/// =========== Test phone numbers ==========
+// E.164-formatted numbers that bypass real OTP delivery (handled in
+// MobileLoginController) AND skip the selfie-verification prompt.
+// Anyone adding a test number for QA/review should add it here only —
+// both call sites read from this list.
+const List<String> kTestPhoneNumbers = <String>[
+  '+15555551234',
+];
+
+// True when the currently signed-in user's phone (built from dialCode +
+// mobileNumber globals after login) matches one of [kTestPhoneNumbers].
+// Comparison is digits-only so '+1' vs '1' formatting can't make it miss.
+bool isTestPhoneUser() {
+  final candidate = ('${dialCode ?? ''}$mobileNumber').replaceAll(RegExp(r'[^0-9]'), '');
+  if (candidate.isEmpty) return false;
+  for (final tp in kTestPhoneNumbers) {
+    if (tp.replaceAll(RegExp(r'[^0-9]'), '') == candidate) return true;
+  }
+  return false;
+}
+
 /// =========== Socket Manger ==========
 IO.Socket? socket;
 
