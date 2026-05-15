@@ -383,6 +383,7 @@ final Map<String, String> ptPT = {
   "pendingOrder": "Pedido pendente",
   "confirmedOrders": "Pedidos confirmados",
   "deliveredOrder": "Pedido entregue",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "Fora do pedido de entrega",
   "cancelOrder": "Cancelar pedido",
   "totalOrder": "Ordem total",

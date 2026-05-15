@@ -383,6 +383,7 @@ final Map<String, String> koKR = {
   "pendingOrder": "보류중인 주문",
   "confirmedOrders": "확인된 주문",
   "deliveredOrder": "배달된 주문",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "배달되지 않은 주문",
   "cancelOrder": "주문 취소",
   "totalOrder": "총 주문",

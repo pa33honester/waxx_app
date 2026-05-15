@@ -383,6 +383,7 @@ final Map<String, String> itIT = {
   "pendingOrder": "Ordine in attesa",
   "confirmedOrders": "Ordini confermati",
   "deliveredOrder": "Ordine consegnato",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "Ordine fuori consegna",
   "cancelOrder": "Annulla Ordine",
   "totalOrder": "Ordine totale",

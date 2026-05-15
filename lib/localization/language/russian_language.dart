@@ -384,6 +384,7 @@ final Map<String, String> ruRU = {
   "pendingOrder": "Отложенный ордер",
   "confirmedOrders": "Подтвержденные заказы",
   "deliveredOrder": "Доставленный заказ",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "Заказ закончился",
   "cancelOrder": "Отменить заказ",
   "totalOrder": "Общий заказ",

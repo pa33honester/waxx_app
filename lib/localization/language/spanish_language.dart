@@ -383,6 +383,7 @@ final Map<String, String> esES = {
   "pendingOrder": "Orden pendiente",
   "confirmedOrders": "Pedidos confirmados",
   "deliveredOrder": "Orden entregada",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "Orden fuera de entrega",
   "cancelOrder": "Cancelar orden",
   "totalOrder": "Orden total",

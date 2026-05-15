@@ -383,6 +383,7 @@ final Map<String, String> bnIN = {
   "pendingOrder": "আদেশ করা",
   "confirmedOrders": "নিশ্চিত আদেশ",
   "deliveredOrder": "ডেলিভারি অর্ডার",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "ডেলিভারি অর্ডার আউট",
   "cancelOrder": "আদেশ বাতিল",
   "totalOrder": "মোট অর্ডার",

@@ -383,6 +383,7 @@ final Map<String, String> trTR = {
   "pendingOrder": "Bekleyen sipariş",
   "confirmedOrders": "Onaylanmış Siparişler",
   "deliveredOrder": "Teslim Edilen Sipariş",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "Teslimat Siparişi Dışı",
   "cancelOrder": "Siparişi iptal et",
   "totalOrder": "Genel sipariş toplamı",

@@ -383,6 +383,7 @@ final Map<String, String> teIN = {
   "pendingOrder": "పెండింగ్ ఆర్డర్",
   "confirmedOrders": "ధృవీకరించబడిన ఆదేశాలు",
   "deliveredOrder": "ఆర్డర్ డెలివరీ చేయబడింది",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "డెలివరీ ఆర్డర్ ముగిసింది",
   "cancelOrder": "ఆర్డర్ రద్దు చేయండి",
   "totalOrder": "మొత్తం ఆర్డర్",

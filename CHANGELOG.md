@@ -43,6 +43,28 @@ All notable changes to the Waxxapp Flutter app are documented here.
     until the flag is flipped to `true`. The backend `/accountRequest` endpoints
     and the admin **Account Requests** page stay live regardless (harmless).
 
+## [1.1.15+32] — May 2026
+
+### Added
+- **"Complete Order" row on the seller "My Order" dashboard.** Slots between Delivered Order and Cancel Order with the live admin-released count. Tapping opens the same status-wise list view (reused `DeliveredOrder` with an optional `title` override) pre-filtered to `status: "Complete"`.
+  ([lib/seller_pages/seller_order_page/view/my_orders.dart](lib/seller_pages/seller_order_page/view/my_orders.dart),
+  [lib/View/MyApp/Seller/SellerOrder/DeliveredOrder/delivered_order.dart](lib/View/MyApp/Seller/SellerOrder/DeliveredOrder/delivered_order.dart),
+  [lib/ApiModel/seller/SellerOrderCountModel.dart](lib/ApiModel/seller/SellerOrderCountModel.dart))
+- Backend `order/orderCountForSeller` now returns a `completeOrders` count alongside the existing per-status totals.
+  ([waxxapp_admin/backend/server/order/order.controller.js](../waxxapp_admin/backend/server/order/order.controller.js))
+- New localization key `completeOrder` ("Complete Order" / "Commande terminée"); English and French localized, other 16 locales seeded with English placeholder.
+
+### Changed
+- **Home page category section is now a 2-column grid of the 30 newest products** (was a horizontal carousel of 10). Same data source (`getProductsForUser`) but `GalleryCategoryController.limit` raised from 12 → 30 and the home view's inline `ListView.builder` swapped to a `GridView.builder` with `crossAxisCount: 2`. Newest-first ordering relies on the backend fix below.
+  ([lib/user_pages/home_page/view/home_view.dart](lib/user_pages/home_page/view/home_view.dart),
+  [lib/Controller/GetxController/user/gallery_catagory_controller.dart](lib/Controller/GetxController/user/gallery_catagory_controller.dart))
+- **Push notification body re-attributed to Waxxapp.** "Admin has marked your order as Complete…" → "Waxxapp has marked your order as Complete…"; the buyer-confirmed-delivery notification body now reads "…once Waxxapp marks it Complete." instead of "…once admin marks it Complete." Buyers/sellers see the brand, not the role.
+  ([waxxapp_admin/backend/server/order/order.controller.js](../waxxapp_admin/backend/server/order/order.controller.js))
+
+### Fixed
+- **Category-products list silently returned products in arbitrary order** instead of newest-first. The aggregation pipeline in `getProductsForUser` ran `$sort: { createdAt: -1 }` AFTER the `$project` stages that stripped `createdAt`, so MongoDB had nothing to sort on and the sort was a no-op (effectively insertion order). Moved `$sort` to immediately after `$match` so it operates on the raw matched docs before projection. Visible on the home page's category tabs and the "View All" grid.
+  ([waxxapp_admin/backend/server/product/product.controller.js](../waxxapp_admin/backend/server/product/product.controller.js))
+
 ## [1.1.14+31] — May 2026
 
 ### Changed

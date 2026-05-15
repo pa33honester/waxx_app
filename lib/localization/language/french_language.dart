@@ -383,6 +383,7 @@ final Map<String, String> frCH = {
   "pendingOrder": "Commande en cours",
   "confirmedOrders": "Commandes confirmées",
   "deliveredOrder": "Commande livrée",
+  "completeOrder": "Commande terminée",
   "outOfDeliveredOrder": "Commande hors livraison",
   "cancelOrder": "annuler la commande",
   "totalOrder": "Commande totale",

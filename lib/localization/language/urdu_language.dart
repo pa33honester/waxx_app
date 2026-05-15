@@ -383,6 +383,7 @@ final Map<String, String> urPK = {
   "pendingOrder": "زیر التواء آرڈر",
   "confirmedOrders": "تصدیق شدہ احکامات",
   "deliveredOrder": "ڈیلیور شدہ آرڈر",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "ڈیلیوری آرڈر سے باہر",
   "cancelOrder": "آرڈر منسوخ کر دیں",
   "totalOrder": "کل آرڈر",

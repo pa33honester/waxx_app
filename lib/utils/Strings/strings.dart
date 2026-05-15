@@ -479,6 +479,7 @@ class St {
   static String pendingOrder = "pendingOrder";
   static String confirmedOrders = "confirmedOrders";
   static String deliveredOrder = "deliveredOrder";
+  static String completeOrder = "completeOrder";
   static String outOfDeliveredOrder = "outOfDeliveredOrder";
   static String cancelOrder = "cancelOrder";
   static String totalOrder = "totalOrder";

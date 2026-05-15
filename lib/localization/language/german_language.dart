@@ -384,6 +384,7 @@ final Map<String, String> deat = {
   "pendingOrder": "Ausstehende Bestellung",
   "confirmedOrders": "Bestätigte Bestellungen",
   "deliveredOrder": "Gelieferte Bestellung",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "Nicht lieferbare Bestellung",
   "cancelOrder": "Bestellung stornieren",
   "totalOrder": "Gesamtbestellung",

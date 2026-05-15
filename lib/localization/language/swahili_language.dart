@@ -383,6 +383,7 @@ final Map<String, String> swKE = {
   "pendingOrder": "Agizo Linalosubiri",
   "confirmedOrders": "Maagizo Yaliyothibitishwa",
   "deliveredOrder": "Agizo Lililotolewa",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "Agizo la Uwasilishaji halijakamilika",
   "cancelOrder": "Ghairi Agizo",
   "totalOrder": "Jumla ya Agizo",

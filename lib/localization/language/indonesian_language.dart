@@ -383,6 +383,7 @@ final Map<String, String> idID = {
   "pendingOrder": "Pesanan Tertunda",
   "confirmedOrders": "Pesanan yang Dikonfirmasi",
   "deliveredOrder": "Pesanan Terkirim",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "Pesanan Pengiriman Keluar",
   "cancelOrder": "Batalkan pesanan",
   "totalOrder": "Jumlah Pesanan",

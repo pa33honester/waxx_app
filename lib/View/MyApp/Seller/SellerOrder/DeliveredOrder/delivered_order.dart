@@ -18,7 +18,10 @@ class DeliveredOrder extends StatefulWidget {
   final String? startDate;
   final String? endDate;
   final String? status;
-  const DeliveredOrder({Key? key, this.startDate, this.endDate, this.status}) : super(key: key);
+  // Optional override so the same list view can be reused for the new
+  // "Complete Order" tab (status: "Complete") with a Complete-specific title.
+  final String? title;
+  const DeliveredOrder({Key? key, this.startDate, this.endDate, this.status, this.title}) : super(key: key);
 
   @override
   State<DeliveredOrder> createState() => _DeliveredOrderState();
@@ -48,7 +51,7 @@ class _DeliveredOrderState extends State<DeliveredOrder> {
             backgroundColor: AppColors.transparent,
             shadowColor: AppColors.transparent,
             surfaceTintColor: AppColors.transparent,
-            flexibleSpace: SimpleAppBarWidget(title: St.deliveredOrder.tr),
+            flexibleSpace: SimpleAppBarWidget(title: widget.title ?? St.deliveredOrder.tr),
           ),
         ),
         body: SizedBox(

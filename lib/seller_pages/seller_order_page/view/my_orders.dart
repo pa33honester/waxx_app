@@ -365,6 +365,25 @@ class _MyOrdersState extends State<MyOrders> {
                             ),
                             DottedLine(dashColor: AppColors.unselected.withValues(alpha: 0.2)),
                             OrderListTileWidget(
+                              title: St.completeOrder.tr,
+                              orderCount: "${sellerMyOrderCountController.sellerMyOrderCount?.completeOrders ?? 0}",
+                              callback: () {
+                                Get.to(
+                                        () => DeliveredOrder(
+                                              status: "Complete",
+                                              title: St.completeOrder.tr,
+                                              endDate: selectedEndDate != null ? selectedEndDate.toString() : end.toString(),
+                                              startDate: selectedStartDate != null ? selectedStartDate.toString() : start.toString(),
+                                            ),
+                                        transition: Transition.rightToLeft)
+                                    ?.then((value) {
+                                  sellerMyOrderCountController.sellerMyOrderCountData(
+                                      startDate: selectedStartDate != null ? selectedStartDate.toString() : start.toString(), endDate: selectedEndDate != null ? selectedEndDate.toString() : end.toString());
+                                });
+                              },
+                            ),
+                            DottedLine(dashColor: AppColors.unselected.withValues(alpha: 0.2)),
+                            OrderListTileWidget(
                               title: St.cancelOrder.tr,
                               orderCount: "${sellerMyOrderCountController.sellerMyOrderCount?.cancelledOrders}",
                               callback: () {

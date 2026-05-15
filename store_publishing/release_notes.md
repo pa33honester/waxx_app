@@ -91,6 +91,74 @@ password uses (not a regression).
    upload to the Production track.
 
 ---
+## 🛠 Version 1.1.15+32 — Complete Order tab, 2-col recent products, Waxxapp-branded notifications
+
+**Version:** 1.1.15
+**Build Number:** 32
+**Release Date:** May 2026
+**Type:** Feature + bug fix on top of v1.1.14+31
+
+### Suggested Play Console release name
+`v1.1.15 — Complete orders tab + recent products grid`
+
+### English (Default)
+
+```
+✨ Update — v1.1.15
+
+✓ New "Complete Order" tab on seller My Order screen
+✓ Home page now shows 30 newest products in a 2-column grid
+✓ Wallet notifications now read "Waxxapp" instead of "Admin"
+```
+
+### 📋 Full Internal Release Notes
+
+**1. Complete Order row on the seller My Order dashboard.**
+
+The seller's "My Order" summary (Pending / Confirmed / Out of Delivery / Delivered / Cancel) had no entry for the new admin-released **Complete** status introduced in v1.1.14+31 — so once admin marked an order Complete, the seller could see the wallet credit but not the order itself in their per-status counts. Added a "Complete Order" row between Delivered Order and Cancel Order with the live count. Tapping opens the same status-wise list view (`DeliveredOrder` widget) with `status: "Complete"` and a Complete-specific title. Backend `order/orderCountForSeller` returns a new `completeOrders` field.
+
+**2. Home page category section: 2-column grid of 30 newest products.**
+
+Previously the section under the category tabs on the home page was a horizontal carousel of up to 10 products with no enforced ordering — and an aggregation bug (see fix #4) meant the order was effectively insertion order. It now renders a vertical 2-column grid of up to 30 newest-first products per category. `GalleryCategoryController.limit` raised 12 → 30; the home view's inline `ListView.builder(scrollDirection: Axis.horizontal, take(10))` swapped to `GridView.builder(crossAxisCount: 2, take(30))` with the same card layout. The infinite-scroll path stays intact for users who scroll past 30.
+
+**3. Push notifications re-attributed to Waxxapp.**
+
+Two notification bodies sent by the order controller named "Admin"/"admin" as the actor:
+- Complete-release notification body changed from `"Admin has marked your order as Complete..."` → `"Waxxapp has marked your order as Complete..."`
+- Buyer-confirmed-delivery body changed from `"...once admin marks it Complete."` → `"...once Waxxapp marks it Complete."`
+The push title bar still reads **Waxxapp** (the FCM app name), so body now matches.
+
+**4. (Backend bug fix) Category-products query was sorting on a missing field.**
+
+`getProductsForUser` (`product/categorywiseAllProducts`) ran:
+```
+$match → $lookup ratings → $lookup favorites → $project (strip createdAt) → $project (exclude createdAt) → $sort {createdAt:-1} → $skip → $limit
+```
+The `$sort` ran AFTER the projections that removed `createdAt`, so the field was null on every document and the sort was a silent no-op — products came back in arbitrary order (effectively insertion order). Moved `$sort: {createdAt:-1}` to immediately after `$match` so it operates on the raw docs. The "30 newest" promise of fix #2 depends on this.
+
+#### 📁 Files Changed (relative to 1.1.14+31)
+
+**Flutter (`waxx_app`)**
+- `pubspec.yaml` — `1.1.14+31` → `1.1.15+32`.
+- `lib/seller_pages/seller_order_page/view/my_orders.dart` — new "Complete Order" `OrderListTileWidget` between Delivered and Cancel rows.
+- `lib/View/MyApp/Seller/SellerOrder/DeliveredOrder/delivered_order.dart` — added optional `title:` parameter so the same list view can be reused for the Complete tab.
+- `lib/ApiModel/seller/SellerOrderCountModel.dart` — `completeOrders` field + getter + (de)serialization.
+- `lib/user_pages/home_page/view/home_view.dart` — category section's horizontal `ListView` swapped to a 2-col `GridView`, take(10) → take(30); removed per-item width/margin (grid handles spacing).
+- `lib/Controller/GetxController/user/gallery_catagory_controller.dart` — `limit` 12 → 30.
+- `lib/utils/Strings/strings.dart` + all 18 `lib/localization/language/*.dart` — new `completeOrder` key.
+
+**Backend (`waxxapp_admin/backend`)**
+- `server/order/order.controller.js` — `orderCountForSeller` returns `completeOrders`; two FCM bodies re-attributed to Waxxapp.
+- `server/product/product.controller.js` — `getProductsForUser` aggregation reordered: `$sort` moved before the projections that strip `createdAt`.
+
+#### 🚀 Deploy
+
+1. `git pull` in `waxxapp_admin` on the server, then `pm2 restart backend` (orderCountForSeller now emits `completeOrders`; aggregation fix takes effect immediately for new requests).
+2. (No new migration this version — the data fix at 1.1.14+31's deploy already established the baseline.)
+3. `cd waxxapp_admin/frontend && ./deploy.sh` (no admin-panel code changed, but harmless and keeps env consistent).
+4. Upload `app-release.aab` (1.1.15+32) to the Play Console Production track.
+
+---
 ## 🛠 Version 1.1.14+31 — Buyer-confirmed delivery + admin-released seller payouts
 
 **Version:** 1.1.14

@@ -383,6 +383,7 @@ final Map<String, String> hiIN = {
   "pendingOrder": "अपूर्ण आदेश",
   "confirmedOrders": "पुष्टि किए गए आदेश",
   "deliveredOrder": "वितरित आदेश",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "डिलिवरी ऑर्डर समाप्त",
   "cancelOrder": "आदेश रद्द",
   "totalOrder": "कुल ऑर्डर",

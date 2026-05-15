@@ -383,6 +383,7 @@ final Map<String, String> zhCN = {
   "pendingOrder": "挂单",
   "confirmedOrders": "已确认订单",
   "deliveredOrder": "已交付订单",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "缺货订单",
   "cancelOrder": "取消订单",
   "totalOrder": "总订单",

@@ -383,6 +383,7 @@ final Map<String, String> ardz = {
   "pendingOrder": "طلب معلق",
   "confirmedOrders": "الطلبات المؤكدة",
   "deliveredOrder": "تسليم الطلب",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "خارج أمر التسليم",
   "cancelOrder": "الغاء الطلب",
   "totalOrder": "من أجل الكاملة",

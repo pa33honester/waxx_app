@@ -387,6 +387,7 @@ final Map<String, String> enUS = {
   "pendingOrder": "Pending Order",
   "confirmedOrders": "Confirmed Orders",
   "deliveredOrder": "Delivered Order",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "Out of Delivery Order",
   "cancelOrder": "Cancel Order",
   "totalOrder": "Total Order",

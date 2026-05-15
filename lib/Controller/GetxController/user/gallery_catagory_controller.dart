@@ -17,7 +17,9 @@ class GalleryCategoryController extends GetxController {
   TabController? viewAllTabController;
 
   int start = 1;
-  int limit = 12;
+  // Home page renders the first page as a 2-column grid of "recent products"
+  // (sorted newest-first on the backend). 30 fills 15 rows nicely.
+  int limit = 30;
   List<Product> galleryProducts = [];
   List<bool> likes = [];
 

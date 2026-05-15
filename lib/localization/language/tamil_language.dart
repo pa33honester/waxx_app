@@ -383,6 +383,7 @@ final Map<String, String> taIN = {
   "pendingOrder": "நிலுவையில் உள்ள உத்தரவு",
   "confirmedOrders": "உறுதிப்படுத்தப்பட்ட உத்தரவுகள்",
   "deliveredOrder": "வழங்கப்பட்ட ஆர்டர்",
+  "completeOrder": "Complete Order",
   "outOfDeliveredOrder": "டெலிவரி ஆர்டர் முடிந்தது",
   "cancelOrder": "ஆர்டரை ரத்து செய்",
   "totalOrder": "மொத்த ஆர்டர்",

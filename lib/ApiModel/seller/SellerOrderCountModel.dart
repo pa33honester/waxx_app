@@ -15,6 +15,7 @@ class SellerMyOrderCountModel {
     int? confirmedOrders,
     int? outOfDeliveryOrders,
     int? deliveredOrders,
+    int? completeOrders,
     int? cancelledOrders,
   }) {
     _status = status;
@@ -24,6 +25,7 @@ class SellerMyOrderCountModel {
     _confirmedOrders = confirmedOrders;
     _outOfDeliveryOrders = outOfDeliveryOrders;
     _deliveredOrders = deliveredOrders;
+    _completeOrders = completeOrders;
     _cancelledOrders = cancelledOrders;
   }
 
@@ -35,6 +37,7 @@ class SellerMyOrderCountModel {
     _confirmedOrders = json['confirmedOrders'];
     _outOfDeliveryOrders = json['outOfDeliveryOrders'];
     _deliveredOrders = json['deliveredOrders'];
+    _completeOrders = json['completeOrders'];
     _cancelledOrders = json['cancelledOrders'];
   }
 
@@ -45,6 +48,7 @@ class SellerMyOrderCountModel {
   int? _confirmedOrders;
   int? _outOfDeliveryOrders;
   int? _deliveredOrders;
+  int? _completeOrders;
   int? _cancelledOrders;
 
   SellerMyOrderCountModel copyWith({
@@ -55,6 +59,7 @@ class SellerMyOrderCountModel {
     int? confirmedOrders,
     int? outOfDeliveryOrders,
     int? deliveredOrders,
+    int? completeOrders,
     int? cancelledOrders,
   }) =>
       SellerMyOrderCountModel(
@@ -65,6 +70,7 @@ class SellerMyOrderCountModel {
         confirmedOrders: confirmedOrders ?? _confirmedOrders,
         outOfDeliveryOrders: outOfDeliveryOrders ?? _outOfDeliveryOrders,
         deliveredOrders: deliveredOrders ?? _deliveredOrders,
+        completeOrders: completeOrders ?? _completeOrders,
         cancelledOrders: cancelledOrders ?? _cancelledOrders,
       );
 
@@ -82,6 +88,8 @@ class SellerMyOrderCountModel {
 
   int? get deliveredOrders => _deliveredOrders;
 
+  int? get completeOrders => _completeOrders;
+
   int? get cancelledOrders => _cancelledOrders;
 
   Map<String, dynamic> toJson() {
@@ -93,6 +101,7 @@ class SellerMyOrderCountModel {
     map['confirmedOrders'] = _confirmedOrders;
     map['outOfDeliveryOrders'] = _outOfDeliveryOrders;
     map['deliveredOrders'] = _deliveredOrders;
+    map['completeOrders'] = _completeOrders;
     map['cancelledOrders'] = _cancelledOrders;
     return map;
   }

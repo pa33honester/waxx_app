@@ -150,14 +150,20 @@ class _HomeViewState extends State<HomeView> {
                                 children: [
                                   galleryCategoryController.galleryProducts.isEmpty
                                       ? noDataFound(image: "assets/no_data_found/basket.png", text: "No products in this category")
-                                      : SizedBox(
-                                          height: 230,
-                                          child: ListView.builder(
-                                            physics: ClampingScrollPhysics(),
+                                      // 2-column grid of up to 30 newest-first products.
+                                      // Backend (getProductsForUser) sorts by createdAt desc; controller.limit=30 fetches the first page.
+                                      : Padding(
+                                          padding: const EdgeInsets.only(right: 16, bottom: 12),
+                                          child: GridView.builder(
+                                            physics: const NeverScrollableScrollPhysics(),
                                             shrinkWrap: true,
-                                            scrollDirection: Axis.horizontal,
-                                            itemCount: galleryCategoryController.galleryProducts.take(10).length,
-                                            // padding: EdgeInsets.symmetric(horizontal: 10),
+                                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount: 2,
+                                              crossAxisSpacing: 12,
+                                              mainAxisSpacing: 12,
+                                              childAspectRatio: 0.62,
+                                            ),
+                                            itemCount: galleryCategoryController.galleryProducts.take(30).length,
                                             itemBuilder: (context, index) {
                                               final product = galleryCategoryController.galleryProducts[index];
                                               final liked = (index < galleryCategoryController.likes.length ? galleryCategoryController.likes[index] : (product.isFavorite == true));
@@ -167,8 +173,6 @@ class _HomeViewState extends State<HomeView> {
                                                   Get.to(() => ProductDetail());
                                                 },
                                                 child: Container(
-                                                  width: 170,
-                                                  margin: EdgeInsets.only(right: 12),
                                                   decoration: BoxDecoration(
                                                     color: AppColors.tabBackground,
                                                     borderRadius: BorderRadius.circular(15),
