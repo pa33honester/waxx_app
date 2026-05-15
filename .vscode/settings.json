@@ -1,0 +1,8 @@
+{
+    "java.import.exclusions": [
+        "**/packages/**/example/android/**"
+    ],
+    "dart.excludedFolders": [
+        "packages"
+    ]
+}
