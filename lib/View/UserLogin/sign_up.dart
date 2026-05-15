@@ -1,5 +1,5 @@
 import 'package:waxxapp/Controller/GetxController/login/user_login_controller.dart';
-import 'package:waxxapp/custom/signup_assistant_chip.dart';
+import 'package:waxxapp/custom/signup_assistant_launcher.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/text_titles.dart';
 import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/common_sign_in_button.dart';
@@ -132,7 +132,6 @@ class SignUp extends StatelessWidget {
                           tapText: St.signInText.tr,
                           text: St.alreadyHaveAccount.tr),
                     ),
-                    const Center(child: SignupAssistantChip()),
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -140,6 +139,7 @@ class SignUp extends StatelessWidget {
             ),
           )),
         ),
+        const SignupAssistantLauncher(),
         Obx(() => userLoginController.signUpOtpLoading.value ? ScreenCircular.blackScreenCircular() : const SizedBox())
       ],
     );

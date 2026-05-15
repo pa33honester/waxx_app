@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:waxxapp/ApiService/login/signup_assistant_service.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
+import 'package:waxxapp/utils/globle_veriables.dart' as gv;
 
-/// Who sent a chat bubble in the sign-up assistant.
+/// Who sent a chat bubble in the in-app help assistant.
 enum BotSender { bot, user }
 
 /// One bubble in the assistant transcript. Local-only — nothing here is
@@ -18,50 +17,68 @@ class BotMessage {
   BotMessage(this.sender, this.text) : time = DateTime.now();
 }
 
-/// The fixed, deterministic step the conversation is currently on. Each
-/// step decides whether the composer accepts free text or only quick-reply
-/// chips, and what the next step is.
+/// The fixed, deterministic step the conversation is currently on. Each step
+/// decides whether the bottom area shows the free-text composer, the WhatsApp
+/// phone field, or only quick-reply chips, and what the next step is.
 enum BotStep {
   chooseProblem,
   // sign-up branch
   askFirstName,
   askLastName,
   askEmail,
-  askPhone,
+  askWhatsapp, // required WhatsApp number — the body shows a dial-code phone field here
   askPassword,
   askConfirmPassword,
   summary,
   submitting,
   done,
-  // login / other branches (hand off to existing flows)
-  loginOptions,
-  otherOptions,
+  // login / general-enquiry branches hand off to existing flows
+  loginRedirect,
+  generalEnquiry,
 }
 
-/// Drives the in-app sign-up assistant chatbot. The whole conversation is
-/// a small state machine that lives here on the client — there is no
-/// server-side bot. On the sign-up branch it collects first name, last
-/// name, email, an optional phone number and a password, shows a summary,
-/// then POSTs a pending account request that an admin approves in the
-/// admin panel. The login branch just routes the user into the existing
-/// Forgot Password flow or the existing in-app Support Chat.
+/// Drives the in-app help assistant chatbot — the small chat that pops up in
+/// the bottom-right corner of the login / sign-up / onboarding screens (see
+/// [SignupAssistantLauncher]). The whole conversation is a tiny state machine
+/// that lives here on the client — there is no server-side bot.
+///
+/// * **Sign up** → collects first name, last name, email, a **required**
+///   WhatsApp number (so the team can WhatsApp the person once their account
+///   is created) and a password, shows a summary, then POSTs a pending account
+///   request that an admin approves in the admin panel.
+/// * **Login** → closes the panel and routes to the main `/SignIn` screen.
+/// * **General enquiry** → closes the panel and opens the live `/SupportChat`.
 class SignupAssistantController extends GetxController {
   final RxList<BotMessage> messages = <BotMessage>[].obs;
   final Rx<BotStep> step = BotStep.chooseProblem.obs;
   final RxList<String> quickReplies = <String>[].obs;
-  // Whether the bottom composer (free-text input) is shown. When false the
-  // user is expected to tap one of the [quickReplies] chips instead.
+  // Whether the bottom free-text composer is shown. When false the user is
+  // expected to tap a [quickReplies] chip — or, on [BotStep.askWhatsapp], use
+  // the dial-code phone field the body renders for that step.
   final RxBool acceptsText = false.obs;
   final RxBool isSubmitting = false.obs;
 
   final TextEditingController inputController = TextEditingController();
   final ScrollController scrollController = ScrollController();
 
+  // Live snapshot of the WhatsApp number being typed — kept fresh by the
+  // dial-code phone field's onChanged / onCountryChanged callbacks. The field
+  // ([_WhatsappComposer]) owns its own internal text controller; we only mirror
+  // its value here so the send button can read it.
+  final RxString currentDialCode = "".obs; // e.g. "+233"
+  final RxString currentWhatsappLocal = "".obs; // local part, as typed
+
+  /// Set by the floating launcher so the Login / General-enquiry branches and
+  /// the final "Close" chip can collapse the panel. Null when this controller
+  /// is hosted by the full-screen `/SignupAssistant` route instead.
+  VoidCallback? onRequestClose;
+
   // Collected sign-up details.
   String _firstName = "";
   String _lastName = "";
   String _email = "";
-  String _phone = "";
+  String _whatsappNumber = ""; // local part, digits only
+  String _whatsappDialCode = ""; // e.g. "+233"
   String _password = "";
 
   bool get _onPasswordStep => step.value == BotStep.askPassword || step.value == BotStep.askConfirmPassword;
@@ -69,6 +86,7 @@ class SignupAssistantController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    if ((gv.dialCode ?? "").isNotEmpty) currentDialCode.value = gv.dialCode!;
     _greet();
   }
 
@@ -101,21 +119,19 @@ class SignupAssistantController extends GetxController {
           _botSay(St.botAskFirstName.tr);
           _setStep(BotStep.askFirstName, text: true);
         } else if (label == St.botOptionLogin.tr) {
-          _botSay(St.botLoginHelp.tr);
-          _setStep(BotStep.loginOptions, chips: [St.botResetPassword.tr, St.botChatSupport.tr, St.botBackToLogin.tr]);
+          // → main login screen. If we're already on it, just collapse.
+          _setStep(BotStep.loginRedirect);
+          if (Get.currentRoute == "/SignIn") {
+            onRequestClose?.call();
+          } else {
+            Get.offAllNamed("/SignIn");
+          }
         } else {
-          _botSay(St.botOtherHelp.tr);
-          _setStep(BotStep.otherOptions, chips: [St.botChatSupport.tr, St.botBackToLogin.tr]);
-        }
-        break;
-
-      case BotStep.askPhone:
-        // The only chip on this step is "Skip".
-        if (label == St.botSkip.tr) {
-          _userSay(label);
-          _phone = "";
-          _botSay(St.botAskPassword.tr);
-          _setStep(BotStep.askPassword, text: true);
+          // General enquiry → hand off to the live human-support chat.
+          _botSay(St.botConnectingSupport.tr);
+          _setStep(BotStep.generalEnquiry);
+          onRequestClose?.call();
+          Get.toNamed("/SupportChat");
         }
         break;
 
@@ -131,32 +147,14 @@ class SignupAssistantController extends GetxController {
         }
         break;
 
-      case BotStep.loginOptions:
-        _userSay(label);
-        if (label == St.botResetPassword.tr) {
-          Get.toNamed("/ForgotPassword");
-          // leave the assistant on the stack so a back press returns here
-          _setStep(BotStep.loginOptions, chips: [St.botResetPassword.tr, St.botChatSupport.tr, St.botBackToLogin.tr]);
-        } else if (label == St.botChatSupport.tr) {
-          Get.toNamed("/SupportChat");
-          _setStep(BotStep.loginOptions, chips: [St.botResetPassword.tr, St.botChatSupport.tr, St.botBackToLogin.tr]);
-        } else {
-          Get.back();
-        }
-        break;
-
-      case BotStep.otherOptions:
-        _userSay(label);
-        if (label == St.botChatSupport.tr) {
-          Get.toNamed("/SupportChat");
-          _setStep(BotStep.otherOptions, chips: [St.botChatSupport.tr, St.botBackToLogin.tr]);
-        } else {
-          Get.back();
-        }
-        break;
-
       case BotStep.done:
-        if (label == St.botBackToLogin.tr) Get.back();
+        if (label == St.botClose.tr) {
+          if (onRequestClose != null) {
+            onRequestClose!();
+          } else {
+            Get.back();
+          }
+        }
         break;
 
       default:
@@ -193,18 +191,11 @@ class SignupAssistantController extends GetxController {
           return;
         }
         _email = value.toLowerCase();
-        _botSay(St.botAskPhone.tr);
-        _setStep(BotStep.askPhone, text: true, chips: [St.botSkip.tr]);
-        break;
-
-      case BotStep.askPhone:
-        if (!_isValidPhone(value)) {
-          _botSay(St.botInvalidPhone.tr);
-          return;
-        }
-        _phone = value;
-        _botSay(St.botAskPassword.tr);
-        _setStep(BotStep.askPassword, text: true);
+        _botSay(St.botAskWhatsapp.tr);
+        _botSay(St.botWhatsappWhy.tr);
+        // No free-text composer here — the body shows a dial-code phone field
+        // and calls [onWhatsappSubmitted].
+        _setStep(BotStep.askWhatsapp);
         break;
 
       case BotStep.askPassword:
@@ -232,13 +223,32 @@ class SignupAssistantController extends GetxController {
     }
   }
 
+  /// Submitted from the WhatsApp dial-code phone field (used instead of
+  /// [onUserText] on [BotStep.askWhatsapp]).
+  void onWhatsappSubmitted({required String localNumber, required String dialCode}) {
+    if (step.value != BotStep.askWhatsapp || isSubmitting.value) return;
+    final digits = localNumber.replaceAll(RegExp(r'[^0-9]'), '');
+    final normalized = digits.startsWith('0') ? digits.substring(1) : digits;
+    final raw = dialCode.trim();
+    final code = raw.isEmpty ? '' : (raw.startsWith('+') ? raw : '+$raw');
+    if (code.isEmpty || normalized.length < 6 || normalized.length > 15) {
+      _botSay(St.botInvalidWhatsapp.tr);
+      return;
+    }
+    _whatsappNumber = normalized;
+    _whatsappDialCode = code;
+    currentWhatsappLocal.value = "";
+    _userSay("$code $normalized");
+    _botSay(St.botAskPassword.tr);
+    _setStep(BotStep.askPassword, text: true);
+  }
+
   void _showSummary() {
     final fullName = [_firstName, _lastName].where((s) => s.trim().isNotEmpty).join(" ");
-    final phone = _phone.trim().isEmpty ? St.botNotProvided.tr : _phone.trim();
     final summary = "${St.botSummaryIntro.tr}\n\n"
         "${St.botSummaryName.tr}: $fullName\n"
         "${St.botSummaryEmail.tr}: $_email\n"
-        "${St.botSummaryPhone.tr}: $phone";
+        "${St.botSummaryWhatsapp.tr}: $_whatsappDialCode $_whatsappNumber";
     _botSay(summary);
     _setStep(BotStep.summary, chips: [St.botSubmit.tr, St.botEdit.tr]);
   }
@@ -253,11 +263,12 @@ class SignupAssistantController extends GetxController {
         lastName: _lastName,
         email: _email,
         password: _password,
-        mobileNumber: _phone,
+        mobileNumber: _whatsappNumber,
+        countryCode: _whatsappDialCode,
       );
       if (result != null && result.status) {
         _botSay(result.message.trim().isNotEmpty ? result.message : St.botSubmitSuccess.tr);
-        _setStep(BotStep.done, chips: [St.botBackToLogin.tr]);
+        _setStep(BotStep.done, chips: [St.botClose.tr]);
       } else {
         _botSay((result?.message.trim().isNotEmpty ?? false) ? result!.message : St.botSubmitFailed.tr);
         _setStep(BotStep.summary, chips: [St.botSubmit.tr, St.botEdit.tr]);
@@ -290,14 +301,15 @@ class SignupAssistantController extends GetxController {
     _firstName = "";
     _lastName = "";
     _email = "";
-    _phone = "";
+    _whatsappNumber = "";
+    _whatsappDialCode = "";
     _password = "";
+    currentWhatsappLocal.value = "";
+    currentDialCode.value = gv.dialCode ?? "";
   }
 
   bool _isValidEmail(String email) =>
       RegExp(r"^[A-Za-z0-9.!#$%&'*+\-/=?^_`{|}~]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$").hasMatch(email.trim());
-
-  bool _isValidPhone(String phone) => RegExp(r'^[+]?[0-9][0-9 \-()]{5,19}$').hasMatch(phone.trim());
 
   void _scrollToBottom() {
     if (!scrollController.hasClients) return;

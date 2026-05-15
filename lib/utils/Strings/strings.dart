@@ -38,6 +38,12 @@ class St {
   static String botOtherHelp = "botOtherHelp";
   static String botComposeHint = "botComposeHint";
   static String botAssistantLabel = "botAssistantLabel";
+  static String botAskWhatsapp = "botAskWhatsapp";
+  static String botWhatsappWhy = "botWhatsappWhy";
+  static String botInvalidWhatsapp = "botInvalidWhatsapp";
+  static String botSummaryWhatsapp = "botSummaryWhatsapp";
+  static String botConnectingSupport = "botConnectingSupport";
+  static String botClose = "botClose";
 
   //================= ON BOARDING SCREES ==================
   static String nextText = "nextText";

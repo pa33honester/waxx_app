@@ -720,10 +720,10 @@ final Map<String, String> hiIN = {
   // sign-up assistant chatbot
   "signupAssistantChip": "Need help signing up?",
   "signupAssistantTitle": "Sign-up assistant",
-  "botGreeting": "Hi! 👋 I'm here to help. What are you having trouble with?",
+  "botGreeting": "Are you facing any issues? We're here to help.",
   "botOptionSignup": "Signing up",
   "botOptionLogin": "Logging in",
-  "botOptionOther": "Something else",
+  "botOptionOther": "General enquiry",
   "botSignupIntro": "No problem — I'll take a few details and our team will set up your account. You can leave any time.",
   "botAskFirstName": "What's your first name?",
   "botAskLastName": "And your last name?",
@@ -753,4 +753,10 @@ final Map<String, String> hiIN = {
   "botOtherHelp": "Got it. You can chat with our support team and they'll help you out.",
   "botComposeHint": "Type your answer…",
   "botAssistantLabel": "Assistant",
+  "botAskWhatsapp": "What's your WhatsApp number? We'll message you there once your account is set up.",
+  "botWhatsappWhy": "We need a WhatsApp number so our team can reach you after your account is created.",
+  "botInvalidWhatsapp": "That doesn't look like a valid WhatsApp number. Please check it and try again.",
+  "botSummaryWhatsapp": "WhatsApp",
+  "botConnectingSupport": "Connecting you to our support team…",
+  "botClose": "Close",
 };

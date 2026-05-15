@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:waxxapp/View/UserLogin/mobile_login/controller/mobile_login_controller.dart';
 import 'package:waxxapp/View/UserLogin/mobile_login/view/mobile_login_screen.dart';
 import 'package:waxxapp/custom/exit_app_dialog.dart';
-import 'package:waxxapp/custom/signup_assistant_chip.dart';
+import 'package:waxxapp/custom/signup_assistant_launcher.dart';
 import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/dont_account.dart';
 import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/other_button.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
@@ -163,7 +163,6 @@ class _SignInState extends State<SignIn> {
                                           text: St.donHaveAccount.tr,
                                         ),
                                       ),
-                                      const Center(child: SignupAssistantChip()),
                                       const SizedBox(height: 24),
                                     ],
                                   ),
@@ -179,6 +178,7 @@ class _SignInState extends State<SignIn> {
               ),
             ),
           ),
+          const SignupAssistantLauncher(),
           Obx(() => sellerDataController.loadingForDemoSeller.value || googleLoginController.isLoading.value || demoLoginLoading.value || demoUserLoading.value ? ScreenCircular.blackScreenCircular() : const SizedBox.shrink())
         ],
       ),

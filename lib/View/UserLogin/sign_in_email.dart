@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:waxxapp/Controller/GetxController/login/user_login_controller.dart';
-import 'package:waxxapp/custom/signup_assistant_chip.dart';
+import 'package:waxxapp/custom/signup_assistant_launcher.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/primary_buttons.dart';
 import 'package:waxxapp/utils/CoustomWidget/App_theme_services/text_titles.dart';
 import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/common_sign_in_button.dart';
@@ -173,7 +173,6 @@ class _SignInEmailState extends State<SignInEmail> {
                             text: St.donHaveAccount.tr,
                           ),
                         ),
-                        const Center(child: SignupAssistantChip()),
                         const SizedBox(height: 24),
                       ],
                     ),
@@ -183,6 +182,7 @@ class _SignInEmailState extends State<SignInEmail> {
             ),
           )),
         ),
+        const SignupAssistantLauncher(),
         Obx(() => userLogin.signInOtpLoading.value || googleLoginController.isLoading.value ? ScreenCircular.blackScreenCircular() : const SizedBox())
       ],
     );

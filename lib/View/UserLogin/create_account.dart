@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:waxxapp/custom/signup_assistant_chip.dart';
+import 'package:waxxapp/custom/signup_assistant_launcher.dart';
 import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/common_sign_in_button.dart';
 import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/common_sign_in_textfield.dart';
 import 'package:waxxapp/utils/CoustomWidget/Sign_in_material/dont_account.dart';
@@ -119,10 +119,6 @@ class CreateAccount extends StatelessWidget {
                                       ],
                                     ),
                                   ),
-                                  const Padding(
-                                    padding: EdgeInsets.only(top: 16),
-                                    child: Center(child: SignupAssistantChip()),
-                                  ),
                                 ],
                               ),
                             ),
@@ -136,6 +132,7 @@ class CreateAccount extends StatelessWidget {
             ),
           ),
         ),
+        const SignupAssistantLauncher(),
         Obx(() => googleLoginController.isLoading.value ? ScreenCircular.blackScreenCircular() : const SizedBox.shrink())
       ],
     );
