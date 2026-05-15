@@ -97,6 +97,7 @@ class Api {
   static const createOrderByUser = "order/create";
   static const updateOrderStatusBySeller = "order/updateOrder";
   static const orderCancelByUser = "order/cancelOrderByUser";
+  static const acceptDeliveryByBuyer = "order/acceptDeliveryByBuyer";
   static const ratingAdd = "rate/addRating";
   static const deleteAllCartProduct = "cart/deleteCart";
   static const addressDeleteByUser = "address/delete";

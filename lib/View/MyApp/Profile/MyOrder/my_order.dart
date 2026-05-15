@@ -34,6 +34,7 @@ class _MyOrderState extends State<MyOrder> with TickerProviderStateMixin {
     St.confirmed.tr,
     St.outOfDelivery.tr,
     St.deliveredText.tr,
+    St.complete.tr,
     St.cancelledText.tr,
   ];
 
@@ -75,6 +76,8 @@ class _MyOrderState extends State<MyOrder> with TickerProviderStateMixin {
         return St.outOfDelivery.tr;
       case "Delivered":
         return St.deliveredText.tr;
+      case "Complete":
+        return St.complete.tr;
       case "Cancelled":
         return St.cancelledText.tr;
       default:
@@ -93,6 +96,8 @@ class _MyOrderState extends State<MyOrder> with TickerProviderStateMixin {
         return const Color(0xffFFFAE8);
       case "Delivered":
         return const Color(0xffF4F0FF);
+      case "Complete":
+        return const Color(0xffDCFCE7);
       case "Cancelled":
         return const Color(0xffFFEDED);
       default:
@@ -111,6 +116,8 @@ class _MyOrderState extends State<MyOrder> with TickerProviderStateMixin {
         return const Color(0xffFACC15);
       case "Delivered":
         return const Color(0xff936DFF);
+      case "Complete":
+        return const Color(0xff16A34A);
       case "Cancelled":
         return const Color(0xffFF4747);
       default:
@@ -385,6 +392,30 @@ class _MyOrderState extends State<MyOrder> with TickerProviderStateMixin {
                                                           ),
                                                         ],
                                                       ),
+                                                      if (orderData.items?[index].status == "Out Of Delivery") ...[
+                                                        12.height,
+                                                        SizedBox(
+                                                          width: double.infinity,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              backgroundColor: AppColors.primary,
+                                                              foregroundColor: AppColors.black,
+                                                              padding: const EdgeInsets.symmetric(vertical: 12),
+                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                            ),
+                                                            onPressed: () {
+                                                              final oid = orderData.id;
+                                                              final iid = orderData.items?[index].id;
+                                                              if (oid == null || iid == null) return;
+                                                              myOrderController.acceptDelivery(orderId: oid, itemId: iid);
+                                                            },
+                                                            child: Text(
+                                                              St.acceptDelivery.tr,
+                                                              style: AppFontStyle.styleW700(AppColors.black, 13),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
                                                       16.height,
                                                     ],
                                                   ),

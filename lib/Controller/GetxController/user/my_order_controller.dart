@@ -1,11 +1,13 @@
 import 'dart:developer';
 import 'package:waxxapp/ApiModel/user/MyOrdersModel.dart';
+import 'package:waxxapp/ApiService/user/accept_delivery_service.dart';
 import 'package:waxxapp/ApiService/user/my_order_serivice.dart';
 import 'package:waxxapp/user_pages/my_order_page/widget/cancelled_order_view.dart';
 import 'package:waxxapp/user_pages/my_order_page/widget/delivered_order_view.dart';
 import 'package:waxxapp/user_pages/my_order_page/widget/processing_order_view.dart';
 import 'package:waxxapp/utils/Strings/strings.dart';
 import 'package:waxxapp/utils/globle_veriables.dart';
+import 'package:waxxapp/utils/show_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -44,6 +46,8 @@ class MyOrderController extends GetxController {
   }
 
   // Helper method to get status string from tab index
+  // Tab order matches `categories` in my_order.dart:
+  // 0:All 1:Pending 2:Confirmed 3:Out Of Delivery 4:Delivered 5:Complete 6:Cancelled ...
   String getStatusFromTabIndex(int tabIndex) {
     switch (tabIndex) {
       case 0:
@@ -57,14 +61,16 @@ class MyOrderController extends GetxController {
       case 4:
         return "Delivered";
       case 5:
-        return "Cancelled";
+        return "Complete";
       case 6:
-        return "Manual Auction Pending Payment";
+        return "Cancelled";
       case 7:
-        return "Manual Auction Cancelled";
+        return "Manual Auction Pending Payment";
       case 8:
-        return "Auction Pending Payment";
+        return "Manual Auction Cancelled";
       case 9:
+        return "Auction Pending Payment";
+      case 10:
         return "Auction Cancelled";
       default:
         return "All";
@@ -108,5 +114,25 @@ class MyOrderController extends GetxController {
   void onChangeTab(int value) {
     selectedTabIndex = value;
     update(["onChangeTab"]);
+  }
+
+  // Buyer confirms an item was received. Out Of Delivery -> Delivered.
+  // Wallet credit happens later, when admin marks Complete.
+  bool _accepting = false;
+  Future<void> acceptDelivery({required String orderId, required String itemId}) async {
+    if (_accepting) return;
+    _accepting = true;
+    try {
+      final result = await AcceptDeliveryService().acceptDelivery(orderId: orderId, itemId: itemId);
+      await displayToast(message: result.message.isNotEmpty ? result.message : St.deliveryAccepted.tr);
+      if (result.status) {
+        await getProductDetails();
+      }
+    } catch (e) {
+      log('acceptDelivery error: $e');
+      await displayToast(message: 'Failed to accept delivery');
+    } finally {
+      _accepting = false;
+    }
   }
 }

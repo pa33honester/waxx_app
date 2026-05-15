@@ -91,6 +91,121 @@ password uses (not a regression).
    upload to the Production track.
 
 ---
+## 🛠 Version 1.1.14+31 — Buyer-confirmed delivery + admin-released seller payouts
+
+**Version:** 1.1.14
+**Build Number:** 31
+**Release Date:** May 2026
+**Type:** Behavior change on top of v1.1.13+30 (payout flow)
+
+### Suggested Play Console release name
+`v1.1.14 — Confirm delivery to release seller funds`
+
+### English (Default)
+
+```
+✨ Update — v1.1.14
+
+✓ When your order is out for delivery, tap "Accept Delivery" once it
+  arrives — the seller is paid only after admin confirms completion
+```
+
+### 📋 Full Internal Release Notes
+
+**Seller payouts now release only when admin marks an order Complete.**
+
+The order flow used to be `Pending → Confirmed → Out Of Delivery → Delivered`,
+and the seller's wallet was credited the instant the **seller themselves**
+marked an item Delivered. There was no buyer confirmation step and no admin
+gating — a mistaken or premature "Delivered" tap shipped funds out before
+anyone had verified the buyer received the item. A live order on production
+surfaced the issue (the seller in question had `netPayout` updated but no
+real-world confirmation of delivery).
+
+The flow is now:
+
+```
+Pending → Confirmed (seller)
+       → Out Of Delivery (seller, with tracking — unchanged)
+       → Delivered (buyer taps "Accept Delivery")
+       → Complete (admin only; this is when the seller wallet is credited)
+```
+
+The `SellerWallet` deposit row + `Seller.$inc.netPayout` were lifted out of
+the Delivered branch in `order/updateOrder` and moved into a new admin-only
+endpoint `order/completeOrderByAdmin`. A new buyer-owned endpoint
+`order/acceptDeliveryByBuyer` handles the Out Of Delivery → Delivered
+transition; it asserts the caller owns the order, flips the status, bumps
+the product's `sold` counter, and FCMs the seller ("Buyer confirmed delivery
+— awaiting admin completion"). The Delivered branch in `/updateOrder` is now
+a pure status change with no wallet side-effects (admins can still force it
+from the panel if needed).
+
+Auth caveat: the codebase has no JWT-based role middleware — every endpoint
+is gated by the shared `secretKey` header (`util/checkAccess.js`). So role
+separation is enforced by **per-actor endpoints** (matching the existing
+`cancelOrderByUser` pattern), and the trust boundary for the admin-only
+Complete action is the admin panel itself. The same security posture as
+every other admin endpoint in this codebase — not a regression.
+
+Idempotency: `completeOrderByAdmin`'s very first check is
+`if (itemToUpdate.status === "Complete") return`. No Mongo transaction wraps
+the four writes (status `$set`, `SellerWallet.save`, `Seller.$inc.netPayout`,
+populated re-fetch), so a fast double-click in the admin panel could
+otherwise double-credit. The early-return is the only thing preventing that.
+
+**Buyer UI:** the My Order list now renders an inline **Accept Delivery**
+button per item when that item's status is `Out Of Delivery`. A new
+**Complete** tab joins the existing tabs (All / Pending / Confirmed / Out
+Of Delivery / Delivered / Complete / Cancelled). Status badges get a green
+"Complete" colorway. Localization seeded with English placeholders in the
+other 16 locales pending translation; French localized.
+
+**Admin UI:** the Order table's edit icon for Delivered rows — previously
+disabled — is now enabled. Clicking it opens the EditOrder dialog with the
+status dropdown offering Delivered or Complete. Complete is wired through a
+new `completeOrder(userId, orderId, itemId)` Redux thunk that hits
+`order/completeOrderByAdmin`, then dispatches the existing `UPDATE_ORDER`
+reducer (the response shape matches `orderUpdate`). The Order list gets a
+new Complete filter chip + green Complete status badge. Complete rows show
+a disabled edit icon (terminal state).
+
+**Migration:** `backend/scripts/migrate_delivered_to_complete.js` relabels
+every existing `Delivered` order item to `Complete`. **Status-only — no
+SellerWallet inserts, no netPayout changes.** Historical credits already
+fired at the original Delivered transition under the old code path; touching
+wallets in this script would double-pay every legacy seller. The script
+comment spells this out, and re-running is a no-op.
+
+#### 📁 Files Changed (relative to 1.1.13+30)
+
+**Flutter (`waxx_app`)**
+- `pubspec.yaml` — `1.1.13+30` → `1.1.14+31`.
+- `lib/ApiService/user/accept_delivery_service.dart` — new; PATCH `order/acceptDeliveryByBuyer`.
+- `lib/Controller/GetxController/user/my_order_controller.dart` — `acceptDelivery()` method (in-flight guard + list refresh); `getStatusFromTabIndex` extended with Complete.
+- `lib/View/MyApp/Profile/MyOrder/my_order.dart` — Complete tab + status badge colors; inline Accept Delivery button per item when `Out Of Delivery`.
+- `lib/utils/api_url.dart` — `Api.acceptDeliveryByBuyer = "order/acceptDeliveryByBuyer"`.
+- `lib/utils/Strings/strings.dart` + all 18 `lib/localization/language/*.dart` — `complete`, `acceptDelivery`, `acceptDeliveryConfirm`, `deliveryAccepted` keys.
+
+**Backend (`waxxapp_admin/backend`)**
+- `server/order/order.model.js` — `"Complete"` added to the `items[].status` enum.
+- `server/order/order.controller.js` — Delivered branch stripped of wallet-credit code (status `$set` + `Product.$inc.sold` stay); guards in earlier branches now reject transitions out of Complete; new `exports.acceptDeliveryByBuyer` and `exports.completeOrderByAdmin` handlers.
+- `server/order/order.route.js` — PATCH `acceptDeliveryByBuyer` + PATCH `completeOrderByAdmin`.
+- `scripts/migrate_delivered_to_complete.js` — new; one-shot Delivered → Complete relabel (status-only).
+
+**Admin panel (`waxxapp_admin/frontend`)**
+- `src/Component/store/order/order.action.js` — `completeOrder` thunk.
+- `src/Component/Table/Order/EditOrder.js` — Complete option; for Delivered rows only Delivered/Complete are offered; submit routes Complete through the new thunk.
+- `src/Component/Table/Order/Order.js` — Complete filter chip; Delivered row's edit icon enabled; Complete row's edit icon disabled; green Complete status badge.
+
+#### 🚀 Deploy
+
+1. `git pull` in `waxxapp_admin` on the server, then `pm2 restart backend` (new endpoints + Complete in the enum).
+2. **Run the migration once on prod:** `cd waxxapp_admin/backend && node scripts/migrate_delivered_to_complete.js`. Output is the count of order docs whose items were relabeled.
+3. `cd waxxapp_admin/frontend && ./deploy.sh` (rebuilds and copies to `backend/public`, then PM2-restarts the SPA route).
+4. Upload `app-release.aab` (1.1.14+31) to the Play Console Production track.
+
+---
 ## 🛠 Version 1.1.13+30 — Selfie verification submit fixed
 
 **Version:** 1.1.13

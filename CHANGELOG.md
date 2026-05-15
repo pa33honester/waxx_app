@@ -43,6 +43,31 @@ All notable changes to the Waxxapp Flutter app are documented here.
     until the flag is flipped to `true`. The backend `/accountRequest` endpoints
     and the admin **Account Requests** page stay live regardless (harmless).
 
+## [1.1.14+31] — May 2026
+
+### Changed
+- **Seller payouts now release only when admin marks an order Complete.** Previously, the seller wallet was credited the instant the seller themselves marked an item Delivered — there was no buyer confirmation step and no admin gating, so a missed/wrong "Delivered" tap shipped funds out before anyone had verified the buyer actually received the item. The flow is now: `Pending → Confirmed → Out Of Delivery (seller, with tracking) → Delivered (buyer taps "Accept Delivery") → Complete (admin)`. The `SellerWallet` deposit row + `Seller.netPayout` `$inc` moved from the Delivered branch in `order/updateOrder` to a new admin-only `order/completeOrderByAdmin` endpoint. A new buyer-owned `order/acceptDeliveryByBuyer` endpoint flips Out Of Delivery → Delivered. The Delivered transition itself is now a pure status change.
+  ([waxxapp_admin/backend/server/order/order.controller.js](../waxxapp_admin/backend/server/order/order.controller.js),
+  [waxxapp_admin/backend/server/order/order.route.js](../waxxapp_admin/backend/server/order/order.route.js),
+  [waxxapp_admin/backend/server/order/order.model.js](../waxxapp_admin/backend/server/order/order.model.js))
+
+### Added
+- **Buyer "Accept Delivery" button on the My Order list.** Per-item, only shown when item status is `Out Of Delivery`. Tapping it calls the new `order/acceptDeliveryByBuyer` endpoint and refreshes the list. The endpoint is buyer-owned (it asserts `findOrder.userId === req.query.userId`), FCMs the seller ("Buyer confirmed delivery — awaiting admin completion"), and bumps the product's `sold` counter.
+  ([lib/View/MyApp/Profile/MyOrder/my_order.dart](lib/View/MyApp/Profile/MyOrder/my_order.dart),
+  [lib/Controller/GetxController/user/my_order_controller.dart](lib/Controller/GetxController/user/my_order_controller.dart),
+  [lib/ApiService/user/accept_delivery_service.dart](lib/ApiService/user/accept_delivery_service.dart))
+- **New "Complete" status everywhere.** Added to the Mongoose enum, the buyer's My Order tabs/status maps, status badge colors (green), the admin Order list filter dropdown + status badge, and the EditOrder dialog. The Delivered row's edit icon in the admin order table — previously disabled — is now enabled so admin can promote Delivered → Complete; the Complete row's icon is disabled (terminal state).
+  ([waxxapp_admin/frontend/src/Component/Table/Order/Order.js](../waxxapp_admin/frontend/src/Component/Table/Order/Order.js),
+  [waxxapp_admin/frontend/src/Component/Table/Order/EditOrder.js](../waxxapp_admin/frontend/src/Component/Table/Order/EditOrder.js),
+  [waxxapp_admin/frontend/src/Component/store/order/order.action.js](../waxxapp_admin/frontend/src/Component/store/order/order.action.js))
+- **Idempotency guard** on `completeOrderByAdmin`: the first thing the handler checks is `if (itemToUpdate.status === "Complete") return`. No Mongo transaction wraps the four writes (status set, `SellerWallet.save`, `Seller.$inc.netPayout`, populated re-fetch), so the early-return is the only thing standing between a fast double-click and a double-credit.
+- **One-shot migration script** `backend/scripts/migrate_delivered_to_complete.js` that relabels every order item currently at `Delivered` to `Complete`. **Status-only — does NOT touch `SellerWallet` or `Seller.netPayout`.** Historical orders had their wallet credit fire at the original Delivered transition under the old code path; re-crediting them here would double-pay every legacy seller. The script comment spells this out explicitly.
+- New localization keys: `complete`, `acceptDelivery`, `acceptDeliveryConfirm`, `deliveryAccepted`. Localized in English and French; seeded with English placeholders in the other 16 locales pending translation.
+
+### Notes
+- The `/updateOrder` endpoint still handles Delivered transitions (for admins who want to force a state change), but no longer credits the wallet on that branch — the Delivered FCM still fires there. Buyer-driven Delivered transitions go through the new `acceptDeliveryByBuyer` endpoint, which FCMs the seller instead of the buyer (the buyer just confirmed, so notifying them is redundant).
+- Past behavior is preserved for already-shipped orders via the migration: every `Delivered` row gets relabeled `Complete`, keeping their wallet credit history intact and matching the new vocabulary.
+
 ## [1.1.13+30] — May 2026
 
 ### Fixed

@@ -200,6 +200,10 @@ class St {
   static String pending = "pending";
   static String confirmed = "confirmed";
   static String outOfDelivery = "outOfDelivery";
+  static String complete = "complete";
+  static String acceptDelivery = "acceptDelivery";
+  static String acceptDeliveryConfirm = "acceptDeliveryConfirm";
+  static String deliveryAccepted = "deliveryAccepted";
   static String noProductFound = "noProductFound";
   static String qty = "qty";
   static String off = "off";
