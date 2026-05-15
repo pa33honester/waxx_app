@@ -974,20 +974,43 @@ class _CheckOutState extends State<CheckOut> {
                   height: Get.height / 1.9,
                   width: double.maxFinite,
                   child: Obx(
-                    () => getAllPromoCodeController.isLoading.value
-                        ? Shimmers.applyPromoCodeShimmer()
-                        : getAllPromoCodeController.getAllPromoCode?.promoCode?.isEmpty ?? false
-                            ? noDataFound(
-                                image: "assets/no_data_found/basket.png",
-                              )
-                            : ListView.builder(
+                    () {
+                      if (getAllPromoCodeController.isLoading.value) {
+                        return Shimmers.applyPromoCodeShimmer();
+                      }
+                      // Filter the admin-wide promo list down to the codes
+                      // the seller attached to the products in this cart.
+                      // Use the intersection across items: a code only shows
+                      // if every cart item's product opted into it, since a
+                      // single promo applies to the whole order. If any item
+                      // has no attached promo codes, the picker is empty.
+                      final allPromos = getAllPromoCodeController.getAllPromoCode?.promoCode ?? const [];
+                      final cartItems = getAllCartProductController.getAllCartProducts?.data?.items ?? const [];
+                      Set<String>? allowed;
+                      for (final item in cartItems) {
+                        final productPromos = (item.productId?.promoCodes ?? const <String>[]).toSet();
+                        if (allowed == null) {
+                          allowed = productPromos;
+                        } else {
+                          allowed = allowed.intersection(productPromos);
+                        }
+                      }
+                      if (allowed == null) {
+                        return noDataFound(image: "assets/no_data_found/basket.png");
+                      }
+                      final filteredPromos = allPromos.where((p) => p.id != null && allowed!.contains(p.id)).toList();
+                      if (filteredPromos.isEmpty) {
+                        return noDataFound(image: "assets/no_data_found/basket.png");
+                      }
+                      return ListView.builder(
                                 padding: const EdgeInsets.only(top: 45),
                                 scrollDirection: Axis.vertical,
                                 physics: const BouncingScrollPhysics(),
-                                itemCount: getAllPromoCodeController.getAllPromoCode?.promoCode?.length,
+                                itemCount: filteredPromos.length,
                                 itemBuilder: (context, index) {
+                                  final promo = filteredPromos[index];
                                   final totalCartProducts = getAllCartProductController.getAllCartProducts?.data?.subTotal?.toInt();
-                                  final minOrderValue = getAllPromoCodeController.getAllPromoCode?.promoCode?[index].minOrderValue?.toInt();
+                                  final minOrderValue = promo.minOrderValue?.toInt();
                                   return Container(
                                     width: Get.width,
                                     decoration: BoxDecoration(color: AppColors.tabBackground, borderRadius: const BorderRadius.all(Radius.circular(12))),
@@ -1001,7 +1024,7 @@ class _CheckOutState extends State<CheckOut> {
                                           child: Padding(
                                             padding: const EdgeInsets.all(12),
                                             child: totalCartProducts! >= minOrderValue!
-                                                ? getAllPromoCodeController.getAllPromoCode!.promoCode![index].discountType == 1
+                                                ? promo.discountType == 1
                                                     ? Image.asset(
                                                         "assets/icons/Frame.png",
                                                         color: AppColors.primaryPink,
@@ -1010,7 +1033,7 @@ class _CheckOutState extends State<CheckOut> {
                                                         "assets/icons/promo.png",
                                                         color: AppColors.primaryPink,
                                                       )
-                                                : getAllPromoCodeController.getAllPromoCode!.promoCode![index].discountType == 1
+                                                : promo.discountType == 1
                                                     ? Image.asset(
                                                         "assets/icons/Frame.png",
                                                         color: AppColors.mediumGrey,
@@ -1022,15 +1045,15 @@ class _CheckOutState extends State<CheckOut> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              getAllPromoCodeController.getAllPromoCode!.promoCode![index].promoCode.toString(),
+                                              promo.promoCode.toString(),
                                               style: AppFontStyle.styleW700(AppColors.white, 11),
                                             ).paddingOnly(top: 12, bottom: 5),
                                             SizedBox(
                                               width: Get.width / 2.1,
                                               child: Text(
-                                                getAllPromoCodeController.getAllPromoCode!.promoCode![index].discountType == 1
-                                                    ? "${St.applyThisPromoAndGet.tr} ${getAllPromoCodeController.getAllPromoCode!.promoCode![index].discountAmount}% Discount."
-                                                    : "${St.applyThisPromoAndGet.tr} $currencySymbol${getAllPromoCodeController.getAllPromoCode!.promoCode![index].discountAmount} Discount.",
+                                                promo.discountType == 1
+                                                    ? "${St.applyThisPromoAndGet.tr} ${promo.discountAmount}% Discount."
+                                                    : "${St.applyThisPromoAndGet.tr} $currencySymbol${promo.discountAmount} Discount.",
                                                 style: AppFontStyle.styleW700(AppColors.unselected, 12),
                                               ),
                                             ).paddingOnly(bottom: 16),
@@ -1040,10 +1063,10 @@ class _CheckOutState extends State<CheckOut> {
                                         totalCartProducts >= minOrderValue
                                             ? GestureDetector(
                                                 onTap: () async {
-                                                  await userApplyPromoCheckController.getDataUserApplyPromoOrNot(promocodeId: getAllPromoCodeController.getAllPromoCode!.promoCode![index].id.toString());
+                                                  await userApplyPromoCheckController.getDataUserApplyPromoOrNot(promocodeId: promo.id.toString());
 
                                                   if (userApplyPromoCheckController.userApplyPromoCheck?.status == true) {
-                                                    var getPromoCode = getAllPromoCodeController.getAllPromoCode!.promoCode![index];
+                                                    var getPromoCode = promo;
 
                                                     discountType = getPromoCode.discountType!.toInt();
                                                     discountAmount = getPromoCode.discountAmount!.toInt();
@@ -1127,7 +1150,8 @@ class _CheckOutState extends State<CheckOut> {
                                     ),
                                   ).paddingOnly(bottom: 10, left: 13, right: 13);
                                 },
-                              ),
+                              );
+                    },
                   ),
                 ),
               ),

@@ -153,6 +153,10 @@ class ProductId {
   num? shippingCharges;
   String? deliveryType;
   List<DeliveryOption>? deliveryOptions;
+  // Promo code IDs the seller opted this product into at listing time.
+  // Used by Checkout to filter the admin-wide promo list down to only
+  // the codes valid for the products currently in the cart.
+  List<String>? promoCodes;
 
   ProductId({
     this.id,
@@ -161,6 +165,7 @@ class ProductId {
     this.shippingCharges,
     this.deliveryType,
     this.deliveryOptions,
+    this.promoCodes,
   });
 
   factory ProductId.fromJson(Map<String, dynamic> json) => ProductId(
@@ -173,6 +178,9 @@ class ProductId {
             ? []
             : List<DeliveryOption>.from(
                 json["deliveryOptions"].map((x) => DeliveryOption.fromJson(x))),
+        promoCodes: json["promoCodes"] == null
+            ? []
+            : List<String>.from(json["promoCodes"].map((x) => x.toString())),
       );
 
   Map<String, dynamic> toJson() => {
@@ -184,6 +192,9 @@ class ProductId {
         "deliveryOptions": deliveryOptions == null
             ? []
             : List<dynamic>.from(deliveryOptions!.map((x) => x.toJson())),
+        "promoCodes": promoCodes == null
+            ? []
+            : List<dynamic>.from(promoCodes!.map((x) => x)),
       };
 }
 
