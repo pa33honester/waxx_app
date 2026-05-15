@@ -204,6 +204,8 @@ class St {
   static String acceptDelivery = "acceptDelivery";
   static String acceptDeliveryConfirm = "acceptDeliveryConfirm";
   static String deliveryAccepted = "deliveryAccepted";
+  static String buyItAgain = "buyItAgain";
+  static String productNoLongerAvailable = "productNoLongerAvailable";
   static String noProductFound = "noProductFound";
   static String qty = "qty";
   static String off = "off";

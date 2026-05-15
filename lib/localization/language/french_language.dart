@@ -207,6 +207,8 @@ final Map<String, String> frCH = {
   "acceptDelivery": "Accepter la livraison",
   "acceptDeliveryConfirm": "Confirmer que vous avez reçu cet article ? Il passera à Livré et attendra la validation de l'administrateur.",
   "deliveryAccepted": "Livraison acceptée",
+  "buyItAgain": "Acheter à nouveau",
+  "productNoLongerAvailable": "Ce produit n'est plus disponible.",
   "cancelledText": "Annulé",
   "cancelledOrderText": "Commande annulée",
   "detailText": "Détail",

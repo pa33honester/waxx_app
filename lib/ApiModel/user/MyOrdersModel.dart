@@ -208,23 +208,32 @@ class ProductId {
   String? id;
   String? productName;
   String? mainImage;
+  // Carried for the buyer "Buy it again" stock check on Complete orders.
+  int? quantity;
+  bool? isOutOfStock;
 
   ProductId({
     this.id,
     this.productName,
     this.mainImage,
+    this.quantity,
+    this.isOutOfStock,
   });
 
   factory ProductId.fromJson(Map<String, dynamic> json) => ProductId(
         id: json["_id"],
         productName: json["productName"],
         mainImage: json["mainImage"],
+        quantity: json["quantity"] is int ? json["quantity"] : (json["quantity"] is num ? (json["quantity"] as num).toInt() : null),
+        isOutOfStock: json["isOutOfStock"],
       );
 
   Map<String, dynamic> toJson() => {
         "_id": id,
         "productName": productName,
         "mainImage": mainImage,
+        "quantity": quantity,
+        "isOutOfStock": isOutOfStock,
       };
 }
 

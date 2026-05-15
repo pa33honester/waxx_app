@@ -210,6 +210,8 @@ final Map<String, String> enUS = {
   "acceptDelivery": "Accept Delivery",
   "acceptDeliveryConfirm": "Confirm that you received this item? It will move to Delivered and await admin completion.",
   "deliveryAccepted": "Delivery accepted",
+  "buyItAgain": "Buy it again",
+  "productNoLongerAvailable": "This product is no longer available.",
   "cancelledText": "Cancelled",
   "cancelledOrderText": "Cancelled Order",
   "detailText": "Detail",

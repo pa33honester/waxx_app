@@ -281,7 +281,18 @@ class _MyOrderState extends State<MyOrder> with TickerProviderStateMixin {
                                                 height: 1,
                                               ).paddingSymmetric(horizontal: 16),
                                               itemBuilder: (context, index) {
-                                                return Padding(
+                                                final itemProduct = orderData.items?[index].productId;
+                                                // Tap anywhere on the card opens the product detail (so the buyer can
+                                                // "view" the order — covers Complete-status orders in particular).
+                                                return GestureDetector(
+                                                  behavior: HitTestBehavior.opaque,
+                                                  onTap: () {
+                                                    final pid = itemProduct?.id;
+                                                    if (pid == null || pid.isEmpty) return;
+                                                    productId = pid;
+                                                    Get.toNamed("/ProductDetail");
+                                                  },
+                                                  child: Padding(
                                                   padding: const EdgeInsets.all(16),
                                                   child: Column(
                                                     children: [
@@ -416,8 +427,38 @@ class _MyOrderState extends State<MyOrder> with TickerProviderStateMixin {
                                                           ),
                                                         ),
                                                       ],
+                                                      // Buy it again — only on Complete orders, gated on stock.
+                                                      // The backend now includes quantity + isOutOfStock on the
+                                                      // populated product so we can decide locally.
+                                                      if (orderData.items?[index].status == "Complete" &&
+                                                          (itemProduct?.isOutOfStock != true) &&
+                                                          ((itemProduct?.quantity ?? 0) > 0)) ...[
+                                                        12.height,
+                                                        SizedBox(
+                                                          width: double.infinity,
+                                                          child: ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              backgroundColor: AppColors.primary,
+                                                              foregroundColor: AppColors.black,
+                                                              padding: const EdgeInsets.symmetric(vertical: 12),
+                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                            ),
+                                                            onPressed: () {
+                                                              final pid = itemProduct?.id;
+                                                              if (pid == null || pid.isEmpty) return;
+                                                              productId = pid;
+                                                              Get.toNamed("/ProductDetail");
+                                                            },
+                                                            child: Text(
+                                                              St.buyItAgain.tr,
+                                                              style: AppFontStyle.styleW700(AppColors.black, 13),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
                                                       16.height,
                                                     ],
+                                                  ),
                                                   ),
                                                 );
                                               },

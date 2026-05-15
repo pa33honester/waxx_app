@@ -207,6 +207,8 @@ final Map<String, String> taIN = {
   "acceptDelivery": "Accept Delivery",
   "acceptDeliveryConfirm": "Confirm that you received this item? It will move to Delivered and await admin completion.",
   "deliveryAccepted": "Delivery accepted",
+  "buyItAgain": "Buy it again",
+  "productNoLongerAvailable": "This product is no longer available.",
   "cancelledText": "ரத்து செய்யப்பட்டது",
   "cancelledOrderText": "ரத்து செய்யப்பட்ட ஆர்டர்",
   "detailText": "விவரம்",

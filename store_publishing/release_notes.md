@@ -91,7 +91,7 @@ password uses (not a regression).
    upload to the Production track.
 
 ---
-## 🛠 Version 1.1.15+32 — Complete Order tab, 2-col recent products, Waxxapp-branded notifications
+## 🛠 Version 1.1.15+32 — Complete Order tab (seller + buyer), 2-col recent products, Buy it again, Waxxapp-branded notifications
 
 **Version:** 1.1.15
 **Build Number:** 32
@@ -99,14 +99,16 @@ password uses (not a regression).
 **Type:** Feature + bug fix on top of v1.1.14+31
 
 ### Suggested Play Console release name
-`v1.1.15 — Complete orders tab + recent products grid`
+`v1.1.15 — Complete orders + Buy it again`
 
 ### English (Default)
 
 ```
 ✨ Update — v1.1.15
 
-✓ New "Complete Order" tab on seller My Order screen
+✓ "Complete Order" tab now on both seller AND buyer My Order screens
+✓ Tap a completed order — opens the product; one-tap "Buy it again"
+   when stock is available
 ✓ Home page now shows 30 newest products in a 2-column grid
 ✓ Wallet notifications now read "Waxxapp" instead of "Admin"
 ```
@@ -128,7 +130,31 @@ Two notification bodies sent by the order controller named "Admin"/"admin" as th
 - Buyer-confirmed-delivery body changed from `"...once admin marks it Complete."` → `"...once Waxxapp marks it Complete."`
 The push title bar still reads **Waxxapp** (the FCM app name), so body now matches.
 
-**4. (Backend bug fix) Category-products query was sorting on a missing field.**
+**4. Buyer side surfaces Complete orders + "Buy it again" CTA.**
+
+Sister change to (1). The seller side gained a Complete Order count tile;
+the buyer side needed the same. The buyer's My Order screen already had a
+**Complete** tab in the tab strip (added at 1.1.14+31), but tapping it
+returned an empty list because the backend `order/orderDetailsForUser`
+endpoint hard-coded an `allowedStatuses` whitelist that didn't include
+`"Complete"` — so the request was rejected with "Status must be valid"
+and the UI showed "No Product Found!". Added `"Complete"` to the
+whitelist. The tab now populates.
+
+Each order card on the buyer's My Order list is now wrapped in a
+`GestureDetector`; tapping any card sets the global `productId` and
+routes to `/ProductDetail` (so the buyer can view the product they
+ordered — covers all statuses, especially Complete). On Complete cards
+an additional inline **Buy it again** button is rendered, gated on the
+live product still being in stock — `isOutOfStock != true` and
+`quantity > 0`. The gate is evaluated client-side: the backend's
+populated `items.productId` now carries `quantity` and `isOutOfStock`
+alongside the existing `productName` + `mainImage`, so no second API
+call is needed to decide whether to show the button. If the product
+has gone out of stock or been removed from the catalog, the button
+silently doesn't render — the buyer still has the tap-to-view path.
+
+**5. (Backend bug fix) Category-products query was sorting on a missing field.**
 
 `getProductsForUser` (`product/categorywiseAllProducts`) ran:
 ```
@@ -145,10 +171,16 @@ The `$sort` ran AFTER the projections that removed `createdAt`, so the field was
 - `lib/ApiModel/seller/SellerOrderCountModel.dart` — `completeOrders` field + getter + (de)serialization.
 - `lib/user_pages/home_page/view/home_view.dart` — category section's horizontal `ListView` swapped to a 2-col `GridView`, take(10) → take(30); removed per-item width/margin (grid handles spacing).
 - `lib/Controller/GetxController/user/gallery_catagory_controller.dart` — `limit` 12 → 30.
-- `lib/utils/Strings/strings.dart` + all 18 `lib/localization/language/*.dart` — new `completeOrder` key.
+- `lib/utils/Strings/strings.dart` + all 18 `lib/localization/language/*.dart` — new `completeOrder`, `buyItAgain`, `productNoLongerAvailable` keys.
+- `lib/View/MyApp/Profile/MyOrder/my_order.dart` — buyer's order cards now wrap in a `GestureDetector` (tap → /ProductDetail); inline **Buy it again** button on Complete cards, gated on `itemProduct.isOutOfStock != true && (itemProduct.quantity ?? 0) > 0`.
+- `lib/ApiModel/user/MyOrdersModel.dart` — `ProductId` model gained `quantity` and `isOutOfStock` fields (carried for the Buy-It-Again stock gate).
 
 **Backend (`waxxapp_admin/backend`)**
-- `server/order/order.controller.js` — `orderCountForSeller` returns `completeOrders`; two FCM bodies re-attributed to Waxxapp.
+- `server/order/order.controller.js`:
+  - `orderCountForSeller` returns `completeOrders`.
+  - Two FCM bodies re-attributed to Waxxapp.
+  - `orderDetailsForUser` `allowedStatuses` whitelist now includes `"Complete"` (was silently rejecting that status).
+  - `orderDetailsForUser` populated `items.productId` now also includes `quantity` + `isOutOfStock` for the buyer "Buy it again" stock gate.
 - `server/product/product.controller.js` — `getProductsForUser` aggregation reordered: `$sort` moved before the projections that strip `createdAt`.
 
 #### 🚀 Deploy

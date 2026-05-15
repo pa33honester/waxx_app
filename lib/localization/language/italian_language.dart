@@ -207,6 +207,8 @@ final Map<String, String> itIT = {
   "acceptDelivery": "Accept Delivery",
   "acceptDeliveryConfirm": "Confirm that you received this item? It will move to Delivered and await admin completion.",
   "deliveryAccepted": "Delivery accepted",
+  "buyItAgain": "Buy it again",
+  "productNoLongerAvailable": "This product is no longer available.",
   "cancelledText": "Annullato",
   "cancelledOrderText": "Ordine annullato",
   "detailText": "Dettaglio",

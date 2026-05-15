@@ -207,6 +207,8 @@ final Map<String, String> esES = {
   "acceptDelivery": "Accept Delivery",
   "acceptDeliveryConfirm": "Confirm that you received this item? It will move to Delivered and await admin completion.",
   "deliveryAccepted": "Delivery accepted",
+  "buyItAgain": "Buy it again",
+  "productNoLongerAvailable": "This product is no longer available.",
   "cancelledText": "Cancelado",
   "cancelledOrderText": "Orden cancelada",
   "detailText": "Detalle",
