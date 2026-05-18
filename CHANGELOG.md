@@ -45,6 +45,10 @@ All notable changes to the Waxxapp Flutter app are documented here.
 
 ## [1.1.15+32] — May 2026
 
+### Fixed
+- **Seller "Complete Order" list showed "No Order Found!" despite count > 0.** `orderDetailsForSeller` had an if/else chain covering Pending → Confirmed → Out Of Delivery → Delivered → Cancelled → All, with no "Complete" branch — requests for `status=Complete` fell through to the `else` clause that returned `{ status: false, message: "status must be passed valid" }`. The Flutter `DeliveredOrder` view received this rejection and rendered an empty list. Fixed by inserting a dedicated "Complete" aggregation branch (same pipeline as Delivered, matching `"items.status": "Complete"`). Also added "Complete" to: the "All" `$in` array in `orderDetailsForSeller`; the `ordersOfUser` if/else chain and its All `$in`; and the `ordersOfSeller` `VALID_STATUSES` array.
+  ([waxxapp_admin/backend/server/order/order.controller.js](../waxxapp_admin/backend/server/order/order.controller.js))
+
 ### Added
 - **"Complete Order" row on the seller "My Order" dashboard.** Slots between Delivered Order and Cancel Order with the live admin-released count. Tapping opens the same status-wise list view (reused `DeliveredOrder` with an optional `title` override) pre-filtered to `status: "Complete"`.
   ([lib/seller_pages/seller_order_page/view/my_orders.dart](lib/seller_pages/seller_order_page/view/my_orders.dart),
