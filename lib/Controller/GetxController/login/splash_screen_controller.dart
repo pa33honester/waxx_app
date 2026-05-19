@@ -190,6 +190,8 @@ class SplashScreenController extends GetxController {
         isSellerRequestSand = getStorage.read("isSellerRequestSand");
         isSeller = getStorage.read("becomeSeller") == true;
         mobileNumber = (getStorage.read("mobileNumber") ?? "").toString();
+        final storedDialCode = (getStorage.read("dialCode") ?? "").toString();
+        dialCode = storedDialCode.isEmpty ? null : storedDialCode;
       } catch (e) {
         // Even if something here still throws, don't let it block the
         // settings fetch below — that's what powers feature gating.

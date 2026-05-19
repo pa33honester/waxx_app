@@ -76,6 +76,7 @@ class Api {
   static const sellerProductDelete = "product/delete";
   static const sellerReelDelete = "reel/deleteReel";
   static const galleryCategory = "product/categorywiseAllProducts";
+  static const trendingProducts = "product/trendingProducts";
   static const productSelectOrNot = "product/selectOrNot";
   static const myOrders = "order/orderDetailsForUser";
   static const selectedProductForLive = "product/selectedProducts";

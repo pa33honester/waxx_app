@@ -90,15 +90,21 @@ class _HomeCategoryTabBarWidgetState extends State<HomeCategoryTabBarWidget> wit
 
     int selectedIndex = tabController.index;
     if (selectedIndex >= categories.length) return;
-    final selectedCategory = categories[selectedIndex].id;
-    log("_handleTabChange: index=$selectedIndex categoryId=$selectedCategory loginUserId=$loginUserId");
-    if (selectedCategory == null) {
-      log("_handleTabChange: category id is null, skipping");
-      return;
-    }
+    final selectedCategory = categories[selectedIndex];
+    final categoryId = selectedCategory.id;
+    final categoryName = (selectedCategory.name ?? '').toLowerCase().trim();
+    log("_handleTabChange: index=$selectedIndex categoryId=$categoryId name=$categoryName loginUserId=$loginUserId");
 
     galleryCategoryController.isLoading(true);
-    await galleryCategoryController.getCategoryData(selectCategory: selectedCategory);
+    if (categoryName == 'trending') {
+      await galleryCategoryController.getTrendingProducts();
+    } else {
+      if (categoryId == null) {
+        log("_handleTabChange: category id is null, skipping");
+        return;
+      }
+      await galleryCategoryController.getCategoryData(selectCategory: categoryId);
+    }
     syncLikesWithProducts();
     galleryCategoryController.update();
   }
@@ -119,8 +125,13 @@ class _HomeCategoryTabBarWidgetState extends State<HomeCategoryTabBarWidget> wit
 
     if (targetIdx == null || !mounted) return;
 
-    final catId = categories[targetIdx].id!;
-    await galleryCategoryController.getCategoryData(selectCategory: catId);
+    final targetCat = categories[targetIdx];
+    final isTrending = (targetCat.name ?? '').toLowerCase().trim() == 'trending';
+    if (isTrending) {
+      await galleryCategoryController.getTrendingProducts();
+    } else {
+      await galleryCategoryController.getCategoryData(selectCategory: targetCat.id!);
+    }
     tabController.animateTo(targetIdx);
     getAllCategoryController.selectedTabIndex = targetIdx;
     getAllCategoryController.update(["onChangeTab"]);

@@ -6,6 +6,23 @@ import 'package:waxxapp/utils/api_url.dart';
 import 'package:get/get.dart';
 
 class GalleryCategoryApi extends GetxService {
+  Future<GalleryCategoryModel?> getTrendingProducts({
+    required String userId,
+    required String start,
+    required String limit,
+  }) async {
+    final url = Uri.parse("${Api.baseUrl + Api.trendingProducts}?userId=$userId&start=$start&limit=$limit");
+    log("Trending api :: $url");
+    final headers = {'key': Api.secretKey, 'Content-Type': 'application/json; charset=UTF-8'};
+    final response = await http.get(url, headers: headers);
+    log('Trending api :: ${response.statusCode} \n RESPONSE :: ${response.body}');
+    if (response.statusCode == 200) {
+      return GalleryCategoryModel.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Status code is not 200');
+    }
+  }
+
   Future<GalleryCategoryModel?> showCategory({
     required String categoryId,
     required String userId,

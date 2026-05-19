@@ -30,6 +30,36 @@ class GalleryCategoryController extends GetxController {
     super.onClose();
   }
 
+  Future getTrendingProducts() async {
+    try {
+      isLoading(true);
+      isRefreshLoading(true);
+      galleryProducts.clear();
+      start = 1;
+
+      final result = await GalleryCategoryApi().getTrendingProducts(
+        userId: loginUserId,
+        start: "$start",
+        limit: "$limit",
+      );
+
+      if (result?.status == true) {
+        galleryProducts.addAll(result?.product?.toList() ?? []);
+        log("trendingProducts.length ${galleryProducts.length}");
+        likes = List.generate(galleryProducts.length, (_) => true);
+        start++;
+      } else {
+        log("getTrendingProducts: status=${result?.status}");
+      }
+    } catch (e, st) {
+      log("getTrendingProducts error: $e\n$st");
+    } finally {
+      isLoading(false);
+      isRefreshLoading(false);
+      update();
+    }
+  }
+
   Future getCategoryData({String? selectCategory}) async {
     try {
       isLoading(true);
