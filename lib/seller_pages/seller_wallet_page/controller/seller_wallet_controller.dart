@@ -125,7 +125,7 @@ class SellerWalletController extends GetxController {
   bool isLoading1 = false;
   List<Datum> walletHistory = [];
   FetchSellerWalletHistoryModel? fetchSellerWalletHistory;
-  int? totalAmount = 0;
+  num? totalAmount = 0;
 
   String startDate = "All";
   String endDate = "All"; // This is Send on Api....

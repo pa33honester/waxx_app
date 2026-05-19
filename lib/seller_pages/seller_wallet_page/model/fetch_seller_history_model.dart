@@ -11,7 +11,7 @@ String fetchSellerWalletHistoryModelToJson(FetchSellerWalletHistoryModel data) =
 class FetchSellerWalletHistoryModel {
   bool? status;
   String? message;
-  int? totalAmount;
+  num? totalAmount;
   List<Datum>? data;
 
   FetchSellerWalletHistoryModel({
@@ -38,7 +38,7 @@ class FetchSellerWalletHistoryModel {
 
 class Datum {
   String? id;
-  int? amount;
+  num? amount;
   int? transactionType;
   String? date;
   String? orderId;
