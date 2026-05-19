@@ -46,6 +46,10 @@ All notable changes to the Waxxapp Flutter app are documented here.
 ## [1.1.15+32] — May 2026
 
 ### Fixed
+- **Seller withdrawal requests always failed with "Internal Server Error".** `initiateCashOut` referenced `settingJSON` bare — the variable was never declared in the function, causing a `ReferenceError` on every call. Fixed by reading from `global.settingJSON` (the same object every other handler uses). Without this, no seller could ever submit a withdrawal request.
+  ([waxxapp_admin/backend/server/withdrawRequest/withdrawRequest.controller.js](../waxxapp_admin/backend/server/withdrawRequest/withdrawRequest.controller.js))
+- **Withdrawal request saved after success response was already sent** (and approval deduction happened after response too). `initiateCashOut` sent `200 OK` to the seller before `WithDrawRequest.create(...)` completed — a DB failure would have been invisible to the caller. `approveWithdrawalRequest` sent `200 OK` before the `$inc netPayout / SellerWallet debit / status-2 flip` Promise.all, so a DB failure after the response left the seller's balance un-deducted. Both now await the writes first, then respond.
+  ([waxxapp_admin/backend/server/withdrawRequest/withdrawRequest.controller.js](../waxxapp_admin/backend/server/withdrawRequest/withdrawRequest.controller.js))
 - **"Submit" button on seller Order Details renamed to "Confirm Delivery".** The bottom action button in `OrderConfirmBySeller` (the screen sellers reach after an order is confirmed, where they mark it as Out Of Delivery) was labelled "Submit" — which didn't communicate the action. Renamed to "Confirm Delivery" via a new `St.confirmDelivery` localization key.
   ([lib/View/MyApp/Seller/SellerOrder/ConfirmedOrders/order_confirm_by_seller.dart](lib/View/MyApp/Seller/SellerOrder/ConfirmedOrders/order_confirm_by_seller.dart))
 - **Total Order count showed blank on seller My Order dashboard.** `totalOrders` used `?.totalOrders` with no null-fallback; when `totalOrders` was null (e.g. before data loaded or API edge case), Dart rendered the literal string "null" which appeared empty. Added `?? 0` guard.
