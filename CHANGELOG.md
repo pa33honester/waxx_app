@@ -46,6 +46,10 @@ All notable changes to the Waxxapp Flutter app are documented here.
 ## [1.1.15+32] — May 2026
 
 ### Fixed
+- **"Submit" button on seller Order Details renamed to "Confirm Delivery".** The bottom action button in `OrderConfirmBySeller` (the screen sellers reach after an order is confirmed, where they mark it as Out Of Delivery) was labelled "Submit" — which didn't communicate the action. Renamed to "Confirm Delivery" via a new `St.confirmDelivery` localization key.
+  ([lib/View/MyApp/Seller/SellerOrder/ConfirmedOrders/order_confirm_by_seller.dart](lib/View/MyApp/Seller/SellerOrder/ConfirmedOrders/order_confirm_by_seller.dart))
+- **Total Order count showed blank on seller My Order dashboard.** `totalOrders` used `?.totalOrders` with no null-fallback; when `totalOrders` was null (e.g. before data loaded or API edge case), Dart rendered the literal string "null" which appeared empty. Added `?? 0` guard.
+  ([lib/seller_pages/seller_order_page/view/my_orders.dart](lib/seller_pages/seller_order_page/view/my_orders.dart))
 - **Seller "Complete Order" list showed "No Order Found!" despite count > 0.** `orderDetailsForSeller` had an if/else chain covering Pending → Confirmed → Out Of Delivery → Delivered → Cancelled → All, with no "Complete" branch — requests for `status=Complete` fell through to the `else` clause that returned `{ status: false, message: "status must be passed valid" }`. The Flutter `DeliveredOrder` view received this rejection and rendered an empty list. Fixed by inserting a dedicated "Complete" aggregation branch (same pipeline as Delivered, matching `"items.status": "Complete"`). Also added "Complete" to: the "All" `$in` array in `orderDetailsForSeller`; the `ordersOfUser` if/else chain and its All `$in`; and the `ordersOfSeller` `VALID_STATUSES` array.
   ([waxxapp_admin/backend/server/order/order.controller.js](../waxxapp_admin/backend/server/order/order.controller.js))
 
