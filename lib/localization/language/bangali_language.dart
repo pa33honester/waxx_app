@@ -204,6 +204,7 @@ final Map<String, String> bnIN = {
   "processingText": "প্রক্রিয়াকরণ",
   "deliveredText": "বিতরণ করা হয়েছে",
   "complete": "Complete",
+  "confirmDelivery": "Confirm Delivery",
   "acceptDelivery": "Accept Delivery",
   "acceptDeliveryConfirm": "Confirm that you received this item? It will move to Delivered and await admin completion.",
   "deliveryAccepted": "Delivery accepted",

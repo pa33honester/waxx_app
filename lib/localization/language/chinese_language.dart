@@ -204,6 +204,7 @@ final Map<String, String> zhCN = {
   "processingText": "加工",
   "deliveredText": "发表",
   "complete": "Complete",
+  "confirmDelivery": "Confirm Delivery",
   "acceptDelivery": "Accept Delivery",
   "acceptDeliveryConfirm": "Confirm that you received this item? It will move to Delivered and await admin completion.",
   "deliveryAccepted": "Delivery accepted",

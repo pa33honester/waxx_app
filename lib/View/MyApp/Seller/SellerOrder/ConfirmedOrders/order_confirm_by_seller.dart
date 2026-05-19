@@ -205,7 +205,7 @@ class OrderConfirmBySeller extends StatelessWidget {
                         decoration: BoxDecoration(color: AppColors.primaryGreen, borderRadius: BorderRadius.circular(50)),
                         child: Center(
                           child: Text(
-                            St.submit.tr,
+                            St.confirmDelivery.tr,
                             style: GoogleFonts.plusJakartaSans(color: AppColors.white, fontSize: 16, fontWeight: FontWeight.w700),
                           ),
                         ),

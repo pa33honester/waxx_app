@@ -207,6 +207,7 @@ final Map<String, String> enUS = {
   "processingText": "Processing",
   "deliveredText": "Delivered",
   "complete": "Complete",
+  "confirmDelivery": "Confirm Delivery",
   "acceptDelivery": "Accept Delivery",
   "acceptDeliveryConfirm": "Confirm that you received this item? It will move to Delivered and await admin completion.",
   "deliveryAccepted": "Delivery accepted",

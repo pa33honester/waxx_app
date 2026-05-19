@@ -418,7 +418,7 @@ class _MyOrdersState extends State<MyOrders> {
                             ),
                             const Spacer(),
                             Text(
-                              "${sellerMyOrderCountController.sellerMyOrderCount?.totalOrders}",
+                              "${sellerMyOrderCountController.sellerMyOrderCount?.totalOrders ?? 0}",
                               style: AppFontStyle.styleW700(AppColors.primary, 14),
                             ),
                             10.width,

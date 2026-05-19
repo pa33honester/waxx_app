@@ -201,6 +201,7 @@ class St {
   static String confirmed = "confirmed";
   static String outOfDelivery = "outOfDelivery";
   static String complete = "complete";
+  static String confirmDelivery = "confirmDelivery";
   static String acceptDelivery = "acceptDelivery";
   static String acceptDeliveryConfirm = "acceptDeliveryConfirm";
   static String deliveryAccepted = "deliveryAccepted";

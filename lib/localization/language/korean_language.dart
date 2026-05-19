@@ -204,6 +204,7 @@ final Map<String, String> koKR = {
   "processingText": "처리",
   "deliveredText": "배달됨",
   "complete": "Complete",
+  "confirmDelivery": "Confirm Delivery",
   "acceptDelivery": "Accept Delivery",
   "acceptDeliveryConfirm": "Confirm that you received this item? It will move to Delivered and await admin completion.",
   "deliveryAccepted": "Delivery accepted",

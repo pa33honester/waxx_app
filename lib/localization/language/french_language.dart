@@ -204,6 +204,7 @@ final Map<String, String> frCH = {
   "processingText": "Traitement",
   "deliveredText": "Livré",
   "complete": "Terminé",
+  "confirmDelivery": "Confirmer la livraison",
   "acceptDelivery": "Accepter la livraison",
   "acceptDeliveryConfirm": "Confirmer que vous avez reçu cet article ? Il passera à Livré et attendra la validation de l'administrateur.",
   "deliveryAccepted": "Livraison acceptée",
