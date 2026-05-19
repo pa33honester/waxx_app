@@ -130,6 +130,12 @@ class Api {
   // Customer-support chat (user ↔ admin operator pool).
   static const supportMyConversation = "support/myConversation";
   static const supportSendUserMessage = "support/sendUserMessage";
+  // Buyer-seller product chat (scoped per product).
+  static const productChatConversation = "productChat/conversation";
+  static const productChatSendBuyer = "productChat/sendBuyerMessage";
+  static const productChatSendSeller = "productChat/sendSellerMessage";
+  static const productChatSellerInbox = "productChat/sellerInbox";
+  static const productChatBuyerInbox = "productChat/buyerInbox";
   // In-app sign-up assistant chatbot — submits a pending account request
   // that an admin reviews + approves in the admin panel.
   static const submitAccountRequest = "accountRequest/create";

@@ -39,6 +39,10 @@ class SocketServices {
   // user-sent bubbles from sent (✓) to read (✓✓) when readerSide is
   // "admin".
   static Rx<dynamic> supportReadStream = Rx<dynamic>(null);
+  // Product chat (buyer ↔ seller, scoped per product).
+  static Rx<dynamic> productChatMessageStream = Rx<dynamic>(null);
+  static Rx<dynamic> productChatReadStream = Rx<dynamic>(null);
+  static Rx<dynamic> productChatInboxStream = Rx<dynamic>(null);
   static ScrollController scrollController = ScrollController();
   static TextEditingController sellerCommentText = TextEditingController();
   static TextEditingController userCommentText = TextEditingController();
@@ -183,6 +187,21 @@ class SocketServices {
     socket!.on("supportRead", (raw) {
       log("Socket Listen => Support Read : $raw");
       supportReadStream.value = raw;
+    });
+
+    socket!.on("productChatMessage", (raw) {
+      log("Socket Listen => productChatMessage: $raw");
+      productChatMessageStream.value = raw;
+    });
+
+    socket!.on("productChatRead", (raw) {
+      log("Socket Listen => productChatRead: $raw");
+      productChatReadStream.value = raw;
+    });
+
+    socket!.on("productChatInboxUpdated", (raw) {
+      log("Socket Listen => productChatInboxUpdated: $raw");
+      productChatInboxStream.value = raw;
     });
 
     socket!.on("endLiveSeller", (liveSellingHistoryId) {
@@ -374,6 +393,9 @@ class SocketServices {
     socket!.off("giveawayPrizeClaim");
     socket!.off("giveawayError");
     socket!.off("liveSessionInfo");
+    socket!.off("productChatMessage");
+    socket!.off("productChatRead");
+    socket!.off("productChatInboxUpdated");
   }
 
   // static void _attemptReconnect() {
@@ -457,6 +479,52 @@ class SocketServices {
         "supportMarkRead",
         jsonEncode({"conversationId": conversationId, "readerSide": readerSide}),
       );
+    }
+  }
+
+  // ── Product chat (buyer ↔ seller) ────────────────────────────────────────
+
+  static void onProductChatJoin({
+    required String conversationId,
+    required String userId,
+    required String role,
+  }) {
+    if (conversationId.isEmpty) return;
+    if (socket != null && socket!.connected) {
+      socket?.emit("productChatJoin",
+          jsonEncode({"conversationId": conversationId, "userId": userId, "role": role}));
+    }
+  }
+
+  static void onProductChatLeave({required String conversationId}) {
+    if (conversationId.isEmpty) return;
+    if (socket != null && socket!.connected) {
+      socket?.emit("productChatLeave", jsonEncode({"conversationId": conversationId}));
+    }
+  }
+
+  static void onProductChatMarkRead({
+    required String conversationId,
+    required String readerRole,
+  }) {
+    if (conversationId.isEmpty) return;
+    if (socket != null && socket!.connected) {
+      socket?.emit("productChatMarkRead",
+          jsonEncode({"conversationId": conversationId, "readerRole": readerRole}));
+    }
+  }
+
+  static void onProductChatInboxJoin({required String sellerId}) {
+    if (sellerId.isEmpty) return;
+    if (socket != null && socket!.connected) {
+      socket?.emit("productChatInboxJoin", jsonEncode({"sellerId": sellerId}));
+    }
+  }
+
+  static void onProductChatInboxLeave({required String sellerId}) {
+    if (sellerId.isEmpty) return;
+    if (socket != null && socket!.connected) {
+      socket?.emit("productChatInboxLeave", jsonEncode({"sellerId": sellerId}));
     }
   }
 

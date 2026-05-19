@@ -1,6 +1,68 @@
 # Release Notes — Waxx App
 
 ---
+## 💬 v1.1.16+33 — Buyer-Seller Product Chat
+
+**Version:** 1.1.16+33
+**Type:** Feature
+
+### Suggested Play Console release name
+`v1.1.16 — Chat with sellers`
+
+### English (Default)
+
+```
+💬 New — Chat with sellers
+
+✓ Tap "Chat with Seller" on any product to start a private conversation with
+  the seller about that item
+✓ Sellers manage all buyer conversations from Chat Inbox in their account menu
+✓ Real-time messaging with instant notifications — never miss a reply
+✓ Contact details (emails & phone numbers) are blocked to keep the
+  marketplace safe
+```
+
+### 📋 Full Internal Release Notes
+
+**Buyer-seller 1:1 product chat.**
+
+Buyers can now open a private chat with a seller directly from the Product
+Detail page. Each conversation is scoped to the specific product — context is
+always clear. Sellers access all incoming buyer conversations from a new
+**Chat Inbox** entry in their Seller Account menu.
+
+**Key behaviours:**
+- **Product-scoped:** One conversation per (buyer, seller, product) triplet.
+  Multiple buyers asking about the same product each get their own thread.
+- **Real-time:** Backed by the existing Socket.IO connection. Messages appear
+  instantly on both sides without polling; no new socket connection is opened.
+- **Read receipts:** WhatsApp-style ✓ / ✓✓ — single tick when sent, double
+  tick when the other side opens the chat.
+- **Push notifications:** Both buyer and seller receive FCM push on every new
+  message. Tapping the notification deep-links directly into the conversation
+  (buyers) or the inbox (sellers). Cold-start taps are stashed and replayed
+  after the splash navigation settles (same pattern as LIVE_STARTED).
+- **Content filter:** Email addresses and phone numbers are blocked server-side
+  before the message is saved. The Flutter composer surfaces an inline error
+  and restores the draft text so the user can edit and retry — no full-screen
+  error or navigation.
+- **Demo guard:** Demo-mode users see the existing "This is a demo user" toast
+  and cannot open a chat.
+- **Seller inbox:** Sorted by most-recent-activity. Unread badge per
+  conversation. Pull-to-refresh. Real-time updates via
+  `productChatInboxUpdated` socket event — unread count and last-message
+  preview update live without a reload.
+
+**Backend changes (waxxapp_admin/backend):**
+- New `server/productChat/` feature folder (model, controller, route).
+- 5 REST endpoints: `GET /productChat/conversation` (idempotent find-or-create),
+  `POST /productChat/sendBuyerMessage`, `POST /productChat/sendSellerMessage`,
+  `GET /productChat/sellerInbox`, `GET /productChat/buyerInbox`.
+- 5 new Socket.IO events: `productChatJoin/Leave`, `productChatInboxJoin/Leave`,
+  `productChatMarkRead` (with DB write + broadcast).
+- Mounted in `route.js`; all endpoints guarded by `checkAccessWithSecretKey`.
+
+---
 ## ✨ Unreleased — In-app sign-up / login assistant chatbot
 
 **Version:** _(no bump yet — pending next cut)_

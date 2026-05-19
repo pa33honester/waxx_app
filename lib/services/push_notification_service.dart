@@ -141,6 +141,14 @@ class PushNotificationService {
       }
     } else if (type == 'SUPPORT_REPLY') {
       getStorage.write('pendingDeepLinkSupport', true);
+    } else if (type == 'PRODUCT_CHAT') {
+      final convId = (message.data['conversationId'] as String? ?? '').trim();
+      final role = (message.data['role'] as String? ?? 'buyer').trim();
+      if (convId.isNotEmpty) {
+        getStorage.write('pendingDeepLinkProductChatConvId', convId);
+        getStorage.write('pendingDeepLinkProductChatRole', role);
+        log('Cold-start: stashed pendingDeepLinkProductChat convId=$convId role=$role');
+      }
     } else if (type == 'FOLLOWED_SELLER_NEW_PRODUCT') {
       final pId = (message.data['productId'] as String? ?? '').trim();
       if (pId.isNotEmpty) {
@@ -314,6 +322,33 @@ class PushNotificationService {
         icon: Icon(Icons.support_agent_rounded, color: AppColors.primary),
         duration: const Duration(seconds: 6),
         onTap: (_) => Get.toNamed("/SupportChat"),
+      );
+    } else if (type == 'PRODUCT_CHAT') {
+      // Buyer-seller product chat message. role:"seller" → inbox; role:"buyer" → conversation.
+      final convId = (message.data['conversationId'] as String? ?? '').trim();
+      final role = (message.data['role'] as String? ?? 'buyer').trim();
+      if (fromTap) {
+        if (role == 'seller') {
+          Get.toNamed("/SellerChatInbox");
+        } else {
+          Get.toNamed("/ProductChat", arguments: {"conversationId": convId, "role": "buyer"});
+        }
+        return;
+      }
+      Get.snackbar(
+        message.notification?.title ?? 'New message',
+        message.notification?.body ?? 'Tap to open the chat',
+        backgroundColor: AppColors.tabBackground,
+        colorText: AppColors.white,
+        icon: Icon(Icons.chat_bubble_rounded, color: AppColors.primary),
+        duration: const Duration(seconds: 6),
+        onTap: (_) {
+          if (role == 'seller') {
+            Get.toNamed("/SellerChatInbox");
+          } else {
+            Get.toNamed("/ProductChat", arguments: {"conversationId": convId, "role": "buyer"});
+          }
+        },
       );
     }
   }

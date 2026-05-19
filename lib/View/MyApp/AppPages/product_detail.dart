@@ -912,6 +912,39 @@ class _ProductDetailState extends State<ProductDetail> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                // Chat with Seller — opens a product-scoped 1:1 chat.
+                                MainButtonWidget(
+                                  height: 42,
+                                  width: Get.width,
+                                  borderRadius: 12,
+                                  color: AppColors.black,
+                                  border: Border.all(color: AppColors.primary, width: 1),
+                                  callback: () {
+                                    if (getStorage.read("isDemoLogin") ?? false || isDemoSeller) {
+                                      displayToast(message: St.thisIsDemoUser.tr);
+                                      return;
+                                    }
+                                    final product = userProductDetailsController.userProductDetails?.product?[0];
+                                    final pSellerId = product?.seller?.id ?? "";
+                                    final pId = product?.id ?? productId;
+                                    if (pSellerId.isEmpty || pId.isEmpty) return;
+                                    Get.toNamed("/ProductChat", arguments: {
+                                      "productId": pId,
+                                      "sellerId": pSellerId,
+                                      "buyerId": loginUserId,
+                                      "role": "buyer",
+                                    });
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.chat_bubble_outline_rounded, color: AppColors.primary, size: 18),
+                                      8.width,
+                                      Text("Chat with Seller", style: AppFontStyle.styleW700(AppColors.primary, 13)),
+                                    ],
+                                  ),
+                                ),
+                                8.height,
                                 // Make-an-offer button removed when the offer
                                 // feature was retired.
                                 _buildQuantitySelector(),

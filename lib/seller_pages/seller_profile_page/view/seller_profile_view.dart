@@ -165,6 +165,13 @@ class _SellerProfileViewState extends State<SellerProfileView> {
                 callback: () => Get.toNamed("/UploadShort"),
               ),
               15.height,
+              SellerProfileItemWidget(
+                title: 'Chat Inbox',
+                icon: AppAsset.icNotification,
+                iconSize: 22,
+                callback: () => Get.toNamed("/SellerChatInbox"),
+              ),
+              15.height,
               Text(
                 St.general.tr,
                 style: AppFontStyle.styleW500(AppColors.unselected, 14),
